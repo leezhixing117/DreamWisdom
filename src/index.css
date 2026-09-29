@@ -1,22 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #090b15;
-  --bg2: #10162a;
-  --card: rgba(13, 18, 38, 0.62);
-  --card2: rgba(20, 26, 52, 0.72);
-  --line: rgba(255, 255, 255, 0.14);
-  --text: #f6f7ff;
-  --muted: #aab3d2;
-  --accent: #aa9cff;
-  --accent2: #71d9ff;
-  --good: #78e1b5;
-  --warn: #ffd27a;
-  --danger: #ff8b9d;
-  --shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
-  --r: 24px;
-}
+  /* 主要色彩：深藍 (Deep Royal Blue)、銀白 (Silver White) 與淺灰白 (Light Grey-White) */
+  --bg: #F8FAFC;
+  --bg2: #F1F5F9;
+  --bg-gradient: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 50%, #F8FAFC 100%);
+  --card: #FFFFFF;
+  --card2: #F8FAFC;
+  --line: #E2E8F0;
+  --line-strong: #CBD5E1;
+  --text: #0F172A;
+  --text-title: #0F172A;
+  --muted: #475569;
+  --accent: #1D4ED8;
+  --accent-hover: #1E40AF;
+  --accent2: #0284C7;
+  --accent-cyan: #0284C7;
+  --good: #059669;
+  --warn: #D97706;
+  --danger: #DC2626;
+  --shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 4px -1px rgba(15, 23, 42, 0.04);
+  --r: 20px;
 
+  /* 經典字型體系 */
+  --font-brand: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-serif-tc: "Noto Serif TC", "Source Han Serif TC", "Songti TC", STSong, MingLiU, serif;
+  --font-sans: "Plus Jakarta Sans", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 
 * {
   box-sizing: border-box;
@@ -28,11 +38,40 @@ html {
 
 body {
   margin: 0;
-  background-color: #060814;
+  background-color: var(--bg);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
   color: var(--text);
-  font-family: "Plus Jakarta Sans", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", Arial, sans-serif;
+  font-family: var(--font-sans);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+}
+
+/* 經典襯線標題字型 (Brand & Calligraphic Serif) */
+.font-brand {
+  font-family: var(--font-brand);
+}
+
+.font-celestial-serif {
+  font-family: var(--font-serif-tc);
+  font-feature-settings: "palt";
+}
+
+/* 高對比藍黑標題文字特效 (極高清晰度，永不發虛) */
+.text-celestial-grad {
+  background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 65%, #1D4ED8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-celestial-blue {
+  color: #1D4ED8;
+}
+
+.star-diamond {
+  display: inline-block;
+  color: #0284C7;
 }
 
 a {
@@ -40,8 +79,36 @@ a {
   text-decoration: none;
 }
 
+/* 標題與內文高清晰度基礎規則 (徹底消除淺色背景文字模糊與不明顯) */
+h1, h2, h3, h4, h5, h6 {
+  color: #0F172A;
+  letter-spacing: -0.02em;
+  font-weight: 750;
+}
+
+p, li, td, label {
+  color: #1E293B;
+}
+
 button, input, textarea, select {
   font: inherit;
+  color: #0F172A;
+}
+
+input, textarea, select {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #64748B !important;
+  opacity: 1;
+}
+
+/* 確保任何卡片與容器內的文字不因白字殘留而隱形 */
+.card, .dreambox, .historyItem, .sidecard, .modal-card {
+  color: #1E293B;
 }
 
 .shell {
@@ -49,20 +116,20 @@ button, input, textarea, select {
   margin: auto;
 }
 
+/* 頂部導航列 (Clean Silver-White Surface with Crisp Border) */
 .nav {
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgba(9, 11, 23, 0.55);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 }
 
-
 .navin {
-  height: 72px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -73,59 +140,63 @@ button, input, textarea, select {
   align-items: center;
   gap: 12px;
   font-weight: 800;
-  font-size: 19px;
+  font-size: 20px;
   letter-spacing: -0.5px;
 }
 
 .logo {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: 12px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: #091020;
-  font-size: 18px;
-  box-shadow: 0 8px 24px rgba(105, 140, 255, 0.28);
+  background: #F1F5F9;
+  color: #1D4ED8;
+  border: 1px solid #E2E8F0;
 }
 
 .navlinks {
   display: flex;
   align-items: center;
-  gap: 22px;
-  color: var(--muted);
+  gap: 20px;
+  color: #334155;
   font-size: 14px;
 }
 
 .navlinks button, .navlinks a {
-  transition: color 0.2s;
+  transition: color 0.15s ease;
+  color: #334155;
 }
 
 .navlinks button:hover, .navlinks a:hover {
-  color: #fff;
+  color: #1D4ED8;
 }
 
 .navpill, .btn2 {
-  padding: 8px 16px;
+  padding: 8px 18px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+  background: #FFFFFF;
+  color: #1D4ED8;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   font-size: 13px;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
 }
 
 .navpill:hover, .btn2:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #1E40AF;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08);
 }
 
 .hero {
-  padding: 80px 0 52px;
+  padding: 50px 0 36px;
   text-align: center;
 }
 
@@ -133,69 +204,74 @@ button, input, textarea, select {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
+  padding: 6px 16px;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.05);
-  color: #dce0ff;
+  background: #FFFFFF;
+  color: #1D4ED8;
   font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 }
 
 .hero h1 {
-  font-size: clamp(38px, 5.5vw, 68px);
-  line-height: 1.08;
-  letter-spacing: -2px;
+  font-size: clamp(36px, 5.2vw, 64px);
+  line-height: 1.15;
+  letter-spacing: -1.5px;
   max-width: 900px;
-  margin: 22px auto 18px;
+  margin: 20px auto 16px;
   font-weight: 800;
+  color: #0F172A;
 }
 
 .grad {
-  background: linear-gradient(90deg, #ffffff 10%, #c3b9ff 55%, #83ddff 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #1D4ED8;
 }
 
 .lead {
   font-size: 17px;
   line-height: 1.6;
-  color: var(--muted);
+  color: #475569;
   max-width: 720px;
   margin: 0 auto;
 }
 
+/* 夢境輸入卡片 (Pure White Card with Crisp Slate Border) */
 .dreambox {
-  width: min(820px, 100%);
-  margin: 32px auto 0;
-  padding: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 28px;
-  background: rgba(12, 17, 34, 0.62);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  width: min(840px, 100%);
+  margin: 28px auto 0;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: #FFFFFF;
+  box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
   text-align: left;
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
 }
-
 
 .dreambox textarea {
   width: 100%;
-  min-height: 150px;
+  min-height: 120px;
   resize: vertical;
-  background: transparent;
-  border: 0;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
   outline: 0;
-  color: #fff;
+  color: #0F172A;
   padding: 16px;
   font-size: 16px;
   line-height: 1.6;
+  transition: all 0.2s ease;
+}
+
+.dreambox textarea:focus {
+  background: #FFFFFF;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .dreambox textarea::placeholder {
-  color: #727c9e;
+  color: #94A3B8;
 }
 
 .dreamfoot {
@@ -203,8 +279,7 @@ button, input, textarea, select {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 8px 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 12px 14px 4px;
 }
 
 .muted {
@@ -215,16 +290,17 @@ button, input, textarea, select {
   font-size: 12px;
 }
 
+/* 主按鈕：深藍實色高對比 (High-Contrast Solid Blue Button) */
 .btn {
   border: 0;
-  border-radius: 14px;
-  padding: 12px 22px;
-  background: linear-gradient(90deg, #b7aaff, #78dcff);
+  border-radius: 9999px;
+  padding: 12px 28px;
+  background: #1D4ED8;
   font-weight: 700;
-  color: #08101d;
+  color: #FFFFFF;
   cursor: pointer;
-  box-shadow: 0 10px 24px rgba(110, 167, 255, 0.25);
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -232,9 +308,9 @@ button, input, textarea, select {
 }
 
 .btn:hover:not(:disabled) {
-  opacity: 0.95;
+  background: #1E40AF;
   transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgba(110, 167, 255, 0.35);
+  box-shadow: 0 6px 16px rgba(29, 78, 216, 0.35);
 }
 
 .btn:disabled {
@@ -243,14 +319,16 @@ button, input, textarea, select {
 }
 
 .btn.dark {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: #FFFFFF;
+  color: #1D4ED8;
   border: 1px solid var(--line);
-  box-shadow: none;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 }
 
 .btn.dark:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.14);
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #1E40AF;
 }
 
 .trust {
@@ -258,13 +336,13 @@ button, input, textarea, select {
   justify-content: center;
   gap: 22px;
   flex-wrap: wrap;
-  color: #8e98b7;
+  color: #64748B;
   font-size: 13px;
   margin-top: 20px;
 }
 
 .section {
-  padding: 68px 0;
+  padding: 60px 0;
 }
 
 .section h2 {
@@ -273,10 +351,11 @@ button, input, textarea, select {
   letter-spacing: -1px;
   margin: 0 0 12px;
   font-weight: 750;
+  color: var(--text-title);
 }
 
 .sectionLead {
-  color: var(--muted);
+  color: #475569;
   max-width: 740px;
   margin: 0 0 28px;
   font-size: 16px;
@@ -286,34 +365,42 @@ button, input, textarea, select {
 .grid3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 20px;
 }
 
 .grid2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 20px;
 }
 
+/* 純白銀邊卡片 (Pure White Card with Crisp Silver Border) */
 .card {
   border: 1px solid var(--line);
-  background: var(--card);
+  background: #FFFFFF;
   border-radius: var(--r);
-  padding: 24px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(10px);
+  padding: 26px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: #CBD5E1;
+  box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.09), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
 }
 
 .card h3 {
   margin: 10px 0 6px;
   font-size: 19px;
   font-weight: 700;
+  color: #0F172A;
 }
 
 .card p {
-  color: var(--muted);
+  color: #334155;
   margin: 0;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .icon {
@@ -322,10 +409,11 @@ button, input, textarea, select {
 }
 
 .footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  color: #7d87a5;
+  border-top: 1px solid var(--line);
+  background: #FFFFFF;
+  color: #475569;
   font-size: 13px;
-  padding: 34px 0 44px;
+  padding: 38px 0 48px;
 }
 
 .page {
@@ -345,11 +433,12 @@ button, input, textarea, select {
 }
 
 .sidecard {
-  padding: 14px;
+  padding: 16px;
   border-radius: 22px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
+  border: 1px solid #CBD5E1;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
 }
 
 .sideitem {
@@ -358,20 +447,30 @@ button, input, textarea, select {
   align-items: center;
   padding: 12px 14px;
   border-radius: 14px;
-  color: #cbd2ef;
+  color: #0F172A;
   font-size: 14px;
   margin: 4px 0;
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
   width: 100%;
   text-align: left;
   transition: all 0.15s ease;
+  font-weight: 600;
 }
 
-.sideitem.active, .sideitem:hover {
-  background: rgba(255, 255, 255, 0.09);
-  color: #fff;
+.sideitem:hover {
+  background: #EFF6FF;
+  border-color: #BFDBFE;
+  color: #1D4ED8;
+}
+
+.sideitem.active {
+  background: #DBEAFE;
+  border-color: #93C5FD;
+  color: #1E40AF;
+  font-weight: 750;
+  box-shadow: 0 2px 6px rgba(30, 64, 175, 0.12);
 }
 
 .content h1 {
@@ -379,6 +478,7 @@ button, input, textarea, select {
   letter-spacing: -1px;
   margin: 0 0 8px;
   font-weight: 800;
+  color: var(--text-title);
 }
 
 .toprow {
@@ -393,11 +493,11 @@ button, input, textarea, select {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 10px;
+  padding: 5px 12px;
   border-radius: 999px;
-  background: rgba(120, 225, 181, 0.1);
-  border: 1px solid rgba(120, 225, 181, 0.25);
-  color: #9cf0cd;
+  background: rgba(5, 150, 105, 0.1);
+  border: 1px solid rgba(5, 150, 105, 0.25);
+  color: #047857;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -412,23 +512,25 @@ button, input, textarea, select {
 .symbolgrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
+  gap: 14px;
   margin-top: 14px;
 }
 
 .symbol {
-  padding: 16px;
+  padding: 18px;
   border: 1px solid var(--line);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 6px 18px rgba(147, 197, 253, 0.1);
 }
 
 .callout {
-  padding: 18px 20px;
+  padding: 18px 22px;
   border-radius: 18px;
-  background: rgba(170, 156, 255, 0.08);
-  border-left: 3px solid var(--accent);
+  background: rgba(224, 242, 254, 0.75);
+  border-left: 4px solid var(--accent);
   line-height: 1.6;
+  color: #1E3A8A;
 }
 
 .history {
@@ -437,41 +539,69 @@ button, input, textarea, select {
 }
 
 .historyItem {
-  padding: 20px;
+  padding: 22px;
   border: 1px solid var(--line);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.045);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 24px rgba(147, 197, 253, 0.12);
   transition: all 0.2s ease;
 }
 
 .historyItem:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: #FFFFFF;
+  border-color: #93C5FD;
+  box-shadow: 0 12px 30px rgba(147, 197, 253, 0.22);
 }
 
 .historyMeta {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  color: #8d97b5;
+  color: #5C7A9E;
   font-size: 12px;
 }
 
 .historyItem h3 {
   margin: 8px 0 6px;
   font-size: 17px;
+  color: var(--text-title);
 }
 
 .source {
-  padding: 11px 14px;
-  border-radius: 13px;
-  background: rgba(113, 217, 255, 0.07);
-  border: 1px solid rgba(113, 217, 255, 0.16);
+  padding: 11px 16px;
+  border-radius: 14px;
+  background: rgba(224, 242, 254, 0.85);
+  border: 1px solid rgba(147, 197, 253, 0.5);
   font-size: 13px;
-  color: #dcecff;
+  color: #1E40AF;
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.modalback {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modal {
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 28px;
+  border: 2px solid #CBD5E1;
+  background: #FFFFFF;
+  color: #1E293B;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  padding: 24px;
 }
 
 .loginwrap {
@@ -484,12 +614,12 @@ button, input, textarea, select {
 .loginbox {
   width: min(480px, 100%);
   text-align: center;
-  padding: 38px 30px;
+  padding: 40px 32px;
   border: 1px solid var(--line);
   border-radius: 28px;
-  background: rgba(255, 255, 255, 0.065);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 60px rgba(147, 197, 253, 0.28);
+  backdrop-filter: blur(20px);
 }
 
 .googlebtn {
@@ -499,19 +629,21 @@ button, input, textarea, select {
   justify-content: center;
   gap: 12px;
   border: 1px solid var(--line);
-  background: #ffffff;
+  background: #FFFFFF;
   color: #151821;
   border-radius: 14px;
   padding: 14px;
   font-weight: 700;
   cursor: pointer;
   margin-top: 24px;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 16px rgba(147, 197, 253, 0.18);
 }
 
 .googlebtn:hover {
-  background: #f0f2f5;
+  background: #F8FAFC;
   transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(147, 197, 253, 0.25);
 }
 
 .adminGrid {
@@ -528,48 +660,54 @@ button, input, textarea, select {
 
 .field label {
   font-size: 13px;
-  color: #c8cfea;
+  color: #2D4A73;
   display: flex;
   justify-content: space-between;
+  font-weight: 600;
 }
 
 .field input, .field textarea, .field select {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+  background: #FFFFFF;
+  color: #102A4E;
   padding: 12px 14px;
   outline: 0;
 }
 
+.field input:focus, .field textarea:focus, .field select:focus {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
 .field input[type=range] {
   padding: 0;
-  accent-color: #a99bff;
+  accent-color: #2563EB;
   height: 6px;
   border: none;
-  background: rgba(255, 255, 255, 0.12);
+  background: #BAE6FD;
   border-radius: 999px;
   cursor: pointer;
 }
 
 .filedrop {
-  border: 1px dashed rgba(255, 255, 255, 0.28);
+  border: 1px dashed rgba(147, 197, 253, 0.8);
   border-radius: 18px;
   padding: 24px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(240, 247, 255, 0.6);
   transition: all 0.2s ease;
 }
 
 .filedrop:hover {
-  border-color: rgba(170, 156, 255, 0.5);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: #3B82F6;
+  background: rgba(224, 242, 254, 0.8);
 }
 
 .progress {
   height: 8px;
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(186, 224, 255, 0.5);
   border-radius: 99px;
   overflow: hidden;
 }
@@ -577,7 +715,7 @@ button, input, textarea, select {
 .progress span {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  background: linear-gradient(90deg, #38BDF8, #2563EB);
   border-radius: 99px;
   transition: width 0.3s ease;
 }
@@ -591,32 +729,32 @@ button, input, textarea, select {
 .table th, .table td {
   text-align: left;
   padding: 13px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(186, 224, 255, 0.5);
 }
 
 .table th {
-  color: #909ab8;
+  color: #4A6B94;
   font-weight: 600;
 }
 
 .danger {
-  color: #ff9bac;
+  color: #E11D48;
 }
 
 .success {
-  color: #8ee8c2;
+  color: #059669;
 }
 
 .warn {
-  color: #ffd58a;
+  color: #D97706;
 }
 
 .loading {
   display: inline-block;
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(0, 0, 0, 0.2);
-  border-top-color: #0b1020;
+  border: 2px solid rgba(37, 99, 235, 0.2);
+  border-top-color: #2563EB;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -635,10 +773,10 @@ button, input, textarea, select {
     position: static;
   }
   .hero {
-    padding-top: 50px;
+    padding-top: 40px;
   }
   .hero h1 {
-    letter-spacing: -1.2px;
+    letter-spacing: -1px;
   }
   .toprow {
     flex-direction: column;
@@ -649,44 +787,39 @@ button, input, textarea, select {
   }
 }
 
-/* Subtle nocturnal water ripple & soft star ambient layer (Transparent, letting full cover show through) */
-.dream-water-ambient {
-  background: 
-    radial-gradient(ellipse 60% 40% at 50% 15%, rgba(113, 217, 255, 0.12), transparent 70%),
-    radial-gradient(ellipse 80% 50% at 50% 85%, rgba(170, 156, 255, 0.12), transparent 80%);
+/* 藍銀水晶氣泡特效 (Celestial Crystal Bubbles) */
+.celestial-bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.85) 0%, rgba(224, 242, 254, 0.5) 45%, rgba(147, 197, 253, 0.25) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 16px rgba(147, 197, 253, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+  pointer-events: none;
 }
 
-.dream-stars-pattern {
-  background-image: radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.35), rgba(0, 0, 0, 0)),
-                    radial-gradient(1px 1px at 75px 120px, rgba(170, 156, 255, 0.4), rgba(0, 0, 0, 0)),
-                    radial-gradient(1px 1px at 150px 60px, rgba(113, 217, 255, 0.35), rgba(0, 0, 0, 0)),
-                    radial-gradient(1.5px 1.5px at 220px 180px, rgba(255, 210, 122, 0.4), rgba(0, 0, 0, 0));
-  background-repeat: repeat;
-  background-size: 260px 240px;
-}
-
-/* Modern Chic Glass & Futuristic Dream Aesthetics */
+/* 現代水晶磨砂層 */
 .glass-modern {
-  background: rgba(13, 18, 38, 0.65);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(24px) saturate(160%);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(186, 224, 255, 0.75);
+  box-shadow: 0 16px 45px rgba(147, 197, 253, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 .glass-pill {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(186, 224, 255, 0.75);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(147, 197, 253, 0.12);
 }
 
 .glass-pill:hover {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(170, 156, 255, 0.5);
+  background: #FFFFFF;
+  border-color: #60A5FA;
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(170, 156, 255, 0.2);
+  box-shadow: 0 8px 20px rgba(96, 165, 250, 0.22);
 }
 
 .glow-ambient-orb {
@@ -698,10 +831,9 @@ button, input, textarea, select {
     transform: translate(0, 0) scale(1);
   }
   50% {
-    transform: translate(40px, -20px) scale(1.08);
+    transform: translate(30px, -15px) scale(1.06);
   }
   100% {
-    transform: translate(-30px, 25px) scale(0.95);
+    transform: translate(-25px, 20px) scale(0.96);
   }
 }
-

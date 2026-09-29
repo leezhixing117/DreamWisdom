@@ -222,7 +222,7 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
 
       ctx.fillStyle = '#aa9cff';
       ctx.font = '16px sans-serif';
-      ctx.fillText('每一個夢，都是潛意識留給你的信 · 專屬心靈宇宙連線', 50, 90);
+      ctx.fillText('每一個夢，都可以成為認識自己內在情緒的鏡子 · 專屬心靈宇宙連線', 50, 90);
 
       // Draw links on canvas
       links.forEach((l) => {
@@ -316,29 +316,31 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
 
   return (
     <div
-      className="card border-[#aa9cff]/30 bg-[#090c1a] p-5 sm:p-7 rounded-3xl relative overflow-hidden space-y-6 shadow-2xl"
+      className="card border-2 border-blue-200/80 bg-white p-5 sm:p-7 rounded-3xl relative overflow-hidden space-y-6 shadow-xl shadow-blue-900/5"
       id="dream-constellation-view"
     >
-      {/* Background Starry Galaxy */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1d1e3d]/40 via-[#090c1a] to-[#04060e] pointer-events-none" />
+      {/* Background subtle tint */}
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 via-white to-sky-50/30 pointer-events-none" />
 
       {/* Header bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 relative z-10 border-b border-white/10 pb-5">
+      <div className="flex flex-wrap items-center justify-between gap-4 relative z-10 border-b border-slate-200 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <span className="badge">DREAM CONSTELLATION™️</span>
-            <span className="text-xs text-[#71d9ff] font-mono flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#78e1b5]" />
+            <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold tracking-wider border border-blue-200">
+              DREAM CONSTELLATION™️
+            </span>
+            <span className="text-xs text-emerald-700 font-semibold flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
               星圖連線功能已全面啟用
             </span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white mt-1.5">
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 mt-1.5">
             夢境星圖 · 宇宙連線
           </h2>
-          <p className="text-xs text-[#71d9ff] font-medium mt-1">
+          <p className="text-xs text-blue-700 font-semibold mt-1">
             👉簡單講：將唔同夢境嘅人、地方、情緒連成星座網絡，睇清夢境之間嘅神秘關聯。
           </p>
-          <p className="text-xs sm:text-sm text-[#aab3d2] mt-1 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-700 font-medium mt-1 max-w-2xl leading-relaxed">
             每一顆星代表一場真實夢境。節點代表核心象徵與心靈場域，引力線串聯相同情緒與情結演變。
             點擊星辰可即時查看心理報告與轉變軌跡。
           </p>
@@ -357,8 +359,10 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
                 setConnectionNotice(null);
               }
             }}
-            className={`btn2 text-xs flex items-center gap-1.5 px-3.5 py-2 rounded-xl cursor-pointer transition-all ${
-              isConnectMode ? 'bg-[#71d9ff] text-black font-bold border-[#71d9ff]' : ''
+            className={`text-xs font-bold flex items-center gap-1.5 px-3.5 py-2 rounded-xl cursor-pointer transition-all border ${
+              isConnectMode
+                ? 'bg-blue-600 text-white font-bold border-blue-700 shadow-md'
+                : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-300 shadow-xs'
             }`}
           >
             <LinkIcon className="w-3.5 h-3.5" />
@@ -369,10 +373,10 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
           <button
             type="button"
             onClick={handleAutoConnect}
-            className="btn2 text-xs flex items-center gap-1.5 px-3 py-2 rounded-xl cursor-pointer"
+            className="text-xs font-bold flex items-center gap-1.5 px-3.5 py-2 rounded-xl cursor-pointer bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 shadow-xs transition-all"
             title="自動掃描相同情緒與象徵並建立引力連線"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#ffd27a]" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
             <span>智能連線</span>
           </button>
 
@@ -380,10 +384,10 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
           <button
             type="button"
             onClick={handleRelayout}
-            className="btn2 text-xs flex items-center gap-1.5 px-3 py-2 rounded-xl cursor-pointer"
+            className="text-xs font-bold flex items-center gap-1.5 px-3.5 py-2 rounded-xl cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 shadow-xs transition-all"
             title="重新微調星辰宇宙軌道"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-[#78e1b5]" />
+            <RotateCcw className="w-3.5 h-3.5 text-slate-700" />
             <span>重新排列</span>
           </button>
 
@@ -392,7 +396,7 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
             type="button"
             onClick={handleExportConstellationImage}
             disabled={isExporting}
-            className="btn text-xs flex items-center gap-1.5 px-3.5 py-2 rounded-xl cursor-pointer"
+            className="text-xs font-bold flex items-center gap-1.5 px-3.5 py-2 rounded-xl cursor-pointer bg-blue-700 hover:bg-blue-800 text-white shadow-md shadow-blue-700/20 transition-all disabled:opacity-50"
           >
             <Download className="w-3.5 h-3.5" />
             <span>{isExporting ? '生成高解析度中...' : '匯出星圖 PNG'}</span>
@@ -402,15 +406,15 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
 
       {/* System Notice Banner (if any) */}
       {connectionNotice && (
-        <div className="relative z-10 p-3 rounded-2xl bg-[#71d9ff]/15 border border-[#71d9ff]/40 text-xs text-[#71d9ff] flex items-center justify-between animate-fadeIn">
+        <div className="relative z-10 p-3.5 rounded-2xl bg-blue-50 border-2 border-blue-300 text-xs text-blue-950 font-medium flex items-center justify-between animate-fadeIn shadow-xs">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 shrink-0 text-[#71d9ff]" />
+            <Sparkles className="w-4 h-4 shrink-0 text-blue-600" />
             <span>{connectionNotice}</span>
           </div>
           <button
             type="button"
             onClick={() => setConnectionNotice(null)}
-            className="text-[#71d9ff] hover:text-white px-2 cursor-pointer font-bold"
+            className="text-slate-600 hover:text-slate-900 px-2 cursor-pointer font-bold"
           >
             ✕
           </button>
@@ -419,12 +423,12 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
 
       {/* State Change Transformation Trajectory Cards */}
       <div className="relative z-10 space-y-2">
-        <div className="flex items-center justify-between text-xs text-[#8d97b5]">
-          <span className="flex items-center gap-1.5 text-white font-medium">
-            <Compass className="w-3.5 h-3.5 text-[#78e1b5]" />
+        <div className="flex items-center justify-between text-xs text-slate-700">
+          <span className="flex items-center gap-1.5 text-slate-900 font-bold">
+            <Compass className="w-3.5 h-3.5 text-blue-700" />
             心境演化軌跡聚焦 (State-Change Trajectories)：
           </span>
-          <span>點擊快速高亮對應星辰群</span>
+          <span className="font-medium text-slate-500">點擊快速高亮對應星辰群</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           {stateTransformations.map((st, i) => (
@@ -438,15 +442,15 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
                 );
                 if (match) setSelectedNodeId(match.id);
               }}
-              className={`p-3 rounded-2xl border text-left transition-all cursor-pointer hover:scale-[1.01] ${st.color} ${
-                activeSymbolFilter === st.keyword ? 'ring-2 ring-white/50' : ''
+              className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer hover:scale-[1.01] ${
+                activeSymbolFilter === st.keyword ? 'ring-2 ring-blue-500 shadow-md bg-white border-blue-400' : 'bg-slate-50/90 border-slate-200 hover:bg-white'
               }`}
             >
-              <div className="flex items-center justify-between text-xs font-bold mb-1">
+              <div className="flex items-center justify-between text-xs font-bold mb-1 text-slate-900">
                 <span>{st.symbol}</span>
-                <span className="text-[10px] opacity-80">點擊聚焦</span>
+                <span className="text-[10px] text-blue-700 font-bold">點擊聚焦</span>
               </div>
-              <div className="text-[11px] leading-relaxed opacity-95">{st.trajectory}</div>
+              <div className="text-[11px] leading-relaxed text-slate-700 font-medium">{st.trajectory}</div>
             </button>
           ))}
         </div>
@@ -454,17 +458,17 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
 
       {/* Symbol Filter Pills */}
       <div className="flex flex-wrap items-center gap-1.5 relative z-10 pt-1">
-        <span className="text-xs text-[#8d97b5] mr-1 flex items-center gap-1">
-          <Search className="w-3 h-3 text-[#aa9cff]" />
+        <span className="text-xs text-slate-700 font-bold mr-1 flex items-center gap-1">
+          <Search className="w-3.5 h-3.5 text-blue-700" />
           象徵快速篩選：
         </span>
         <button
           type="button"
           onClick={() => setActiveSymbolFilter('')}
-          className={`text-xs px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
+          className={`text-xs px-3 py-1.5 rounded-full border transition-all cursor-pointer font-bold ${
             !activeSymbolFilter
-              ? 'bg-[#aa9cff] text-white border-[#aa9cff] shadow-md shadow-[#aa9cff]/20 font-medium'
-              : 'bg-white/5 border-white/10 text-[#aab3d2] hover:bg-white/10 hover:text-white'
+              ? 'bg-blue-700 text-white border-blue-700 shadow-sm'
+              : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
           }`}
         >
           全部星辰 ({nodes.length})
@@ -484,10 +488,10 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
                 const matched = nodes.find((n) => n.primarySymbol.includes(sym));
                 if (matched) setSelectedNodeId(matched.id);
               }}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
+              className={`text-xs px-3 py-1.5 rounded-full border transition-all cursor-pointer font-semibold ${
                 isActive
-                  ? 'bg-[#71d9ff] text-[#090c1a] font-bold border-[#71d9ff] shadow-md shadow-[#71d9ff]/30'
-                  : 'bg-white/5 border-white/10 text-[#cbd2ef] hover:bg-white/10 hover:text-white'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                  : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
               }`}
             >
               {sym} ({count})
@@ -498,20 +502,20 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
 
       {/* Interactive Cosmos Canvas and Evolution Panel */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
-        {/* SVG Constellation Map (8 Cols) */}
-        <div className="lg:col-span-8 bg-black/50 border border-white/10 rounded-2xl p-4 sm:p-5 relative min-h-[460px] flex flex-col justify-between overflow-hidden shadow-inner">
+        {/* SVG Constellation Map (8 Cols) - Observatory Viewport */}
+        <div className="lg:col-span-8 bg-[#090D1F] border-2 border-slate-300 rounded-2xl p-4 sm:p-5 relative min-h-[460px] flex flex-col justify-between overflow-hidden shadow-lg">
           {/* Link Type Legend */}
-          <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] text-[#8d97b5] border-b border-white/10 pb-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-300 border-b border-white/15 pb-3">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-white font-medium">連線引力法則：</span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-3 h-0.5 bg-[#71d9ff] rounded" /> 同一象徵
+              <span className="text-white font-bold">連線引力法則：</span>
+              <span className="flex items-center gap-1.5 text-slate-200">
+                <span className="w-3 h-1 bg-[#38BDF8] rounded-full shadow-[0_0_8px_#38bdf8]" /> 同一象徵
               </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-3 h-0.5 bg-[#ffd27a] rounded" /> 同一情緒波長
+              <span className="flex items-center gap-1.5 text-slate-200">
+                <span className="w-3 h-1 bg-[#FBBF24] rounded-full shadow-[0_0_8px_#fbbf24]" /> 同一情緒波長
               </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-3 h-0.5 bg-[#aa9cff] rounded" /> 場域／人物呼應
+              <span className="flex items-center gap-1.5 text-slate-200">
+                <span className="w-3 h-1 bg-[#A78BFA] rounded-full shadow-[0_0_8px_#a78bfa]" /> 場域／人物呼應
               </span>
             </div>
 
@@ -520,7 +524,7 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
               <button
                 type="button"
                 onClick={onRecordNewDream}
-                className="text-[11px] text-[#78e1b5] hover:underline inline-flex items-center gap-1 cursor-pointer font-medium"
+                className="text-[11px] text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1 cursor-pointer font-bold underline"
               >
                 <Plus className="w-3 h-3" />
                 記錄新夢以點亮新星辰
@@ -696,12 +700,12 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
           </div>
 
           {/* Bottom Bar Info */}
-          <div className="flex flex-wrap items-center justify-between text-xs text-[#8d97b5] pt-3 border-t border-white/10 gap-2">
-            <span className="flex items-center gap-1.5">
-              <Info className="w-3.5 h-3.5 text-[#71d9ff]" />
+          <div className="flex flex-wrap items-center justify-between text-xs text-slate-300 pt-3 border-t border-white/15 gap-2">
+            <span className="flex items-center gap-1.5 text-slate-200 font-medium">
+              <Info className="w-3.5 h-3.5 text-sky-400" />
               點擊任一顆星辰，右側將展開深度心理報告與演化軌跡
             </span>
-            <span className="font-mono text-[#78e1b5]">
+            <span className="font-mono text-emerald-400 font-bold">
               {nodes.length} 顆星辰已入軌 · {links.length} 條深層引力連線
             </span>
           </div>
@@ -711,38 +715,38 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
         <div className="lg:col-span-4 space-y-4">
           {/* Active Selected Node Card */}
           {activeNode ? (
-            <div className="p-5 rounded-2xl bg-gradient-to-b from-[#141b38] to-[#0c1022] border border-[#71d9ff]/40 shadow-xl space-y-3.5">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <div className="p-5 rounded-2xl bg-white border-2 border-blue-300 shadow-lg space-y-3.5">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div>
-                  <span className="text-[10px] text-[#71d9ff] font-semibold uppercase tracking-wider block">
+                  <span className="text-[10px] text-blue-700 font-bold uppercase tracking-wider block">
                     選取星辰
                   </span>
-                  <h4 className="text-base font-bold text-white mt-0.5">{activeNode.title}</h4>
+                  <h4 className="text-base font-bold text-slate-900 mt-0.5">{activeNode.title}</h4>
                 </div>
-                <span className="text-xs text-[#8d97b5] font-mono px-2 py-0.5 rounded bg-white/5">
+                <span className="text-xs text-slate-600 font-mono font-bold px-2 py-0.5 rounded bg-slate-100 border border-slate-200">
                   {activeNode.date}
                 </span>
               </div>
 
               {/* Symbol & Emotion Badges */}
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5">
-                  <span className="text-[10px] text-[#8d97b5] block">核心象徵</span>
-                  <span className="text-white font-bold">{activeNode.primarySymbol}</span>
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 font-semibold block">核心象徵</span>
+                  <span className="text-slate-900 font-bold">{activeNode.primarySymbol}</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5">
-                  <span className="text-[10px] text-[#8d97b5] block">主情緒</span>
-                  <span className="text-[#ffd27a] font-bold">{activeNode.emotion}</span>
+                <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200">
+                  <span className="text-[10px] text-amber-800 font-semibold block">主情緒</span>
+                  <span className="text-amber-900 font-bold">{activeNode.emotion}</span>
                 </div>
               </div>
 
               {/* Gravity Links of this node */}
               <div className="text-xs space-y-1.5 pt-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-[#8d97b5] uppercase font-semibold block">
+                  <span className="text-[10px] text-slate-600 uppercase font-bold block">
                     引力連線 ({activeLinks.length})
                   </span>
-                  <span className="text-[10px] text-[#78e1b5]">心靈共鳴</span>
+                  <span className="text-[10px] text-emerald-700 font-bold">心靈共鳴</span>
                 </div>
 
                 {activeLinks.length > 0 ? (
@@ -750,15 +754,15 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
                     {activeLinks.map((l, i) => (
                       <div
                         key={i}
-                        className="text-[11px] text-[#cbd2ef] bg-white/[0.03] p-2 rounded-xl border border-white/5 flex items-start gap-1.5"
+                        className="text-[11px] text-slate-800 bg-slate-50 p-2 rounded-xl border border-slate-200 flex items-start gap-1.5 font-medium"
                       >
-                        <span className="text-[#71d9ff] mt-0.5">•</span>
+                        <span className="text-blue-600 mt-0.5 font-bold">•</span>
                         <span>{l.relationLabel}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-xs text-[#8d97b5] p-2.5 bg-white/[0.02] rounded-xl border border-white/5">
+                  <div className="text-xs text-slate-600 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
                     這顆星辰暫無自動連線，可點擊上方「⚡ 自由連結兩顆星」手動連接！
                   </div>
                 )}
@@ -769,46 +773,48 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onOpenReportDetail(activeDream)}
-                  className="btn w-full text-xs py-2.5 flex items-center justify-center gap-1.5 mt-2 cursor-pointer shadow-md"
+                  className="w-full text-xs font-bold py-2.5 flex items-center justify-center gap-1.5 mt-2 cursor-pointer bg-blue-700 hover:bg-blue-800 text-white rounded-xl shadow-md shadow-blue-700/20 transition-all"
                 >
                   <span>查看這場夢的 4 層完整報告</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </button>
               ) : (
                 <div className="text-center pt-2">
-                  <span className="text-[11px] text-[#8d97b5]">此星辰為經典原型錨點示範星</span>
+                  <span className="text-[11px] text-slate-500 font-medium">此星辰為經典原型錨點示範星</span>
                 </div>
               )}
             </div>
           ) : (
-            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 text-center text-xs text-[#8d97b5]">
+            <div className="p-6 rounded-2xl bg-white border-2 border-slate-200 text-center text-xs text-slate-600 font-medium shadow-xs">
               點擊左側星圖中的任一顆星辰以展開解析
             </div>
           )}
 
           {/* THE WATER ROLE CHANGING EVOLUTION CASE STUDY */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#0f1429] border border-white/10 space-y-3">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white border-2 border-indigo-200 shadow-md space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-[#aa9cff] uppercase tracking-wider flex items-center gap-1.5">
-                <Compass className="w-3.5 h-3.5" />
+              <span className="text-[11px] font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
+                <Compass className="w-3.5 h-3.5 text-indigo-600" />
                 象徵演變觀察
               </span>
-              <span className="text-[10px] text-[#78e1b5] font-mono">潛意識成長</span>
+              <span className="text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
+                潛意識成長
+              </span>
             </div>
 
-            <h4 className="text-sm font-bold text-white">「水」的角色正在改變</h4>
-            <p className="text-xs text-[#aab3d2] leading-relaxed">
+            <h4 className="text-sm font-bold text-slate-900">「水」的角色正在改變</h4>
+            <p className="text-xs text-slate-700 font-medium leading-relaxed">
               回顧星圖連線：水從暴漲的洪水、涉水渡海的試煉，漸漸變為岸邊的晨浪。這反映出你的自我防衛機制度已逐步轉化為接納與放鬆。
             </p>
 
-            <div className="space-y-1.5 border-l-2 border-[#71d9ff]/30 pl-2.5 text-[11px]">
+            <div className="space-y-1.5 border-l-2 border-blue-400 pl-2.5 text-[11px]">
               <div>
-                <span className="font-semibold text-white">前期：</span>
-                <span className="text-[#ffd27a]"> 洪水翻滾衝擊（焦慮與未解壓抑）</span>
+                <span className="font-bold text-slate-900">前期：</span>
+                <span className="text-amber-800 font-medium"> 洪水翻滾衝擊（焦慮與未解壓抑）</span>
               </div>
               <div>
-                <span className="font-semibold text-white">後期：</span>
-                <span className="text-[#78e1b5]"> 風平浪靜靜立岸邊（自性整合接納）</span>
+                <span className="font-bold text-slate-900">後期：</span>
+                <span className="text-emerald-800 font-semibold"> 風平浪靜靜立岸邊（自性整合接納）</span>
               </div>
             </div>
 
@@ -817,9 +823,9 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
                 <button
                   type="button"
                   onClick={onRecordNewDream}
-                  className="btn2 w-full text-xs py-2 flex items-center justify-center gap-1.5 rounded-xl cursor-pointer"
+                  className="w-full text-xs font-bold py-2.5 flex items-center justify-center gap-1.5 rounded-xl cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 shadow-xs transition-all"
                 >
-                  <Plus className="w-3.5 h-3.5 text-[#78e1b5]" />
+                  <Plus className="w-3.5 h-3.5 text-emerald-700" />
                   <span>記錄今晨夢境加入星圖</span>
                 </button>
               )}

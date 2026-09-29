@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ProductItem, User, PurchaseOrder, normalizeRole, ProductAvailabilityStatus } from '../types';
+import { trackShopVisitEvent } from '../utils/auditLogger';
 import {
   Sparkles,
   ShoppingBag,
@@ -81,6 +82,21 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
   const [showOrderHistory, setShowOrderHistory] = useState(false);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const [submissionFeedback, setSubmissionFeedback] = useState<string | null>(null);
+
+  // Track Curated Shop visit event for Super Admin audit analytics
+  useEffect(() => {
+    try {
+      const targetProd = recommendedProductId ? products.find((p) => p.id === recommendedProductId) : undefined;
+      const entrySource = recommendedProductId ? 'workspace_recommend' : 'nav_bar';
+      trackShopVisitEvent(currentUser, entrySource, {
+        targetProductId: targetProd?.id || recommendedProductId,
+        targetProductName: targetProd?.name,
+        dreamContextSnippet: currentDreamSummary ? currentDreamSummary.slice(0, 120) : undefined,
+      });
+    } catch (err) {
+      console.warn('Failed to track shop visit', err);
+    }
+  }, [recommendedProductId]);
 
   // Admin & Super Admin Management State
   const [productToEdit, setProductToEdit] = useState<ProductItem | null>(null);
@@ -1246,29 +1262,29 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
       {/* Product Detail Modal */}
       {activeDetailProduct && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto cursor-pointer"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-md overflow-y-auto cursor-pointer"
           onClick={(e) => {
             if (e.target === e.currentTarget) setActiveDetailProduct(null);
           }}
         >
           <div
-            className="w-full max-w-2xl bg-[#0f1422] border border-white/20 rounded-3xl p-5 sm:p-8 space-y-5 my-8 relative cursor-default shadow-2xl"
+            className="w-full max-w-2xl bg-white border-2 border-slate-200 rounded-3xl p-5 sm:p-8 space-y-5 my-8 relative cursor-default shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Highly visible top-right close button */}
             <button
               type="button"
               onClick={() => setActiveDetailProduct(null)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center gap-1.5 text-xs font-bold transition-all z-30 cursor-pointer shadow-lg border border-white/20"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 flex items-center gap-1.5 text-xs font-bold transition-all z-30 cursor-pointer shadow-sm border border-slate-300"
               aria-label="關閉"
               title="關閉返回選物店 (ESC)"
             >
-              <X className="w-4 h-4 text-emerald-400" />
+              <X className="w-4 h-4 text-emerald-600" />
               <span>關閉</span>
             </button>
 
             <div className="flex flex-col sm:flex-row gap-6">
-              <div className="sm:w-1/2 aspect-square rounded-2xl overflow-hidden bg-black/50 border border-white/10">
+              <div className="sm:w-1/2 aspect-square rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-inner">
                 <img
                   src={activeDetailProduct.imageUrl}
                   alt={activeDetailProduct.name}
@@ -1278,33 +1294,33 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
               </div>
 
               <div className="sm:w-1/2 space-y-3">
-                <span className="badge bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-[10px]">
+                <span className="badge bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-[10px] shadow-xs">
                   {activeDetailProduct.categoryLabel}
                 </span>
-                <h2 className="text-xl font-bold text-white leading-snug">
+                <h2 className="text-xl font-bold text-slate-900 leading-snug">
                   {activeDetailProduct.name}
                 </h2>
-                <div className="text-xs text-emerald-300">
+                <div className="text-xs text-emerald-700 font-medium">
                   {activeDetailProduct.subTitle}
                 </div>
 
                 <div className="flex items-baseline gap-2 pt-1">
-                  <span className="text-2xl font-black text-white">
+                  <span className="text-2xl font-black text-slate-900">
                     HK${activeDetailProduct.priceHKD}
                   </span>
                   {activeDetailProduct.originalPriceHKD && (
-                    <span className="text-sm text-[#8d97b5] line-through">
+                    <span className="text-sm text-slate-400 line-through">
                       HK${activeDetailProduct.originalPriceHKD}
                     </span>
                   )}
-                  <span className="text-xs text-amber-300 font-mono">
+                  <span className="text-xs text-amber-800 font-mono font-bold">
                     (規格: {activeDetailProduct.volumeOrSpec})
                   </span>
                 </div>
 
-                <div className="text-xs text-[#cbd2ef] space-y-1 pt-1 border-t border-white/10">
-                  <div><b>品牌：</b>{activeDetailProduct.brand}</div>
-                  <div><b>保質期：</b>{activeDetailProduct.shelfLife}</div>
+                <div className="text-xs text-slate-700 space-y-1 pt-1 border-t border-slate-200">
+                  <div><b>品牌：</b><span className="text-slate-800">{activeDetailProduct.brand}</span></div>
+                  <div><b>保質期：</b><span className="text-slate-800">{activeDetailProduct.shelfLife}</span></div>
                 </div>
 
                 {/* Dedicated Availability Status in Modal */}
@@ -1316,13 +1332,13 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                     <div className="space-y-3 pt-1">
                       <div>
                         {isModalAvailable ? (
-                          <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/35 text-emerald-300 text-xs font-bold shadow-sm">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                          <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold shadow-xs">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                             <span>【現貨供應】確認訂單後 24 小時內安排順豐速運寄出</span>
                           </div>
                         ) : (
-                          <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-2xl bg-white/[0.04] border border-white/10 text-white/50 text-xs font-normal">
-                            <span className="w-1.5 h-1.5 rounded-full bg-white/30 shrink-0 mt-1" />
+                          <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-600 text-xs font-normal">
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0 mt-1" />
                             <span className="leading-relaxed">【狀態標示】{modalStatus}</span>
                           </div>
                         )}
@@ -1336,7 +1352,7 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                             setActiveDetailProduct(null);
                             handleStartCheckout(prod);
                           }}
-                          className="w-full py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition-all cursor-pointer"
+                          className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-700/20 transition-all cursor-pointer"
                         >
                           <ShoppingBag className="w-4 h-4" />
                           以 HK${activeDetailProduct.priceHKD} 選購
@@ -1349,7 +1365,7 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                             setActiveDetailProduct(null);
                             handleNonStockAction(prod, modalStatus);
                           }}
-                          className="w-full py-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white/65 hover:text-white font-medium text-sm flex items-center justify-center gap-2 border border-white/15 transition-all cursor-pointer"
+                          className="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm flex items-center justify-center gap-2 border border-slate-300 transition-all cursor-pointer"
                         >
                           <span>{getStatusButtonLabel(modalStatus)}</span>
                         </button>
@@ -1360,16 +1376,16 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
 
                 {/* Admin, Senior Admin & Submitter Management Controls */}
                 {canUserEditProduct(activeDetailProduct, currentUser) && (
-                  <div className="pt-2 mt-1 border-t border-white/10 flex items-center gap-2">
+                  <div className="pt-2 mt-1 border-t border-slate-200 flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => {
                         const prod = activeDetailProduct;
                         setProductToEdit(prod);
                       }}
-                      className="flex-1 py-2 px-3 rounded-xl bg-white/10 hover:bg-emerald-500/20 text-white hover:text-emerald-300 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border border-white/15 transition-all"
+                      className="flex-1 py-2 px-3 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border border-slate-300 transition-all"
                     >
-                      <Edit3 className="w-3.5 h-3.5 text-emerald-400" />
+                      <Edit3 className="w-3.5 h-3.5 text-emerald-600" />
                       <span>更改專屬狀態及產品詳情</span>
                     </button>
                     {(isAdminOrSuperAdmin || isProductSubmitter(activeDetailProduct, currentUser)) && (
@@ -1379,9 +1395,9 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                           const prod = activeDetailProduct;
                           setProductToDelete(prod);
                         }}
-                        className="py-2 px-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                        className="py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3.5 h-3.5 text-rose-600" />
                         <span>刪除商品</span>
                       </button>
                     )}
@@ -1392,22 +1408,22 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
 
             {/* Scent notes & Key benefits */}
             {activeDetailProduct.scentNotes && (
-              <div className="p-4 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 space-y-2">
-                <h4 className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-2">
+                <h4 className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
                   🌿 天然植萃香氛金字塔調配
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                  <div className="p-2 rounded-xl bg-black/40">
-                    <span className="text-[10px] text-amber-400 block font-mono">TOP 前調</span>
-                    <span className="text-white">{activeDetailProduct.scentNotes.top}</span>
+                  <div className="p-2.5 rounded-xl bg-white border border-emerald-200/60 shadow-xs">
+                    <span className="text-[10px] text-amber-800 block font-mono font-bold">TOP 前調</span>
+                    <span className="text-slate-800 font-medium">{activeDetailProduct.scentNotes.top}</span>
                   </div>
-                  <div className="p-2 rounded-xl bg-black/40">
-                    <span className="text-[10px] text-amber-400 block font-mono">HEART 中調</span>
-                    <span className="text-white">{activeDetailProduct.scentNotes.middle}</span>
+                  <div className="p-2.5 rounded-xl bg-white border border-emerald-200/60 shadow-xs">
+                    <span className="text-[10px] text-amber-800 block font-mono font-bold">HEART 中調</span>
+                    <span className="text-slate-800 font-medium">{activeDetailProduct.scentNotes.middle}</span>
                   </div>
-                  <div className="p-2 rounded-xl bg-black/40">
-                    <span className="text-[10px] text-amber-400 block font-mono">BASE 後調</span>
-                    <span className="text-white">{activeDetailProduct.scentNotes.base}</span>
+                  <div className="p-2.5 rounded-xl bg-white border border-emerald-200/60 shadow-xs">
+                    <span className="text-[10px] text-amber-800 block font-mono font-bold">BASE 後調</span>
+                    <span className="text-slate-800 font-medium">{activeDetailProduct.scentNotes.base}</span>
                   </div>
                 </div>
               </div>
@@ -1415,13 +1431,13 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
 
             {/* Benefits & Medical / Folk Background */}
             <div className="space-y-2">
-              <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+              <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                 ✨ 功效與成份認證
               </h4>
-              <ul className="space-y-1.5 text-xs text-[#cbd2ef]">
+              <ul className="space-y-1.5 text-xs text-slate-700">
                 {activeDetailProduct.keyBenefits.map((b, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                    <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                     <span>{b}</span>
                   </li>
                 ))}
@@ -1430,14 +1446,14 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
 
             {/* Suitable Dreams */}
             <div className="space-y-2">
-              <h4 className="text-xs font-bold text-[#71d9ff] flex items-center gap-1.5">
+              <h4 className="text-xs font-bold text-sky-900 flex items-center gap-1.5">
                 💭 特別適合以下夢境體驗：
               </h4>
               <div className="flex flex-wrap gap-1.5">
                 {activeDetailProduct.suitableDreams.map((sd, i) => (
                   <span
                     key={i}
-                    className="text-xs px-2.5 py-1 rounded-xl bg-white/5 border border-white/10 text-white"
+                    className="text-xs px-2.5 py-1 rounded-xl bg-sky-50 border border-sky-200 text-sky-800 font-medium"
                   >
                     • {sd}
                   </span>
@@ -1446,14 +1462,14 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
             </div>
 
             {/* Usage guide and Cautions */}
-            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 text-xs space-y-2">
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2">
               <div>
-                <b className="text-white">使用指南：</b>
-                <p className="text-[#aab3d2] mt-0.5">{activeDetailProduct.usageGuide}</p>
+                <b className="text-slate-900">使用指南：</b>
+                <p className="text-slate-700 mt-0.5 leading-relaxed">{activeDetailProduct.usageGuide}</p>
               </div>
-              <div className="pt-2 border-t border-white/5">
-                <b className="text-amber-300">注意事項：</b>
-                <div className="text-[11px] text-[#8d97b5] space-y-0.5 mt-0.5">
+              <div className="pt-2 border-t border-slate-200">
+                <b className="text-amber-800">注意事項：</b>
+                <div className="text-[11px] text-slate-600 space-y-0.5 mt-0.5">
                   {activeDetailProduct.cautions.map((c, i) => (
                     <div key={i}>{c}</div>
                   ))}
@@ -1462,18 +1478,18 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
             </div>
 
             {/* Modal Bottom Action Bar */}
-            <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+            <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => setActiveDetailProduct(null)}
-                className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs font-bold flex items-center gap-2 transition-all cursor-pointer border border-white/15"
+                className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 text-xs font-bold flex items-center gap-2 transition-all cursor-pointer border border-slate-300"
               >
-                <X className="w-4 h-4 text-emerald-400" />
+                <X className="w-4 h-4 text-emerald-600" />
                 <span>返回選物店</span>
               </button>
 
-              <div className="text-[11px] text-[#8d97b5]">
-                按鍵盤 <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white font-mono text-[10px]">ESC</kbd> 或點擊空白處亦可退出
+              <div className="text-[11px] text-slate-600">
+                按鍵盤 <kbd className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-800 font-mono text-[10px] border border-slate-300">ESC</kbd> 或點擊空白處亦可退出
               </div>
             </div>
           </div>
@@ -1481,53 +1497,54 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
       )}
 
       {/* Checkout Modal */}
+      {/* Checkout Modal */}
       {checkoutProduct && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto cursor-pointer"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-md overflow-y-auto cursor-pointer"
           onClick={(e) => {
             if (e.target === e.currentTarget) setCheckoutProduct(null);
           }}
         >
           <div
-            className="w-full max-w-lg bg-[#0f1422] border border-emerald-500/30 rounded-3xl p-5 sm:p-8 space-y-5 my-8 relative cursor-default shadow-2xl"
+            className="w-full max-w-lg bg-white border-2 border-slate-200 rounded-3xl p-5 sm:p-8 space-y-5 my-8 relative cursor-default shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               onClick={() => setCheckoutProduct(null)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center gap-1.5 text-xs font-bold transition-all z-30 cursor-pointer shadow-lg border border-white/15"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 flex items-center gap-1.5 text-xs font-bold transition-all z-30 cursor-pointer shadow-sm border border-slate-300"
               aria-label="關閉"
               title="關閉 (ESC)"
             >
-              <X className="w-4 h-4 text-emerald-400" />
+              <X className="w-4 h-4 text-emerald-600" />
               <span>關閉</span>
             </button>
 
             {!orderSuccess ? (
               <form onSubmit={handleConfirmOrder} className="space-y-4">
                 <div>
-                  <span className="badge bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-[10px]">
+                  <span className="badge bg-emerald-50 text-emerald-800 border border-emerald-300 text-[10px] font-bold shadow-xs">
                     FAST CHECKOUT · 香港直送 / 順豐自取
                   </span>
-                  <h3 className="text-xl font-bold text-white mt-1">選購確認</h3>
+                  <h3 className="text-xl font-bold text-slate-900 mt-1">選購確認</h3>
                 </div>
 
                 {/* Selected Item Recap */}
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center gap-3">
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-3">
                   <img
                     src={checkoutProduct.imageUrl}
                     alt={checkoutProduct.name}
                     referrerPolicy="no-referrer"
-                    className="w-14 h-14 rounded-xl object-cover bg-black/40"
+                    className="w-14 h-14 rounded-xl object-cover bg-slate-100 border border-slate-200"
                   />
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-xs font-bold text-white truncate">
+                    <h4 className="text-xs font-bold text-slate-900 truncate">
                       {checkoutProduct.name}
                     </h4>
-                    <div className="text-[11px] text-[#8d97b5]">
+                    <div className="text-[11px] text-slate-600">
                       規格：{checkoutProduct.volumeOrSpec}
                     </div>
-                    <div className="text-sm font-black text-emerald-400 mt-0.5">
+                    <div className="text-sm font-black text-emerald-700 mt-0.5">
                       HK${checkoutProduct.priceHKD}
                     </div>
                   </div>
@@ -1535,24 +1552,24 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
 
                 {/* Stars Discount Option */}
                 {checkoutProduct.starsRedeemCost && (
-                  <div className="p-3.5 rounded-2xl bg-amber-950/20 border border-amber-500/30 text-xs flex items-center justify-between gap-3">
+                  <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-xs flex items-center justify-between gap-3 shadow-xs">
                     <div className="space-y-0.5">
-                      <span className="text-amber-300 font-bold flex items-center gap-1">
-                        <Star className="w-3.5 h-3.5 fill-amber-300" />
+                      <span className="text-amber-900 font-bold flex items-center gap-1">
+                        <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                         使用星星幣折抵 $20
                       </span>
-                      <span className="text-[11px] text-[#cbd2ef] block">
+                      <span className="text-[11px] text-slate-700 block">
                         目前持有: {currentUser?.stars ?? 0} 顆 (需 {checkoutProduct.starsRedeemCost} 顆)
                       </span>
                     </div>
 
                     {(currentUser?.stars ?? 0) >= checkoutProduct.starsRedeemCost ? (
-                      <label className="flex items-center gap-2 cursor-pointer text-xs text-white">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-800 font-bold">
                         <input
                           type="checkbox"
                           checked={useStarsDiscount}
                           onChange={(e) => setUseStarsDiscount(e.target.checked)}
-                          className="rounded text-emerald-500 focus:ring-emerald-500"
+                          className="rounded text-emerald-600 focus:ring-emerald-500"
                         />
                         <span>使用折抵</span>
                       </label>
@@ -1560,7 +1577,7 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                       <button
                         type="button"
                         onClick={onOpenEarnStars}
-                        className="text-[11px] text-amber-300 underline font-medium"
+                        className="text-[11px] text-amber-800 underline font-bold cursor-pointer"
                       >
                         睇片賺星 →
                       </button>
@@ -1572,39 +1589,39 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                 <div className="space-y-3 pt-1">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="text-xs text-[#cbd2ef] block mb-1">收件人姓名 *</label>
+                      <label className="text-xs text-slate-800 font-bold block mb-1">收件人姓名 *</label>
                       <input
                         type="text"
                         required
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
                         placeholder="例如：Chan Tai Man"
-                        className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                        className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-[#cbd2ef] block mb-1">香港聯絡電話 (WhatsApp) *</label>
+                      <label className="text-xs text-slate-800 font-bold block mb-1">香港聯絡電話 (WhatsApp) *</label>
                       <input
                         type="tel"
                         required
                         value={customerPhone}
                         onChange={(e) => setCustomerPhone(e.target.value)}
                         placeholder="例如：91234567"
-                        className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                        className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-xs text-[#cbd2ef] block mb-1">取件方式</label>
+                    <label className="text-xs text-slate-800 font-bold block mb-1">取件方式</label>
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
                         onClick={() => setDeliveryMethod('sf_express')}
                         className={`p-2.5 rounded-xl border text-xs text-left cursor-pointer transition-all ${
                           deliveryMethod === 'sf_express'
-                            ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold'
-                            : 'bg-white/5 border-white/10 text-[#aab3d2]'
+                            ? 'bg-emerald-50 border-emerald-500 text-emerald-900 font-bold shadow-xs'
+                            : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                         }`}
                       >
                         📦 順豐速運 / 智能櫃
@@ -1614,8 +1631,8 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                         onClick={() => setDeliveryMethod('store_pickup')}
                         className={`p-2.5 rounded-xl border text-xs text-left cursor-pointer transition-all ${
                           deliveryMethod === 'store_pickup'
-                            ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold'
-                            : 'bg-white/5 border-white/10 text-[#aab3d2]'
+                            ? 'bg-emerald-50 border-emerald-500 text-emerald-900 font-bold shadow-xs'
+                            : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                         }`}
                       >
                         🏪 旺角 / 銅鑼灣自取
@@ -1625,28 +1642,28 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
 
                   {deliveryMethod === 'sf_express' && (
                     <div>
-                      <label className="text-xs text-[#cbd2ef] block mb-1">順豐點碼 / 工商住宅地址 *</label>
+                      <label className="text-xs text-slate-800 font-bold block mb-1">順豐點碼 / 工商住宅地址 *</label>
                       <input
                         type="text"
                         required
                         value={deliveryAddress}
                         onChange={(e) => setDeliveryAddress(e.target.value)}
                         placeholder="例如：順豐智能櫃 H852XXXX / 九龍旺角彌敦道..."
-                        className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                        className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
                       />
                     </div>
                   )}
 
                   <div>
-                    <label className="text-xs text-[#cbd2ef] block mb-1">支付方式</label>
+                    <label className="text-xs text-slate-800 font-bold block mb-1">支付方式</label>
                     <div className="grid grid-cols-3 gap-2">
                       <button
                         type="button"
                         onClick={() => setPaymentMethod('fps')}
                         className={`p-2 rounded-xl border text-[11px] text-center cursor-pointer ${
                           paymentMethod === 'fps'
-                            ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold'
-                            : 'bg-white/5 border-white/10 text-[#aab3d2]'
+                            ? 'bg-emerald-50 border-emerald-500 text-emerald-900 font-bold shadow-xs'
+                            : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                         }`}
                       >
                         轉數快 FPS
@@ -1656,8 +1673,8 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                         onClick={() => setPaymentMethod('payme')}
                         className={`p-2 rounded-xl border text-[11px] text-center cursor-pointer ${
                           paymentMethod === 'payme'
-                            ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold'
-                            : 'bg-white/5 border-white/10 text-[#aab3d2]'
+                            ? 'bg-emerald-50 border-emerald-500 text-emerald-900 font-bold shadow-xs'
+                            : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                         }`}
                       >
                         PayMe
@@ -1667,8 +1684,8 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                         onClick={() => setPaymentMethod('credit_card')}
                         className={`p-2 rounded-xl border text-[11px] text-center cursor-pointer ${
                           paymentMethod === 'credit_card'
-                            ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold'
-                            : 'bg-white/5 border-white/10 text-[#aab3d2]'
+                            ? 'bg-emerald-50 border-emerald-500 text-emerald-900 font-bold shadow-xs'
+                            : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                         }`}
                       >
                         信用卡 (Stripe)
@@ -1678,11 +1695,11 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                 </div>
 
                 {/* Final Total */}
-                <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                  <div className="text-xs text-[#aab3d2]">
+                <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
+                  <div className="text-xs text-slate-700 font-medium">
                     應付總額 (免香港本地運費)：
                   </div>
-                  <div className="text-xl font-black text-emerald-400">
+                  <div className="text-xl font-black text-emerald-700">
                     HK${useStarsDiscount ? Math.max(0, checkoutProduct.priceHKD - 20) : checkoutProduct.priceHKD}
                   </div>
                 </div>
@@ -1691,13 +1708,13 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setCheckoutProduct(null)}
-                    className="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all cursor-pointer border border-white/15 active:scale-95"
+                    className="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer border border-slate-300 active:scale-95"
                   >
                     取消
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition-all cursor-pointer active:scale-95"
+                    className="flex-1 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-700/20 transition-all cursor-pointer active:scale-95"
                   >
                     <Check className="w-4 h-4" />
                     確認送出訂單
@@ -1707,37 +1724,37 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
             ) : (
               /* Order Success Screen */
               <div className="text-center py-4 space-y-4">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-2xl">
+                <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 flex items-center justify-center mx-auto text-2xl font-black">
                   ✓
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-xl font-bold text-white">訂單已成功建立！</h3>
-                  <p className="text-xs text-emerald-300 font-mono">
+                  <h3 className="text-xl font-bold text-slate-900">訂單已成功建立！</h3>
+                  <p className="text-xs text-emerald-800 font-mono font-bold">
                     訂單編號：{orderSuccess.id}
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 text-left text-xs space-y-2">
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-[#8d97b5]">選購產品：</span>
-                    <span className="text-white font-bold">{orderSuccess.productName}</span>
+                    <span className="text-slate-600">選購產品：</span>
+                    <span className="text-slate-900 font-bold">{orderSuccess.productName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#8d97b5]">收件人：</span>
-                    <span className="text-white">{orderSuccess.customerName} ({orderSuccess.customerPhone})</span>
+                    <span className="text-slate-600">收件人：</span>
+                    <span className="text-slate-800">{orderSuccess.customerName} ({orderSuccess.customerPhone})</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#8d97b5]">取件方式：</span>
-                    <span className="text-white">{orderSuccess.deliveryAddress}</span>
+                    <span className="text-slate-600">取件方式：</span>
+                    <span className="text-slate-800">{orderSuccess.deliveryAddress}</span>
                   </div>
-                  <div className="flex justify-between pt-1 border-t border-white/5">
-                    <span className="text-[#8d97b5]">應付金額：</span>
-                    <span className="text-emerald-400 font-black text-sm">HK${orderSuccess.totalHKD}</span>
+                  <div className="flex justify-between pt-1 border-t border-slate-200">
+                    <span className="text-slate-700 font-bold">應付金額：</span>
+                    <span className="text-emerald-700 font-black text-sm">HK${orderSuccess.totalHKD}</span>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-amber-950/20 border border-amber-500/30 text-left text-[11px] text-[#cbd2ef] space-y-1">
-                  <span className="text-amber-300 font-bold block">📲 付款及出貨說明：</span>
+                <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-left text-[11px] text-slate-800 space-y-1 shadow-xs">
+                  <span className="text-amber-900 font-bold block">📲 付款及出貨說明：</span>
                   <p>
                     我們已將訂單確認通知發送至你的聯絡號碼。透過 FPS 或 PayMe 付款後，訂單將於 24 小時內安排順豐出貨。
                   </p>
@@ -1759,43 +1776,43 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
       {/* Order History Modal */}
       {showOrderHistory && (
         <div
-          className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 z-50 animate-fade-in cursor-pointer"
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 z-50 animate-fade-in cursor-pointer"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowOrderHistory(false);
           }}
         >
           <div
-            className="bg-[#0b0f1e] border border-white/20 rounded-3xl p-6 max-w-xl w-full max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl relative cursor-default"
+            className="bg-white border-2 border-slate-200 rounded-3xl p-6 max-w-xl w-full max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl relative cursor-default"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               onClick={() => setShowOrderHistory(false)}
-              className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center gap-1.5 text-xs font-bold transition-colors cursor-pointer border border-white/15 z-30"
+              className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 flex items-center gap-1.5 text-xs font-bold transition-colors cursor-pointer border border-slate-300 z-30"
               aria-label="關閉"
               title="關閉 (ESC)"
             >
-              <X className="w-4 h-4 text-emerald-400" />
+              <X className="w-4 h-4 text-emerald-600" />
               <span>關閉</span>
             </button>
 
             <div className="flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center">
+              <span className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-700 flex items-center justify-center">
                 <PackageCheck className="w-4 h-4" />
               </span>
               <div>
-                <h3 className="text-lg font-bold text-white">我的解夢選物訂單記錄</h3>
-                <p className="text-xs text-[#cbd2ef]">
+                <h3 className="text-lg font-bold text-slate-900">我的解夢選物訂單記錄</h3>
+                <p className="text-xs text-slate-600">
                   你所購買的身心轉運與療癒商品訂單狀態
                 </p>
               </div>
             </div>
 
             {savedOrdersList.length === 0 ? (
-              <div className="py-12 text-center space-y-3 bg-white/[0.02] rounded-2xl border border-white/5">
-                <ShoppingBag className="w-10 h-10 text-[#8d97b5] mx-auto opacity-50" />
-                <p className="text-xs text-[#aab3d2]">目前暫無任何選物訂單記錄</p>
-                <p className="text-[11px] text-[#8d97b5]">
+              <div className="py-12 text-center space-y-3 bg-slate-50 rounded-2xl border border-slate-200">
+                <ShoppingBag className="w-10 h-10 text-slate-400 mx-auto opacity-70" />
+                <p className="text-xs text-slate-700 font-bold">目前暫無任何選物訂單記錄</p>
+                <p className="text-[11px] text-slate-500">
                   完成解夢後，可於選物店瀏覽各類身心調校、助眠草本與能量淨化產品。
                 </p>
               </div>
@@ -1804,39 +1821,39 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                 {savedOrdersList.map((order) => (
                   <div
                     key={order.id}
-                    className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-white/20 space-y-2.5 transition-all"
+                    className="p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-slate-300 space-y-2.5 transition-all shadow-xs"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-emerald-400">
+                        <span className="text-xs font-mono font-bold text-emerald-800">
                           {order.id}
                         </span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold">
                           處理中 (已建檔)
                         </span>
                       </div>
-                      <span className="text-[11px] text-[#8d97b5]">
+                      <span className="text-[11px] text-slate-500">
                         {new Date(order.createdAt).toLocaleDateString()}
                       </span>
                     </div>
 
                     <div className="flex justify-between items-start text-xs">
                       <div>
-                        <h4 className="font-bold text-white">{order.productName}</h4>
-                        <div className="text-[11px] text-[#8d97b5] mt-0.5">
+                        <h4 className="font-bold text-slate-900">{order.productName}</h4>
+                        <div className="text-[11px] text-slate-600 mt-0.5">
                           收件人：{order.customerName} · {order.customerPhone}
                         </div>
-                        <div className="text-[11px] text-[#8d97b5] mt-0.5 truncate max-w-sm">
+                        <div className="text-[11px] text-slate-600 mt-0.5 truncate max-w-sm">
                           地址/取件：{order.deliveryAddress}
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-sm font-black text-emerald-400 font-mono">
+                        <div className="text-sm font-black text-emerald-700 font-mono">
                           HK${order.totalHKD}
                         </div>
                         {order.starsUsed && order.starsUsed > 0 ? (
-                          <div className="text-[10px] text-amber-300 flex items-center justify-end gap-1">
-                            <Star className="w-3 h-3 fill-amber-300" />
+                          <div className="text-[10px] text-amber-800 font-bold flex items-center justify-end gap-1">
+                            <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
                             已抵扣 {order.starsUsed} 星
                           </div>
                         ) : null}
@@ -1844,7 +1861,7 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                     </div>
 
                     {order.associatedDreamSummary && (
-                      <div className="text-[10px] text-amber-200/90 bg-amber-950/20 px-2.5 py-1.5 rounded-xl border border-amber-500/20">
+                      <div className="text-[10px] text-amber-900 bg-amber-50 px-2.5 py-1.5 rounded-xl border border-amber-300">
                         關聯夢境：{order.associatedDreamSummary}
                       </div>
                     )}

@@ -144,48 +144,48 @@ export const MemberProductSubmitModal: React.FC<MemberProductSubmitModalProps> =
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md overflow-y-auto"
       id="member-product-submit-modal"
     >
-      <div className="relative w-full max-w-2xl bg-[#0f111a] border border-emerald-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 my-8 max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-white border-2 border-slate-200 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 my-8 max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-white/10 pb-4">
+        <div className="flex items-start justify-between border-b border-slate-200 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="badge bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
-                <Sparkles className="w-3 h-3 text-emerald-400" />
+              <span className="badge bg-emerald-50 text-emerald-800 border border-emerald-300 text-[10px] font-bold shadow-xs">
+                <Sparkles className="w-3 h-3 text-emerald-600" />
                 MEMBER CURATION SUBMISSION
               </span>
-              <span className="text-[11px] text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full font-medium">
+              <span className="text-[11px] text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full font-bold">
                 🛡️ 需高級管理員審批後公開
               </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-white mt-1.5 flex items-center gap-2">
-              <Package className="w-5 h-5 text-emerald-400" />
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-1.5 flex items-center gap-2">
+              <Package className="w-5 h-5 text-emerald-600" />
               <span>會員選物產品上架申請</span>
             </h2>
-            <p className="text-xs text-[#aab3d2] mt-1">
-              申請人：<span className="text-white font-medium">{currentUser.display_name || currentUser.email}</span>
+            <p className="text-xs text-slate-600 mt-1">
+              申請人：<span className="text-slate-900 font-bold">{currentUser.display_name || currentUser.email}</span>
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-all cursor-pointer"
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Senior Admin Approval Policy Explanatory Notice */}
-        <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 space-y-1.5 text-xs">
-          <div className="flex items-center gap-2 text-amber-300 font-bold">
-            <ShieldCheck className="w-4 h-4 text-amber-400" />
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 space-y-1.5 text-xs shadow-xs">
+          <div className="flex items-center gap-2 text-amber-900 font-bold">
+            <ShieldCheck className="w-4 h-4 text-amber-600" />
             <span>解夢選物店 · 高級管理員審批規範</span>
           </div>
-          <p className="text-[#cbd2ef] leading-relaxed text-[11px]">
+          <p className="text-slate-700 leading-relaxed text-[11px]">
             為保障客人於解夢後的身心調校品質與產品真實性，所有會員申請上架之選物（安眠草本、淨化煙燻、守護水晶、能量香氛等），在正式對外公開展示前，均需經由
-            <strong className="text-amber-200"> 高級管理員 (Super Admin) 審批</strong>
+            <strong className="text-amber-900 font-bold"> 高級管理員 (Super Admin) 審批</strong>
             。審批核准後將自動公開於選物店，你可於「我的上架申請」隨時追蹤進度。
           </p>
         </div>
@@ -194,8 +194,8 @@ export const MemberProductSubmitModal: React.FC<MemberProductSubmitModalProps> =
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           {/* Preset Images Quick Pick */}
           <div className="space-y-2">
-            <label className="text-white font-medium flex items-center gap-1.5">
-              <Image className="w-3.5 h-3.5 text-emerald-400" />
+            <label className="text-slate-800 font-bold flex items-center gap-1.5">
+              <Image className="w-3.5 h-3.5 text-emerald-600" />
               <span>快速挑選產品展示照片（或自訂圖片網址）</span>
             </label>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
@@ -209,17 +209,17 @@ export const MemberProductSubmitModal: React.FC<MemberProductSubmitModalProps> =
                   }}
                   className={`p-1.5 rounded-xl border transition-all text-left flex flex-col items-center gap-1 cursor-pointer ${
                     imageUrl === img.url
-                      ? 'border-emerald-400 bg-emerald-500/20 shadow-sm'
-                      : 'border-white/10 bg-white/5 hover:border-white/20'
+                      ? 'border-emerald-500 bg-emerald-50 shadow-xs'
+                      : 'border-slate-200 bg-slate-50 hover:border-slate-300'
                   }`}
                 >
                   <img
                     src={img.url}
                     alt={img.label}
                     referrerPolicy="no-referrer"
-                    className="w-full h-12 object-cover rounded-lg bg-black/40"
+                    className="w-full h-12 object-cover rounded-lg bg-slate-100 border border-slate-200"
                   />
-                  <span className="text-[10px] text-white truncate max-w-full text-center">
+                  <span className="text-[10px] text-slate-800 font-medium truncate max-w-full text-center">
                     {img.label}
                   </span>
                 </button>
@@ -232,15 +232,15 @@ export const MemberProductSubmitModal: React.FC<MemberProductSubmitModalProps> =
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="自訂圖片 URL (例如 Unsplash 連結)"
-                className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-[#cbd2ef] block mb-1">
-                產品名稱 <span className="text-emerald-400">*</span>
+              <label className="text-slate-800 font-bold block mb-1">
+                產品名稱 <span className="text-emerald-600">*</span>
               </label>
               <input
                 type="text"
@@ -248,13 +248,13 @@ export const MemberProductSubmitModal: React.FC<MemberProductSubmitModalProps> =
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="例如：手作深層助眠洋甘菊香氛枕頭噴霧"
-                className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
               />
             </div>
 
             <div>
-              <label className="text-[#cbd2ef] block mb-1">
-                副標題 / 核心特色 <span className="text-emerald-400">*</span>
+              <label className="text-slate-800 font-bold block mb-1">
+                副標題 / 核心特色 <span className="text-emerald-600">*</span>
               </label>
               <input
                 type="text"
@@ -262,29 +262,29 @@ export const MemberProductSubmitModal: React.FC<MemberProductSubmitModalProps> =
                 value={subTitle}
                 onChange={(e) => setSubTitle(e.target.value)}
                 placeholder="例如：睡前儀式 · 撫平夜間焦慮 · 溫暖深眠"
-                className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="text-[#cbd2ef] block mb-1">品牌 / 手作坊名稱</label>
+              <label className="text-slate-800 font-bold block mb-1">品牌 / 手作坊名稱</label>
               <input
                 type="text"
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
                 placeholder="你的工坊或品牌"
-                className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
               />
             </div>
 
             <div>
-              <label className="text-[#cbd2ef] block mb-1">選物分類</label>
+              <label className="text-slate-800 font-bold block mb-1">選物分類</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as any)}
-                className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500 cursor-pointer"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600 cursor-pointer font-medium"
               >
                 <option value="sleep">🌙 深眠安神 · 枕頭噴霧</option>
                 <option value="herb">☕ 草本調校 · 晚安舒緩茶</option>
@@ -295,21 +295,21 @@ export const MemberProductSubmitModal: React.FC<MemberProductSubmitModalProps> =
             </div>
 
             <div>
-              <label className="text-[#cbd2ef] block mb-1">規格 / 容量</label>
+              <label className="text-slate-800 font-bold block mb-1">規格 / 容量</label>
               <input
                 type="text"
                 value={volumeOrSpec}
                 onChange={(e) => setVolumeOrSpec(e.target.value)}
                 placeholder="例如：100ML 或 20入茶包 或 原石 1 份"
-                className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="text-[#cbd2ef] block mb-1">
-                售價 (HKD) <span className="text-emerald-400">*</span>
+              <label className="text-slate-800 font-bold block mb-1">
+                售價 (HKD) <span className="text-emerald-600">*</span>
               </label>
               <input
                 type="number"
@@ -318,110 +318,110 @@ export const MemberProductSubmitModal: React.FC<MemberProductSubmitModalProps> =
                 value={priceHKD}
                 onChange={(e) => setPriceHKD(e.target.value)}
                 placeholder="78"
-                className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600 font-bold"
               />
             </div>
 
             <div>
-              <label className="text-[#cbd2ef] block mb-1">原價 (HKD，選填)</label>
+              <label className="text-slate-800 font-bold block mb-1">原價 (HKD，選填)</label>
               <input
                 type="number"
                 min={1}
                 value={originalPriceHKD}
                 onChange={(e) => setOriginalPriceHKD(e.target.value)}
                 placeholder="98"
-                className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
               />
             </div>
 
             <div>
-              <label className="text-[#cbd2ef] block mb-1">星星幣可折抵數</label>
+              <label className="text-slate-800 font-bold block mb-1">星星幣可折抵數</label>
               <input
                 type="number"
                 min={0}
                 value={starsRedeemCost}
                 onChange={(e) => setStarsRedeemCost(e.target.value)}
                 placeholder="15"
-                className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-[#cbd2ef] block mb-1">原料成分 / 材質 (以逗號分隔)</label>
+              <label className="text-slate-800 font-bold block mb-1">原料成分 / 材質 (以逗號分隔)</label>
               <input
                 type="text"
                 value={ingredients}
                 onChange={(e) => setIngredients(e.target.value)}
                 placeholder="例如：德國洋甘菊精油、真正薰衣草、純水"
-                className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
               />
             </div>
 
             <div>
-              <label className="text-[#cbd2ef] block mb-1">核心功效 / 亮點 (以逗號分隔)</label>
+              <label className="text-slate-800 font-bold block mb-1">核心功效 / 亮點 (以逗號分隔)</label>
               <input
                 type="text"
                 value={keyBenefits}
                 onChange={(e) => setKeyBenefits(e.target.value)}
                 placeholder="例如：深層放鬆、撫平夜間緊繃、提升深睡比例"
-                className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-[#cbd2ef] block mb-1">適合對應之夢境意象 (以逗號分隔)</label>
+            <label className="text-slate-800 font-bold block mb-1">適合對應之夢境意象 (以逗號分隔)</label>
             <input
               type="text"
               value={suitableDreams}
               onChange={(e) => setSuitableDreams(e.target.value)}
               placeholder="例如：噩夢驚醒、被追趕、死線壓力、多夢淺眠、運勢低迷"
-              className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+              className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
             />
           </div>
 
           <div>
-            <label className="text-[#cbd2ef] block mb-1">推薦理由 / 創作初衷 (選物介紹)</label>
+            <label className="text-slate-800 font-bold block mb-1">推薦理由 / 創作初衷 (選物介紹)</label>
             <textarea
               rows={2}
               value={recommendationReason}
               onChange={(e) => setRecommendationReason(e.target.value)}
               placeholder="向客人說明此產品如何幫助夢後調校身心與轉化氣場..."
-              className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+              className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600 leading-relaxed"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-[#cbd2ef] block mb-1">使用方法與儀式指引</label>
+              <label className="text-slate-800 font-bold block mb-1">使用方法與儀式指引</label>
               <input
                 type="text"
                 value={usageGuide}
                 onChange={(e) => setUsageGuide(e.target.value)}
                 placeholder="例如：睡前 15 分鐘噴於枕頭兩側或胸口前方空氣中"
-                className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
               />
             </div>
 
             <div>
-              <label className="text-[#cbd2ef] block mb-1">保存方式與注意事項</label>
+              <label className="text-slate-800 font-bold block mb-1">保存方式與注意事項</label>
               <input
                 type="text"
                 value={cautions}
                 onChange={(e) => setCautions(e.target.value)}
                 placeholder="例如：避光陰涼處保存、外用請勿飲用"
-                className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 text-xs focus:outline-none focus:border-emerald-600"
               />
             </div>
           </div>
 
           {/* Super Admin Override checkbox */}
           {isSuperAdmin && (
-            <div className="p-3 rounded-xl bg-purple-950/20 border border-purple-500/30 flex items-center justify-between text-xs">
-              <span className="text-purple-300 font-medium">👑 高級管理員特權：直接核准公開上架</span>
-              <label className="flex items-center gap-2 cursor-pointer text-white">
+            <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-between text-xs shadow-xs">
+              <span className="text-purple-900 font-bold">👑 高級管理員特權：直接核准公開上架</span>
+              <label className="flex items-center gap-2 cursor-pointer text-slate-800 font-bold">
                 <input
                   type="checkbox"
                   checked={autoApproveAsSuperAdmin}
@@ -434,18 +434,18 @@ export const MemberProductSubmitModal: React.FC<MemberProductSubmitModalProps> =
           )}
 
           {/* Action buttons */}
-          <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+          <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[#cbd2ef] text-xs cursor-pointer transition-all"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-bold cursor-pointer transition-all"
             >
               取消
             </button>
 
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-black font-extrabold text-xs shadow-lg shadow-emerald-500/25 flex items-center gap-2 cursor-pointer transition-all"
+              className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-700/20 flex items-center gap-2 cursor-pointer transition-all"
             >
               <Check className="w-4 h-4" />
               <span>
