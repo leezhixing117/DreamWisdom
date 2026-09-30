@@ -110,21 +110,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </span>
           </button>
 
-          {/* 4. 星星幣 */}
-          <button
-            type="button"
-            onClick={() => setCurrentView('stars')}
-            className={`bg-transparent border-0 text-[14px] font-semibold cursor-pointer flex items-center gap-1.5 transition-colors ${
-              currentView === 'stars' ? 'text-amber-800 font-bold' : 'text-slate-800 hover:text-amber-800'
-            }`}
-            id="nav-link-stars"
-            title="睇片儲星與消耗規則"
-          >
-            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-            <span>星星幣</span>
-          </button>
-
-          {/* 5. 付費專區 */}
+          {/* 4. 付費會員專區 (放在選物店後) */}
           <button
             type="button"
             onClick={() => setCurrentView('pricing')}
@@ -132,10 +118,24 @@ export const Navbar: React.FC<NavbarProps> = ({
               currentView === 'pricing' ? 'text-amber-800 font-bold' : 'text-slate-800 hover:text-amber-800'
             }`}
             id="nav-link-pricing"
-            title="查看會員方案與付費會員專區"
+            title="付費會員專區 · 潛意識天體星盤"
           >
             <Crown className="w-3.5 h-3.5 text-amber-600" />
-            <span>付費專區</span>
+            <span>付費會員專區</span>
+          </button>
+
+          {/* 5. 星星幣 (放在付費會員專區後) */}
+          <button
+            type="button"
+            onClick={() => setCurrentView('stars')}
+            className={`bg-transparent border-0 text-[14px] font-semibold cursor-pointer flex items-center gap-1.5 transition-colors ${
+              currentView === 'stars' ? 'text-amber-800 font-bold' : 'text-slate-800 hover:text-amber-800'
+            }`}
+            id="nav-link-stars"
+            title="星星幣中心 · 儲幣機制與會員方案"
+          >
+            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+            <span>星星幣</span>
           </button>
 
           {/* 6. 私隱 */}
@@ -150,19 +150,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             <span>私隱</span>
           </button>
-
-          {/* 新手引導 (Onboarding Tour Modal) */}
-          {onOpenOnboarding && (
-            <button
-              type="button"
-              onClick={onOpenOnboarding}
-              className="bg-transparent border-0 text-[13px] text-blue-700 hover:text-blue-800 cursor-pointer flex items-center gap-1 font-bold"
-              id="nav-link-onboarding"
-              title="查看新手引導教學"
-            >
-              <span>✨ 引導</span>
-            </button>
-          )}
 
           {/* 7. 控制室 (嚴格限定管理員及高級管理員可見，其餘會員與非管理員完全不顯示) */}
           {isManagement && (

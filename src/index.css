@@ -837,3 +837,124 @@ input::placeholder, textarea::placeholder {
     transform: translate(-25px, 20px) scale(0.96);
   }
 }
+
+/* ========================================================================= */
+/* 控制室超高對比度專用樣式 (High Contrast Mode for Admin Control Room)       */
+/* ========================================================================= */
+#admin-console-content {
+  color: #0F172A !important;
+}
+
+#admin-console-content h1,
+#admin-console-content h2,
+#admin-console-content h3,
+#admin-console-content h4 {
+  color: #0F172A !important;
+  font-weight: 800 !important;
+  text-shadow: none !important;
+}
+
+#admin-console-content p,
+#admin-console-content span.text-muted,
+#admin-console-content .muted {
+  color: #334155 !important;
+  font-weight: 500;
+}
+
+/* 控制室所有卡片容器：純白底、深灰雙線高對比邊框 */
+#admin-console-content .card,
+#admin-console-content [id$="-card"],
+#admin-console-content section.card {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 2px solid #CBD5E1 !important;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -1px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* 消除暗沉文字與反白字 */
+#admin-console-content .text-white,
+#admin-console-content [class*="text-[#cbd2ef]"],
+#admin-console-content [class*="text-[#aab3d2]"],
+#admin-console-content [class*="text-[#8d97b5]"] {
+  color: #1E293B !important;
+}
+
+/* 深色背景轉為清爽高對比白底或微灰底 */
+#admin-console-content [class*="border-white"] {
+  border-color: #CBD5E1 !important;
+}
+
+#admin-console-content [class*="bg-black/"],
+#admin-console-content [class*="bg-white/5"],
+#admin-console-content [class*="bg-white/[0.0"] {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+/* 控制室表格與表頭超高對比 */
+#admin-console-content table thead,
+#admin-console-content table thead tr,
+#admin-console-content table thead th {
+  background-color: #F1F5F9 !important;
+  color: #0F172A !important;
+  font-weight: 800 !important;
+  border-bottom: 2px solid #CBD5E1 !important;
+}
+
+#admin-console-content table tbody tr {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+}
+
+#admin-console-content table tbody tr:hover {
+  background-color: #F8FAFC !important;
+}
+
+#admin-console-content table tbody td {
+  color: #1E293B !important;
+  font-weight: 500 !important;
+}
+
+#admin-console-content table tbody td .font-mono,
+#admin-console-content table tbody td .font-semibold,
+#admin-console-content table tbody td div.font-semibold {
+  color: #0F172A !important;
+  font-weight: 750 !important;
+}
+
+/* 輸入框、下拉選單與文字區域高對比 */
+#admin-console-content input,
+#admin-console-content select,
+#admin-console-content textarea {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 2px solid #94A3B8 !important;
+  font-weight: 600 !important;
+}
+
+#admin-console-content input::placeholder,
+#admin-console-content textarea::placeholder {
+  color: #64748B !important;
+  opacity: 1 !important;
+}
+
+#admin-console-content input:focus,
+#admin-console-content select:focus,
+#admin-console-content textarea:focus {
+  border-color: #1D4ED8 !important;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.18) !important;
+}
+
+/* KPI 指標卡高對比 */
+#admin-audit-dashboard-section .rounded-xl.border {
+  background-color: #FFFFFF !important;
+  border: 2px solid #CBD5E1 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06) !important;
+}
+
+#admin-audit-dashboard-section .rounded-xl.border:hover {
+  border-color: #94A3B8 !important;
+}
+

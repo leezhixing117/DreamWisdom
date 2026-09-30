@@ -340,26 +340,26 @@ export const AdminAuditDashboard: React.FC<AdminAuditDashboardProps> = ({
       )}
 
       {/* Main Header & Permissions Banner */}
-      <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-950/40 via-[#180f2e]/50 to-indigo-950/30 border border-purple-500/30 space-y-4">
+      <div className="p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 border-2 border-indigo-400/40 text-white space-y-4 shadow-xl">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center text-purple-300 shadow-inner">
-              <Activity className="w-6 h-6 text-purple-300" />
+            <div className="w-12 h-12 rounded-2xl bg-purple-500/30 border-2 border-purple-400/50 flex items-center justify-center text-purple-200 shadow-md">
+              <Activity className="w-6 h-6 text-purple-200" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="badge bg-purple-500/20 text-purple-300 border border-purple-400/30 text-[10px]">
+                <span className="px-2.5 py-0.5 rounded-full bg-purple-500/40 text-purple-100 border border-purple-300/40 text-[11px] font-bold">
                   SUPER ADMIN AUDIT CENTER
                 </span>
-                <span className="text-xs text-emerald-400 font-mono flex items-center gap-1">
+                <span className="text-xs text-emerald-300 font-mono font-bold flex items-center gap-1.5 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/40">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   實時審計日誌在線
                 </span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-white mt-1">
+              <h2 className="text-xl sm:text-2xl font-black text-white mt-1 tracking-tight">
                 高級管理員全景數據監控中心
               </h2>
-              <p className="text-xs text-[#cbd2ef] mt-0.5">
+              <p className="text-xs text-indigo-100 mt-1 font-medium leading-relaxed">
                 完整掌握【所有登入人員記錄】、【收看廣告次數】與【入選物店記錄】，保障系統安全與營運轉換洞察。
               </p>
             </div>
@@ -370,10 +370,10 @@ export const AdminAuditDashboard: React.FC<AdminAuditDashboardProps> = ({
               <button
                 type="button"
                 onClick={onRefresh}
-                className="btn dark text-xs py-2 px-3 flex items-center gap-1.5 cursor-pointer hover:border-purple-400/40"
+                className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border-2 border-white/20 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
                 title="重新整理數據"
               >
-                <RefreshCw className="w-3.5 h-3.5 text-purple-400" />
+                <RefreshCw className="w-3.5 h-3.5 text-purple-300" />
                 <span>刷新日誌</span>
               </button>
             )}
@@ -386,7 +386,7 @@ export const AdminAuditDashboard: React.FC<AdminAuditDashboardProps> = ({
                     onClearLogs(activeSubTab === 'logins' ? 'logins' : activeSubTab === 'ads' ? 'ads' : 'shop');
                   }
                 }}
-                className="btn dark text-xs py-2 px-2.5 flex items-center gap-1 text-red-400 hover:text-red-300 hover:border-red-500/40 cursor-pointer"
+                className="px-3 py-2 rounded-xl bg-rose-950/60 hover:bg-rose-900/80 text-rose-200 border-2 border-rose-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
                 title="清除當前日誌"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -401,128 +401,128 @@ export const AdminAuditDashboard: React.FC<AdminAuditDashboardProps> = ({
           {/* KPI 1: 登入人員記錄 */}
           <div
             onClick={() => setActiveSubTab('logins')}
-            className={`p-4 rounded-xl border transition-all cursor-pointer ${
+            className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
               activeSubTab === 'logins'
-                ? 'bg-purple-900/30 border-purple-400/60 shadow-md shadow-purple-500/10'
-                : 'bg-black/30 border-white/10 hover:border-white/20'
+                ? 'bg-white border-purple-500 shadow-lg shadow-purple-500/10 ring-2 ring-purple-400'
+                : 'bg-white/95 border-slate-300 hover:border-purple-400 hover:bg-white'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs text-[#aab3d2] flex items-center gap-1.5 font-medium">
-                <Users className="w-3.5 h-3.5 text-purple-400" />
+              <span className="text-xs text-slate-800 flex items-center gap-1.5 font-bold">
+                <Users className="w-4 h-4 text-purple-600" />
                 所有登入人員記錄
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 border border-purple-300 font-bold font-mono">
                 {uniqueLoginUsersCount} 個獨立帳號
               </span>
             </div>
             <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-extrabold text-white font-mono">{totalLoginsCount}</span>
-              <span className="text-xs text-[#cbd2ef]">次累計登入</span>
+              <span className="text-3xl font-black text-purple-950 font-mono">{totalLoginsCount}</span>
+              <span className="text-xs text-slate-600 font-bold">次累計登入</span>
             </div>
-            <div className="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[11px] text-[#cbd2ef]">
+            <div className="mt-2 pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-purple-700 font-bold">
               <span>點擊查看詳細名單與IP</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-purple-400" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-purple-600" />
             </div>
           </div>
 
           {/* KPI 2: 收看廣告次數 */}
           <div
             onClick={() => setActiveSubTab('ads')}
-            className={`p-4 rounded-xl border transition-all cursor-pointer ${
+            className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
               activeSubTab === 'ads'
-                ? 'bg-amber-900/30 border-amber-400/60 shadow-md shadow-amber-500/10'
-                : 'bg-black/30 border-white/10 hover:border-white/20'
+                ? 'bg-white border-amber-500 shadow-lg shadow-amber-500/10 ring-2 ring-amber-400'
+                : 'bg-white/95 border-slate-300 hover:border-amber-400 hover:bg-white'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs text-[#aab3d2] flex items-center gap-1.5 font-medium">
-                <Tv className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-xs text-slate-800 flex items-center gap-1.5 font-bold">
+                <Tv className="w-4 h-4 text-amber-600" />
                 收看廣告次數
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-950 border border-amber-300 font-bold font-mono">
                 共發放 {totalStarsRewarded} ⭐
               </span>
             </div>
             <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-extrabold text-white font-mono">{totalAdViewsCount}</span>
-              <span className="text-xs text-[#cbd2ef]">次播放完畢</span>
+              <span className="text-3xl font-black text-amber-950 font-mono">{totalAdViewsCount}</span>
+              <span className="text-xs text-slate-600 font-bold">次播放完畢</span>
             </div>
-            <div className="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[11px] text-[#cbd2ef]">
+            <div className="mt-2 pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-amber-800 font-bold">
               <span>點擊查看影片熱度與會員收看榜</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-amber-400" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-amber-600" />
             </div>
           </div>
 
           {/* KPI 3: 入選物店記錄 */}
           <div
             onClick={() => setActiveSubTab('shop')}
-            className={`p-4 rounded-xl border transition-all cursor-pointer ${
+            className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
               activeSubTab === 'shop'
-                ? 'bg-emerald-900/30 border-emerald-400/60 shadow-md shadow-emerald-500/10'
-                : 'bg-black/30 border-white/10 hover:border-white/20'
+                ? 'bg-white border-emerald-500 shadow-lg shadow-emerald-500/10 ring-2 ring-emerald-400'
+                : 'bg-white/95 border-slate-300 hover:border-emerald-400 hover:bg-white'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs text-[#aab3d2] flex items-center gap-1.5 font-medium">
-                <ShoppingBag className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-xs text-slate-800 flex items-center gap-1.5 font-bold">
+                <ShoppingBag className="w-4 h-4 text-emerald-600" />
                 入選物店記錄
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-950 border border-emerald-300 font-bold font-mono">
                 {uniqueShopVisitorsCount} 位進店訪客
               </span>
             </div>
             <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-extrabold text-white font-mono">{totalShopVisitsCount}</span>
-              <span className="text-xs text-[#cbd2ef]">人次進入選物店</span>
+              <span className="text-3xl font-black text-emerald-950 font-mono">{totalShopVisitsCount}</span>
+              <span className="text-xs text-slate-600 font-bold">人次進入選物店</span>
             </div>
-            <div className="mt-2 pt-2 border-t border-white/5 flex items-center justify-between text-[11px] text-[#cbd2ef]">
+            <div className="mt-2 pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-emerald-800 font-bold">
               <span>點擊查看來源渠道與商品導流</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Sub-Tabs Switcher */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-slate-200 pb-3">
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setActiveSubTab('logins')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeSubTab === 'logins'
-                ? 'bg-purple-500/25 text-purple-200 border border-purple-400/50 shadow-sm'
-                : 'text-[#aab3d2] hover:text-white bg-white/5 border border-transparent'
+                ? 'bg-purple-700 text-white border-2 border-purple-800 shadow-md shadow-purple-700/20'
+                : 'text-slate-700 hover:text-purple-900 bg-white hover:bg-purple-50 border-2 border-slate-300 hover:border-purple-300 shadow-2xs'
             }`}
           >
-            <Users className="w-4 h-4 text-purple-400" />
+            <Users className="w-4 h-4 text-purple-300" />
             <span>🚪 所有登入人員記錄 ({filteredLogins.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveSubTab('ads')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeSubTab === 'ads'
-                ? 'bg-amber-500/25 text-amber-200 border border-amber-400/50 shadow-sm'
-                : 'text-[#aab3d2] hover:text-white bg-white/5 border border-transparent'
+                ? 'bg-amber-600 text-white border-2 border-amber-700 shadow-md shadow-amber-600/20'
+                : 'text-slate-700 hover:text-amber-900 bg-white hover:bg-amber-50 border-2 border-slate-300 hover:border-amber-300 shadow-2xs'
             }`}
           >
-            <Tv className="w-4 h-4 text-amber-400" />
+            <Tv className="w-4 h-4 text-amber-300" />
             <span>📺 收看廣告次數與統計 ({filteredAds.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveSubTab('shop')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeSubTab === 'shop'
-                ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/50 shadow-sm'
-                : 'text-[#aab3d2] hover:text-white bg-white/5 border border-transparent'
+                ? 'bg-emerald-700 text-white border-2 border-emerald-800 shadow-md shadow-emerald-700/20'
+                : 'text-slate-700 hover:text-emerald-900 bg-white hover:bg-emerald-50 border-2 border-slate-300 hover:border-emerald-300 shadow-2xs'
             }`}
           >
-            <ShoppingBag className="w-4 h-4 text-emerald-400" />
+            <ShoppingBag className="w-4 h-4 text-emerald-300" />
             <span>🛍️ 入選物店記錄 ({filteredShopVisits.length})</span>
           </button>
         </div>

@@ -15,8 +15,8 @@ interface CelestialLogoProps {
 export const CelestialLogo: React.FC<CelestialLogoProps> = ({
   size = 'md',
   showText = true,
-  showSubtitle = true,
-  subtitle = '我的夢境',
+  showSubtitle = false,
+  subtitle = '',
   className = '',
   textClassName = '',
 }) => {

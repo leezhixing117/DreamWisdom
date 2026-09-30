@@ -152,28 +152,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <div className="my-2 border-t border-[#BAE6FD]" />
 
-        {/* Pricing & Star Coins Nav Link */}
-        <button
-          type="button"
-          onClick={() => onNavigate('stars')}
-          className="sideitem text-amber-800 hover:text-amber-950 hover:bg-amber-50"
-          id="sidebar-item-stars"
-          title="獨立星星幣頁面：查看儲幣、消耗明細與有效期限"
-        >
-          <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
-          <span>⭐ 星星幣詳情</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onNavigate('pricing')}
-          className="sideitem text-[#1D4ED8] hover:text-[#1E40AF] hover:bg-blue-50"
-          id="sidebar-item-pricing"
-        >
-          <Crown className="w-4 h-4 text-amber-500 fill-amber-400" />
-          <span>💎 VIP 方案升級</span>
-        </button>
-
         {/* Product Store / Healing goods */}
         <button
           type="button"
@@ -187,6 +165,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-900 font-mono font-bold">
             SHOP
           </span>
+        </button>
+
+        {/* 付費會員專區 (放在選物店後) */}
+        <button
+          type="button"
+          onClick={() => onNavigate('pricing')}
+          className="sideitem text-[#1D4ED8] hover:text-[#1E40AF] hover:bg-blue-50"
+          id="sidebar-item-pricing"
+          title="付費會員專區：潛意識天體星盤（VIP 尊享原型共振儀）"
+        >
+          <Crown className="w-4 h-4 text-amber-500 fill-amber-400" />
+          <span>👑 付費會員專區</span>
+        </button>
+
+        {/* 星星幣 (放在付費會員專區後) */}
+        <button
+          type="button"
+          onClick={() => onNavigate('stars')}
+          className="sideitem text-amber-800 hover:text-amber-950 hover:bg-amber-50"
+          id="sidebar-item-stars"
+          title="星星幣中心：儲幣機制、免費與付費會員方案完整對比"
+        >
+          <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
+          <span>⭐ 星星幣</span>
         </button>
 
         {/* Privacy Policy Link */}
