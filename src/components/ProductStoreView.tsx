@@ -215,6 +215,7 @@ interface ProductStoreViewProps {
   onNavigateToWorkspace?: () => void;
   onUpdateProducts?: (products: ProductItem[]) => void;
   onNavigateToAdmin?: () => void;
+  onGoBackToAstrolabe?: () => void;
 }
 
 export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
@@ -228,6 +229,7 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
   onNavigateToWorkspace,
   onUpdateProducts,
   onNavigateToAdmin,
+  onGoBackToAstrolabe,
 }) => {
   const [storeViewMode, setStoreViewMode] = useState<'public' | 'my_submissions' | 'pending_admin'>('public');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -249,6 +251,25 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
       });
     } catch (err) {
       console.warn('Failed to track shop visit', err);
+    }
+  }, [recommendedProductId]);
+
+  // If entering with a recommendedProductId from astrolabe or dream, focus and scroll to it
+  const recommendedProduct = useMemo(() => {
+    if (!recommendedProductId) return null;
+    return products.find((p) => p.id === recommendedProductId) || null;
+  }, [recommendedProductId, products]);
+
+  useEffect(() => {
+    if (recommendedProductId) {
+      setSelectedCategory('all');
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`product-card-${recommendedProductId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 350);
+      return () => clearTimeout(timer);
     }
   }, [recommendedProductId]);
 

@@ -2482,21 +2482,16 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
             isPaidMember={isPaidUser}
             dreams={history}
             onRequirePaid={onGoToPricing}
-            onSelectArchetype={(arch) => {
-              setDream((prev) => {
-                const tag = `【今日星盤共振原型】：${arch.symbol} ${arch.label}（${arch.insight}）`;
-                if (prev.includes(arch.label)) return prev;
-                const trimmed = prev.trim();
-                return trimmed ? `${trimmed}\n${tag}` : tag;
-              });
-              setActiveTab('workspace');
-            }}
             onStartWithDream={(text) => {
               setDream((prev) => (prev ? `${prev}\n${text}` : text));
               setActiveTab('workspace');
             }}
             onOpenReportDetail={(entry) => setSelectedEntry(entry)}
-            onNavigateToShop={() => onGoToPricing()}
+            onNavigateToShop={(productId) => {
+              if (onGoToStore) {
+                onGoToStore(productId);
+              }
+            }}
           />
         </div>
       )}
