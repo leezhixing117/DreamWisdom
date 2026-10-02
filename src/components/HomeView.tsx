@@ -157,35 +157,152 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </div>
 
       {/* ============================================================ */}
-      {/* 🌟 1. HERO 頂部視覺（充裕頂部間隔，毛筆字型水墨石青漸變） 🌟 */}
+      {/* 🌟 1. HERO 頂部視覺（充裕頂部間隔，柔和流動線條與圖形美學） 🌟 */}
       {/* ============================================================ */}
       <section className="shell relative pt-10 sm:pt-16 pb-6 text-center" id="hero-section">
+        {/* 🌟 柔和美學流動星軌與光暈幾何圖形 (Soft Celestial Waves & Curves) 🌟 */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10 flex items-center justify-center">
+          {/* 溫潤夕嵐與晨曦柔光氛圍光暈 */}
+          <div className="absolute top-10 w-[680px] max-w-full h-[290px] bg-gradient-to-r from-sky-300/35 via-indigo-200/30 to-amber-200/25 rounded-full blur-[80px]" />
+
+          {/* 天體柔和線條與流動波浪向量 (Celestial Flowing Waves & Orbits) */}
+          <svg
+            viewBox="0 0 1000 340"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-full max-w-5xl h-auto opacity-75 select-none"
+          >
+            <defs>
+              <linearGradient id="hero-wave-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.1" />
+                <stop offset="35%" stopColor="#818CF8" stopOpacity="0.45" />
+                <stop offset="70%" stopColor="#F472B6" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#FBBF24" stopOpacity="0.15" />
+              </linearGradient>
+              <linearGradient id="hero-wave-grad-2" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#60A5FA" stopOpacity="0.15" />
+                <stop offset="50%" stopColor="#38BDF8" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#A78BFA" stopOpacity="0.1" />
+              </linearGradient>
+              <linearGradient id="hero-orbit-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#93C5FD" stopOpacity="0.2" />
+                <stop offset="50%" stopColor="#38BDF8" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#FDE68A" stopOpacity="0.2" />
+              </linearGradient>
+            </defs>
+
+            {/* 流動夢境波浪線 1 (Upper Dream Ripple) */}
+            <path
+              d="M 20 180 C 180 80, 360 220, 520 130 C 680 50, 840 210, 980 140"
+              stroke="url(#hero-wave-grad-1)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+
+            {/* 柔和反向虛線星軌 2 (Counter Wavy Ribbon) */}
+            <path
+              d="M 50 220 C 220 280, 420 150, 600 240 C 760 310, 900 170, 960 190"
+              stroke="url(#hero-wave-grad-2)"
+              strokeWidth="1.8"
+              strokeDasharray="6 6"
+              strokeLinecap="round"
+            />
+
+            {/* 天體主橢圓軌道 (Tilted Planetary Ellipse) */}
+            <ellipse
+              cx="500"
+              cy="165"
+              rx="420"
+              ry="95"
+              stroke="url(#hero-orbit-grad)"
+              strokeWidth="1.2"
+              strokeDasharray="4 6"
+              transform="rotate(-3 500 165)"
+            />
+
+            {/* 軌道上的微型天體與星辰節點 */}
+            <circle cx="140" cy="180" r="4.5" fill="#38BDF8" />
+            <circle cx="140" cy="180" r="9" stroke="#38BDF8" strokeWidth="1" opacity="0.4" />
+
+            <circle cx="860" cy="145" r="5" fill="#F59E0B" />
+            <circle cx="860" cy="145" r="10" stroke="#F59E0B" strokeWidth="1" opacity="0.4" />
+
+            <circle cx="500" cy="70" r="3" fill="#818CF8" />
+            <circle cx="680" cy="245" r="3.5" fill="#38BDF8" />
+
+            {/* 左側柔和信件之星折線 (Constellation Envelope Filament) */}
+            <g transform="translate(60, 90)" opacity="0.6">
+              <path d="M 0 15 L 20 0 L 40 15 L 0 15 Z" stroke="#38BDF8" strokeWidth="1.2" fill="none" />
+              <rect x="0" y="15" width="40" height="25" rx="3" stroke="#38BDF8" strokeWidth="1.2" fill="none" />
+              <path d="M 0 15 L 20 28 L 40 15" stroke="#38BDF8" strokeWidth="1.2" />
+              <circle cx="20" cy="0" r="2.5" fill="#FBBF24" />
+            </g>
+
+            {/* 右側柔和月牙光環 (Gentle Crescent Silhouette) */}
+            <g transform="translate(890, 80)" opacity="0.65">
+              <path
+                d="M 25 5 C 10 15, 10 35, 25 45 C 15 42, 5 30, 8 18 C 10 10, 18 6, 25 5 Z"
+                fill="#38BDF8"
+                stroke="#60A5FA"
+                strokeWidth="1"
+              />
+              <path d="M 38 18 L 40 12 L 42 18 L 48 20 L 42 22 L 40 28 L 38 22 L 32 20 Z" fill="#FDE68A" />
+            </g>
+          </svg>
+        </div>
+
         {/* 頂部徽章 (具備完整呼吸空間，告別重疊) */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50/90 border border-blue-200 text-blue-800 text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50/90 border border-blue-200 text-blue-800 text-xs sm:text-sm font-semibold mb-6 shadow-2xs relative z-10">
           <Sparkles className="w-3.5 h-3.5 text-blue-600" />
           <span>DREAMWISDOM · 專為香港廣東話設計的夢境宇宙</span>
         </div>
 
-        {/* 核心主標題 (靈動毛筆書法字型 + 典雅天體靛藍與皇家寶藍配色，徹底移除不自然漸變) */}
+        {/* 核心主標題 (電話手機版完美兩行排版，防孤詞掉行，極致和諧自然 + 柔和書法波浪底飾線) */}
         <h1
           id="hero-title"
-          className="font-brush text-4xl sm:text-6xl md:text-7xl lg:text-[5rem] tracking-wide leading-[1.3] sm:leading-[1.25] mb-5 max-w-4xl mx-auto select-none"
+          className="font-brush text-[1.85rem] xs:text-3xl sm:text-5xl md:text-6xl lg:text-[4.75rem] tracking-wide leading-[1.35] sm:leading-[1.25] mb-5 max-w-4xl mx-auto select-none px-2 relative z-10"
         >
-          <span className="text-[#1E3A8A] inline-block">
-            每一個夢，都是潛意識留給
+          <span className="block sm:inline-block text-[#1E3A8A] whitespace-nowrap">
+            每一個夢，都是潛意識
           </span>
-          <span className="text-[#1D4ED8] inline-block sm:ml-2">
-            你的信。
+          <span className="block sm:inline-block sm:ml-2 text-[#1D4ED8] whitespace-nowrap relative">
+            留給你的信。
+            {/* 柔美書法底波線 (Handcrafted Calligraphic Flourish Wave) */}
+            <svg
+              viewBox="0 0 240 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-full max-w-[200px] sm:max-w-[250px] h-3.5 mx-auto -mt-1 sm:-mt-0.5 pointer-events-none select-none"
+            >
+              <path
+                d="M 5 14 Q 60 4, 120 14 T 225 10"
+                stroke="url(#title-flourish-grad)"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+              <circle cx="230" cy="9.5" r="2.5" fill="#F59E0B" />
+              <defs>
+                <linearGradient id="title-flourish-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.3" />
+                  <stop offset="60%" stopColor="#2563EB" stopOpacity="0.9" />
+                  <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.95" />
+                </linearGradient>
+              </defs>
+            </svg>
           </span>
         </h1>
 
-        {/* 副標題 */}
-        <p className="font-sans font-bold text-base sm:text-xl md:text-2xl text-blue-900 tracking-wide mb-3">
-          別人解讀你的夢。我們記得你的夢。
-        </p>
+        {/* 副標題（配備柔和漸層星飾線條，氛圍更加沉靜吸睛） */}
+        <div className="flex items-center justify-center gap-3 max-w-xl mx-auto mb-3 px-4 relative z-10">
+          <span className="h-[1.5px] flex-1 bg-gradient-to-r from-transparent via-blue-300/70 to-blue-400/40 max-w-[40px] sm:max-w-[90px]" />
+          <p className="font-sans font-black text-sm sm:text-xl md:text-2xl text-blue-950 tracking-wide">
+            別人解讀你的夢。我們記得你的夢。
+          </p>
+          <span className="h-[1.5px] flex-1 bg-gradient-to-l from-transparent via-blue-300/70 to-blue-400/40 max-w-[40px] sm:max-w-[90px]" />
+        </div>
 
         {/* 心理學理論與產品介紹 */}
-        <p className="font-sans text-sm sm:text-base text-slate-700 max-w-2xl mx-auto leading-relaxed mb-5 font-medium">
+        <p className="font-sans text-xs sm:text-base text-slate-700 max-w-2xl mx-auto leading-relaxed mb-5 font-medium px-2">
           DreamWisdom 唔係憑空估，而係從榮格原型心理學找出相應理論，結合你過往夢境，整理可能值得留意嘅潛意識訊息。
         </p>
 
@@ -343,18 +460,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           {/* 6. 底部操作欄（原型意象說明 + 觀看示範報告 + 記錄夢境開始分析） */}
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 pt-4 border-t-2 border-blue-200">
-            <div className="text-xs sm:text-sm text-slate-800 font-bold flex items-center gap-2">
+            <div className="text-xs sm:text-sm text-slate-800 font-bold flex items-center justify-center sm:justify-start gap-2">
               <span>經典心理學原型意象</span>
               <span className="text-slate-400">·</span>
               <span>專屬深度心靈洞察</span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 self-end sm:self-center">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
               {/* 觀看示範報告 */}
               <button
                 type="button"
                 onClick={() => handleOpenSample('dna')}
-                className="px-5 py-3 rounded-2xl bg-white hover:bg-blue-50 border-2 border-blue-300 hover:border-blue-500 text-blue-950 text-sm font-black flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
+                className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-white hover:bg-blue-50 border-2 border-blue-300 hover:border-blue-500 text-blue-950 text-sm font-black flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm"
               >
                 <Eye className="w-4 h-4 text-blue-700" />
                 <span>觀看示範報告</span>
@@ -364,7 +481,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <button
                 type="button"
                 onClick={handleStart}
-                className="px-6 py-3 rounded-2xl bg-blue-700 hover:bg-blue-800 text-white text-sm sm:text-base font-black shadow-lg shadow-blue-700/25 flex items-center gap-2.5 cursor-pointer transition-all active:scale-95"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-blue-700 hover:bg-blue-800 text-white text-sm sm:text-base font-black shadow-lg shadow-blue-700/25 flex items-center justify-center gap-2.5 cursor-pointer transition-all active:scale-95"
                 id="hero-cta-record-btn"
               >
                 <span>記錄夢境開始分析</span>
