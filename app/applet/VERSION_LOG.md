@@ -19,3 +19,42 @@
 1. `git checkout version-a -- .`
 或
 2. 從 `.version_backups/version_a/` 複製覆蓋所有檔案，立即 100% 恢復至此狀態。
+
+---
+
+## 📌 版本B (Version B) - 當前最新黃金版本 (Current Golden Version)
+- **建立時間**: 2026-10-02
+- **Git 標籤 (Tag)**: `version-b`
+- **Git Commit**: `244aee1`
+- **實體快照目錄**: `.version_backups/version_b/`
+- **核心特徵與重大升級狀態**:
+  1. **星圖全頁宏偉天幕排版 (Grand Observatory Layout)**：
+     - 徹底解決星圖太細、擠在局部側欄的問題，升級為全寬 Full-Width 640px~700px 天文級觀測台視野。
+     - 座標算法優化、動態鋪滿畫布，節點間距自然寬廣，星辰氣泡標籤、emoji 與象徵名稱大字清晰呈現。
+     - 移除舊版遮擋操作的浮動氣泡，頂部整合清新分類篩選與可收合「💡 3 秒新手使用指南」。
+     - 提供「☀️ 晝天晴空（蔚藍高對比）」與「🌙 深邃夜空」雙模式，徹底告別沉悶死黑。
+  2. **產品專屬色系識別 (Multi-Color Product Distinction)**：
+     - 解夢選物店（`ProductStoreView`）每種產品及分類皆配備獨立專屬色彩，一眼即能辨認產品類別：
+       - 🍃 **暖金柑橘（Amber & Tangerine Gold）**：碌柚葉好運香水噴霧 / 開運淨化 / 去霉氣
+       - 🌙 **沉靜薰衣紫（Lavender Violet & Indigo）**：白噪音薰衣草舒緩枕頭噴霧 / 助眠安神
+       - 🌿 **森林翡翠綠（Forest Sage & Emerald Green）**：加州白鼠尾草空間煙燻淨化杖 / 空間結界
+       - 💎 **冰晶湛藍（Cyan / Ice Crystal Blue）**：天然紫水晶原礦小晶簇 / 靈性直覺守護
+       - ☕ **珊瑚玫瑰紅（Rose / Coral / Warm Tea）**：有機晚安洋甘菊纈草舒緩茶 / 睡前溫潤儀式
+       - 👑 **皇家寶藍（Royal Sky Blue）**：身心能量調校系列
+     - 各產品卡片之邊框、底襯漸變、標籤、現貨在庫提示、功效方塊與行動按鈕均完美呼應專屬色系。
+  3. **字型全面放大與極致高對比度 (Enhanced Typography & Readability)**：
+     - 移除過小的微細字（`text-[9px]`、`text-[10px]`），關鍵資訊全面加大為 `text-xs`、`text-sm`、`text-base`、`text-lg`。
+     - 灰階文字全面加深為深墨黑（`#090D16`、`#1E293B`、`#0F172A`）與高飽和深藍，繁體中文字體筆畫極致清晰。
+  4. **星幣收費與 Dream Master 階梯化定位**：
+     - 初步分析標註為 **3 星 ⭐**。
+     - 深入分析標註為 **6 星 ⭐**（已進行初步分析者升級補差額 3 星）。
+  5. **純淨無噪音體驗**：
+     - 全面關閉背景音效，保留安靜純淨的沉浸式解夢與選品流程。
+  6. **高級管理員審批與會員上架通道**：
+     - 支援會員提交身心選物產品，經由 Super Admin 高級管理員審批後正式公開展示。
+
+### 🔄 回到版本B指令（Revert to Version B）
+若任何時候需要返回版本B，只要在對話中提出**「版本B」**、**「返到版本B」**或**「回到版本B」**，系統將無條件立即透過：
+1. `git checkout version-b -- .`
+或
+2. 從 `.version_backups/version_b/` 複製覆蓋所有檔案，立即 100% 恢復至此版本狀態。
