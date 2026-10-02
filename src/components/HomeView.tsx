@@ -14,7 +14,6 @@ import {
   Dna,
   Heart,
   ShoppingBag,
-  Mic,
   Lock,
   Eye,
   Crown,
@@ -53,13 +52,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const isPaidMember = normRole === 'paid' || normRole === 'admin' || normRole === 'super_admin';
 
   const [draftDream, setDraftDream] = useState('');
-  const [isListening, setIsListening] = useState(false);
   const [isTherapeuticOpen, setIsTherapeuticOpen] = useState(false);
   const [isSamplePreviewOpen, setIsSamplePreviewOpen] = useState(false);
   const [sampleInitialTab, setSampleInitialTab] = useState<'dna' | 'constellation' | 'mystery'>('dna');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const recognitionRef = useRef<any>(null);
 
   // Auto-expanding textarea
   const handleDreamChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -67,55 +64,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${Math.max(100, textareaRef.current.scrollHeight)}px`;
-    }
-  };
-
-  // Web Speech API Voice Recognition (supports Cantonese & Mandarin)
-  const handleToggleVoice = () => {
-    if (isListening) {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-      setIsListening(false);
-      return;
-    }
-
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert('您的瀏覽器暫未支援語音辨識，請使用文字鍵入夢境內容。');
-      return;
-    }
-
-    try {
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'zh-HK';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-
-      recognition.onstart = () => {
-        setIsListening(true);
-      };
-
-      recognition.onresult = (event: any) => {
-        const transcript = event.results?.[0]?.[0]?.transcript;
-        if (transcript) {
-          setDraftDream((prev) => (prev ? `${prev}，${transcript}` : transcript));
-        }
-      };
-
-      recognition.onerror = () => {
-        setIsListening(false);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      recognitionRef.current = recognition;
-      recognition.start();
-    } catch (err) {
-      console.error('Speech recognition error:', err);
-      setIsListening(false);
     }
   };
 
@@ -175,8 +123,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
       a: 'DreamWisdom 結合了榮格（Carl Jung）深度心理學的原型與集體潛意識象徵、佛洛伊德的夢境防衛機轉，並融入當代認知情緒心理學，為你的夢境提供多維度的理性剖析與靈魂對話。',
     },
     {
-      q: '廣東話語音輸入能準確辨識嗎？',
-      a: '完全支援！我們針對香港日常粵語語境與口語詞彙進行了專門優化，無論是「我琴晚夢見跌落樓梯」或「好似俾人追住走」，AI 都能精確理解情緒核心。',
+      q: '香港廣東話輸入能準確理解嗎？',
+      a: '完全支援！我們針對香港日常粵語語境、口語字詞與本土文化隱喻進行了專門優化，無論是「琴晚夢見跌落樓梯」或「好似俾人追住走」，AI 都能精確理解情緒核心與潛意識象徵。',
     },
     {
       q: '我的夢境記錄會被其他人或 AI 訓練公開嗎？',
@@ -190,8 +138,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   return (
     <main id="home-view-main" className="overflow-hidden bg-transparent pb-16">
-      {/* 快速錨點導航條 (銀白淺灰底色，清晰可見) */}
-      <div className="w-full bg-white/95 border-b border-slate-200 backdrop-blur-md sticky top-16 z-30 py-2.5 px-4 shadow-xs">
+      {/* 快速錨點導航條 (優雅自然流動，絕不與頂部或 Hero 徽章重疊) */}
+      <div className="w-full bg-white/80 border-b border-slate-200/80 backdrop-blur-sm py-2 px-4 shadow-2xs">
         <div className="shell flex items-center justify-between text-xs text-slate-700 overflow-x-auto gap-3 scrollbar-none">
           <div className="flex items-center gap-1 shrink-0 font-bold text-blue-700">
             <span>快速導航：</span>
@@ -209,30 +157,35 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </div>
 
       {/* ============================================================ */}
-      {/* 🌟 1. HERO 頂部視覺（依原設計保留所有文字、邊界聲明與支援連結） 🌟 */}
+      {/* 🌟 1. HERO 頂部視覺（充裕頂部間隔，毛筆字型水墨石青漸變） 🌟 */}
       {/* ============================================================ */}
-      <section className="shell relative pt-8 sm:pt-12 pb-6 text-center" id="hero-section">
-        {/* 頂部徽章 */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50/80 border border-blue-200/80 text-blue-800 text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
+      <section className="shell relative pt-10 sm:pt-16 pb-6 text-center" id="hero-section">
+        {/* 頂部徽章 (具備完整呼吸空間，告別重疊) */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50/90 border border-blue-200 text-blue-800 text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
           <Sparkles className="w-3.5 h-3.5 text-blue-600" />
           <span>DREAMWISDOM · 專為香港廣東話設計的夢境宇宙</span>
         </div>
 
-        {/* 核心主標題 */}
+        {/* 核心主標題 (靈動毛筆書法字型 + 典雅天體靛藍與皇家寶藍配色，徹底移除不自然漸變) */}
         <h1
           id="hero-title"
-          className="font-celestial-serif font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-slate-900 tracking-wide leading-tight sm:leading-tight mb-4 max-w-4xl mx-auto"
+          className="font-brush text-4xl sm:text-6xl md:text-7xl lg:text-[5rem] tracking-wide leading-[1.3] sm:leading-[1.25] mb-5 max-w-4xl mx-auto select-none"
         >
-          每一個夢，都是潛意識留給你的信。
+          <span className="text-[#1E3A8A] inline-block">
+            每一個夢，都是潛意識留給
+          </span>
+          <span className="text-[#1D4ED8] inline-block sm:ml-2">
+            你的信。
+          </span>
         </h1>
 
         {/* 副標題 */}
-        <p className="font-sans font-bold text-lg sm:text-xl md:text-2xl text-blue-800 tracking-wide mb-3">
+        <p className="font-sans font-bold text-base sm:text-xl md:text-2xl text-blue-900 tracking-wide mb-3">
           別人解讀你的夢。我們記得你的夢。
         </p>
 
         {/* 心理學理論與產品介紹 */}
-        <p className="font-sans text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed mb-5">
+        <p className="font-sans text-sm sm:text-base text-slate-700 max-w-2xl mx-auto leading-relaxed mb-5 font-medium">
           DreamWisdom 唔係憑空估，而係從榮格原型心理學找出相應理論，結合你過往夢境，整理可能值得留意嘅潛意識訊息。
         </p>
 
@@ -258,33 +211,52 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* ============================================================ */}
         {/* 🌟 2. 完整夢境解讀卡片（還原原先全部引導、意象詞與分析按鈕） 🌟 */}
         {/* ============================================================ */}
+        {/* ============================================================ */}
+        {/* 🌟 2. 完整夢境解讀卡片（典雅星空藝術紋理、大字型、高對比清晰呈現） 🌟 */}
+        {/* ============================================================ */}
         <div id="recorddream" className="scroll-mt-24" />
         <div
-          className="max-w-3xl mx-auto relative z-10 w-full bg-white shadow-md border border-slate-200/90 rounded-[28px] p-5 sm:p-7 text-left"
+          className="max-w-3xl mx-auto relative z-10 w-full bg-gradient-to-b from-[#F0F6FF] via-white to-[#EEF5FF] shadow-2xl border-2 border-blue-300 rounded-[32px] p-6 sm:p-8 text-left overflow-hidden"
           id="hero-dreambox"
         >
+          {/* 背景典雅星空幾何星座圖紋水印 */}
+          <div className="absolute top-0 right-0 w-80 h-80 opacity-20 pointer-events-none select-none overflow-hidden">
+            <svg viewBox="0 0 200 200" className="w-full h-full text-blue-600">
+              <circle cx="100" cy="100" r="85" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" />
+              <circle cx="100" cy="100" r="55" fill="none" stroke="currentColor" strokeWidth="1" />
+              <circle cx="60" cy="60" r="4" fill="currentColor" />
+              <circle cx="140" cy="70" r="5" fill="currentColor" />
+              <circle cx="130" cy="140" r="3.5" fill="currentColor" />
+              <circle cx="70" cy="130" r="4" fill="currentColor" />
+              <line x1="60" y1="60" x2="140" y2="70" stroke="currentColor" strokeWidth="1.5" />
+              <line x1="140" y1="70" x2="130" y2="140" stroke="currentColor" strokeWidth="1.5" />
+              <line x1="130" y1="140" x2="70" y2="130" stroke="currentColor" strokeWidth="1.5" />
+              <line x1="70" y1="130" x2="60" y2="60" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+          </div>
+
           {/* 1. 卡片頂部欄：記錄今晨夢境 + 建議字數 */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5">
-            <div className="flex items-center gap-2 text-slate-900 font-bold text-base sm:text-lg">
-              <Sparkles className="w-4 h-4 text-blue-600" />
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2.5 text-slate-950 font-black text-lg sm:text-xl">
+              <Sparkles className="w-5 h-5 text-blue-700" />
               <span>記錄今晨夢境</span>
             </div>
-            <span className="text-xs text-slate-500 font-medium">
+            <span className="text-xs sm:text-sm text-slate-700 font-bold bg-blue-100/80 px-3 py-1 rounded-full border border-blue-300">
               輸入醒來記得的任何片段 · 建議 15 字以上
             </span>
           </div>
 
           {/* 2. 記夢引導（點擊帶入回憶結構） */}
-          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 mb-3.5">
-            <div className="flex items-center gap-1.5 text-xs text-blue-700 font-bold mb-2.5">
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+          <div className="relative z-10 p-4 rounded-2xl bg-white border-2 border-blue-200 mb-4 shadow-sm">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-blue-950 font-black mb-3">
+              <Sparkles className="w-4 h-4 text-blue-700" />
               <span>記夢引導（點擊帶入回憶結構）：</span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               <button
                 type="button"
                 onClick={() => handleAddGuidePrompt('characters')}
-                className="px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-400 text-xs text-slate-800 hover:text-blue-700 font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                className="px-3.5 py-2.5 rounded-xl bg-blue-50/70 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 text-xs sm:text-sm text-slate-900 font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                 title="點擊帶入【人物】提示"
               >
                 <span>👥</span>
@@ -293,7 +265,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <button
                 type="button"
                 onClick={() => handleAddGuidePrompt('scene')}
-                className="px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-400 text-xs text-slate-800 hover:text-blue-700 font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                className="px-3.5 py-2.5 rounded-xl bg-blue-50/70 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 text-xs sm:text-sm text-slate-900 font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                 title="點擊帶入【場景】提示"
               >
                 <span>📍</span>
@@ -302,16 +274,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <button
                 type="button"
                 onClick={() => handleAddGuidePrompt('emotion')}
-                className="px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-400 text-xs text-slate-800 hover:text-blue-700 font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                className="px-3.5 py-2.5 rounded-xl bg-blue-50/70 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 text-xs sm:text-sm text-slate-900 font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                 title="點擊帶入【感覺】提示"
               >
                 <span>💭</span>
-                <span>感覺驚／開心／不安？</span>
+                <span>感覺驚／開朗？</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleAddGuidePrompt('objects')}
-                className="px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-400 text-xs text-slate-800 hover:text-blue-700 font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                className="px-3.5 py-2.5 rounded-xl bg-blue-50/70 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 text-xs sm:text-sm text-slate-900 font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                 title="點擊帶入【物件】提示"
               >
                 <span>🚪</span>
@@ -320,20 +292,20 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
           </div>
 
-          {/* 3. 私隱保證列（高清晰綠色與深灰標籤） */}
-          <div className="flex flex-wrap items-center justify-between gap-2 text-xs mb-3 px-1">
-            <div className="flex items-center gap-1.5 text-emerald-800 font-semibold">
+          {/* 3. 私隱保證列（高清晰綠色與深色標籤） */}
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-2.5 text-xs sm:text-sm mb-3.5 px-1 font-bold">
+            <div className="flex items-center gap-2 text-emerald-950 bg-emerald-100/90 px-3 py-1 rounded-xl border border-emerald-300">
               <span>💡</span>
               <span>你嘅夢境內容屬私人資料，不會用作 AI 訓練</span>
             </div>
-            <div className="flex items-center gap-1.5 text-slate-600 font-medium">
-              <Lock className="w-3.5 h-3.5 text-slate-500" />
+            <div className="flex items-center gap-1.5 text-slate-800 bg-white px-3 py-1 rounded-xl border border-slate-300">
+              <Lock className="w-4 h-4 text-blue-700" />
               <span>本人專屬閱讀 · 絕不轉交第三方</span>
             </div>
           </div>
 
           {/* 4. 主要夢境文字輸入框 */}
-          <div className="relative mb-3">
+          <div className="relative z-10 mb-3.5">
             <textarea
               ref={textareaRef}
               value={draftDream}
@@ -341,26 +313,28 @@ export const HomeView: React.FC<HomeViewProps> = ({
               placeholder="寫低你記得嘅夢境……醒來時有甚麼畫面？你當時感覺點？（可點擊上方「記夢引導」快速帶入提示，或直接自由書寫）"
               id="hero-dream-textarea"
               rows={4}
-              className="w-full bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-600 rounded-2xl text-slate-900 placeholder:text-slate-400 text-sm sm:text-base p-4 focus:outline-none resize-none leading-relaxed min-h-[120px] max-h-[380px] overflow-y-auto transition-all shadow-inner focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-white border-2 border-blue-300 focus:border-blue-700 rounded-2xl text-slate-950 placeholder:text-slate-500 text-base sm:text-lg p-4 sm:p-5 focus:outline-none resize-none leading-relaxed min-h-[130px] max-h-[380px] overflow-y-auto transition-all shadow-sm font-medium"
             />
             {/* 字數計數與即時提示 */}
-            <div className="flex items-center justify-between text-[11px] text-slate-500 px-2 mt-1">
+            <div className="flex items-center justify-between text-xs sm:text-sm text-slate-700 font-bold px-2 mt-1.5">
               <span>醒來零碎記憶都可以隨手寫</span>
-              <span className="font-mono font-medium text-slate-600">{draftDream.length} 字</span>
+              <span className="font-mono font-black text-blue-900 bg-blue-100 px-2.5 py-0.5 rounded-lg border border-blue-200">
+                {draftDream.length} 字
+              </span>
             </div>
           </div>
 
           {/* 5. 補充意象詞快速晶片列表 */}
-          <div className="flex flex-wrap items-center gap-1.5 mb-5 pt-1 text-xs">
-            <span className="text-slate-600 font-semibold shrink-0">補充意象詞：</span>
+          <div className="relative z-10 flex flex-wrap items-center gap-2 mb-5 pt-1 text-xs sm:text-sm">
+            <span className="text-slate-900 font-black shrink-0">補充意象詞：</span>
             {dreamTags.map((tag) => (
               <button
                 key={tag.label}
                 type="button"
                 onClick={() => handleApplyQuickTag(tag.label)}
-                className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-slate-800 hover:text-blue-700 font-medium transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                className="px-3 py-1.5 rounded-xl bg-blue-100/90 hover:bg-blue-200 border-2 border-blue-300 hover:border-blue-400 text-blue-950 font-black transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
               >
-                <span className="text-blue-600 font-bold">+</span>
+                <span className="text-blue-700 font-black">+</span>
                 <span>{tag.icon}</span>
                 <span>{tag.label}</span>
               </button>
@@ -368,36 +342,21 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           {/* 6. 底部操作欄（原型意象說明 + 觀看示範報告 + 記錄夢境開始分析） */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-200">
-            <div className="text-xs text-slate-600 font-medium flex items-center gap-1.5">
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 pt-4 border-t-2 border-blue-200">
+            <div className="text-xs sm:text-sm text-slate-800 font-bold flex items-center gap-2">
               <span>經典心理學原型意象</span>
-              <span className="text-slate-300">·</span>
+              <span className="text-slate-400">·</span>
               <span>專屬深度心靈洞察</span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2.5 self-end sm:self-center">
-              {/* 語音輸入 */}
-              <button
-                type="button"
-                onClick={handleToggleVoice}
-                className={`px-3 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all ${
-                  isListening
-                    ? 'bg-rose-50 border-rose-400 text-rose-700 animate-pulse'
-                    : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
-                }`}
-                title="語音錄音（支援廣東話及普通話）"
-              >
-                <Mic className={`w-3.5 h-3.5 ${isListening ? 'text-rose-600' : 'text-blue-600'}`} />
-                <span>{isListening ? '錄音中' : '語音'}</span>
-              </button>
-
+            <div className="flex flex-wrap items-center gap-3 self-end sm:self-center">
               {/* 觀看示範報告 */}
               <button
                 type="button"
                 onClick={() => handleOpenSample('dna')}
-                className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 hover:border-slate-400 text-slate-800 text-xs sm:text-sm font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                className="px-5 py-3 rounded-2xl bg-white hover:bg-blue-50 border-2 border-blue-300 hover:border-blue-500 text-blue-950 text-sm font-black flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
               >
-                <Eye className="w-3.5 h-3.5 text-blue-600" />
+                <Eye className="w-4 h-4 text-blue-700" />
                 <span>觀看示範報告</span>
               </button>
 
@@ -405,7 +364,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <button
                 type="button"
                 onClick={handleStart}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-700 to-sky-600 hover:from-blue-800 hover:to-sky-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-700/20 flex items-center gap-2 cursor-pointer transition-all active:scale-95"
+                className="px-6 py-3 rounded-2xl bg-blue-700 hover:bg-blue-800 text-white text-sm sm:text-base font-black shadow-lg shadow-blue-700/25 flex items-center gap-2.5 cursor-pointer transition-all active:scale-95"
                 id="hero-cta-record-btn"
               >
                 <span>記錄夢境開始分析</span>
@@ -421,70 +380,70 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* ============================================================ */}
       <section className="shell py-10 sm:py-16 text-center" id="how">
         <div className="max-w-2xl mx-auto mb-12">
-          <p className="text-xs sm:text-sm font-serif text-blue-700 font-semibold tracking-widest uppercase mb-1">
+          <p className="text-xs sm:text-sm font-serif text-blue-800 font-black tracking-widest uppercase mb-1">
             —— 如何解讀你的夢 ——
           </p>
-          <h2 className="font-celestial-serif font-black text-2xl sm:text-4xl md:text-5xl text-slate-900 tracking-wide">
+          <h2 className="font-celestial-serif font-black text-2xl sm:text-4xl md:text-5xl text-slate-950 tracking-wide">
             ✦ 只需三個步驟，開啟夢境的智慧 ✦
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 mt-3 max-w-xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-800 font-bold mt-3 max-w-xl mx-auto leading-relaxed">
             DreamWisdom 透過 AI 與你的潛意識對話，將夢境轉化為專屬於你的洞察。
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 lg:gap-6 max-w-5xl mx-auto">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-5 lg:gap-7 max-w-5xl mx-auto">
           {/* Step 1: 記錄夢境 */}
-          <div className="card w-full md:w-1/3 p-6 rounded-3xl bg-white border border-slate-200 relative flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all">
-            <div className="relative mb-3">
+          <div className="w-full md:w-1/3 p-7 rounded-3xl bg-gradient-to-b from-[#F5F8FF] to-white border-2 border-blue-200 relative flex flex-col items-center text-center shadow-md hover:border-blue-400 transition-all">
+            <div className="relative mb-3.5">
               <StepNotepadIcon className="w-20 h-20" />
-              <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-blue-700 text-white text-[11px] font-mono font-bold shadow-xs">
+              <span className="absolute -bottom-1 -right-1 px-3 py-1 rounded-full bg-blue-700 text-white text-xs font-mono font-black shadow-xs">
                 01
               </span>
             </div>
-            <h3 className="font-celestial-serif font-bold text-lg sm:text-xl text-slate-900 mb-2">
+            <h3 className="font-celestial-serif font-black text-xl text-slate-950 mb-2">
               記錄夢境
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              輸入你的夢境細節，可以文字或語音，讓詳細越好。
+            <p className="text-xs sm:text-sm text-slate-800 font-bold leading-relaxed">
+              輸入你的夢境細節，記錄得越詳細，AI 能剖析的潛意識象徵就越深刻。
             </p>
           </div>
 
-          <div className="hidden md:flex text-slate-400 text-3xl font-light select-none">
+          <div className="hidden md:flex text-blue-400 text-3xl font-black select-none">
             ›
           </div>
 
           {/* Step 2: AI分析 */}
-          <div className="card w-full md:w-1/3 p-6 rounded-3xl bg-white border border-slate-200 relative flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all">
-            <div className="relative mb-3">
+          <div className="w-full md:w-1/3 p-7 rounded-3xl bg-gradient-to-b from-[#F5F8FF] to-white border-2 border-blue-200 relative flex flex-col items-center text-center shadow-md hover:border-blue-400 transition-all">
+            <div className="relative mb-3.5">
               <StepAiBrainIcon className="w-20 h-20" />
-              <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-blue-700 text-white text-[11px] font-mono font-bold shadow-xs">
+              <span className="absolute -bottom-1 -right-1 px-3 py-1 rounded-full bg-blue-700 text-white text-xs font-mono font-black shadow-xs">
                 02
               </span>
             </div>
-            <h3 className="font-celestial-serif font-bold text-lg sm:text-xl text-slate-900 mb-2">
+            <h3 className="font-celestial-serif font-black text-xl text-slate-950 mb-2">
               AI分析
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-800 font-bold leading-relaxed">
               DreamWisdom 將結合象徵意義、心理學與星象，為你解讀夢境。
             </p>
           </div>
 
-          <div className="hidden md:flex text-slate-400 text-3xl font-light select-none">
+          <div className="hidden md:flex text-blue-400 text-3xl font-black select-none">
             ›
           </div>
 
           {/* Step 3: 獲得洞察 */}
-          <div className="card w-full md:w-1/3 p-6 rounded-3xl bg-white border border-slate-200 relative flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all">
-            <div className="relative mb-3">
+          <div className="w-full md:w-1/3 p-7 rounded-3xl bg-gradient-to-b from-[#F5F8FF] to-white border-2 border-blue-200 relative flex flex-col items-center text-center shadow-md hover:border-blue-400 transition-all">
+            <div className="relative mb-3.5">
               <StepInsightIcon className="w-20 h-20" />
-              <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-blue-700 text-white text-[11px] font-mono font-bold shadow-xs">
+              <span className="absolute -bottom-1 -right-1 px-3 py-1 rounded-full bg-blue-700 text-white text-xs font-mono font-black shadow-xs">
                 03
               </span>
             </div>
-            <h3 className="font-celestial-serif font-bold text-lg sm:text-xl text-slate-900 mb-2">
+            <h3 className="font-celestial-serif font-black text-xl text-slate-950 mb-2">
               獲得洞察
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-800 font-bold leading-relaxed">
               獲得專屬於你的夢境報告，包含潛意識訊息、情緒建議與未來指引。
             </p>
           </div>
@@ -497,27 +456,27 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <section className="shell py-6 sm:py-12" id="three-pillars-section">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {/* Card 1: DREAM DNA */}
-          <div className="card p-6 rounded-3xl bg-white border border-slate-200 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-all">
+          <div className="p-7 rounded-3xl bg-gradient-to-b from-[#F8FAFF] to-white border-2 border-blue-200 flex flex-col justify-between shadow-md hover:border-blue-400 transition-all">
             <div>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-blue-700 mb-2">
-                <Dna className="w-4 h-4 text-blue-600" />
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-blue-900 mb-2.5">
+                <Dna className="w-4 h-4 text-blue-700" />
                 <span>DREAM DNA</span>
               </div>
               <div className="my-2 flex justify-center">
                 <DreamDnaArtwork className="w-full h-36" />
               </div>
-              <h3 className="font-celestial-serif font-black text-2xl text-slate-900 tracking-tight mt-2 mb-1.5">
+              <h3 className="font-celestial-serif font-black text-2xl text-slate-950 tracking-tight mt-2 mb-1.5">
                 DREAM DNA
               </h3>
-              <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-800 font-bold leading-relaxed">
                 解析夢境中的象徵代號，揭示你內在深層的性格與深層需求。
               </p>
             </div>
-            <div className="pt-4 mt-3 border-t border-slate-200">
+            <div className="pt-4 mt-3 border-t-2 border-blue-100">
               <button
                 type="button"
                 onClick={() => onGoToApp('dna')}
-                className="text-xs sm:text-sm font-bold text-blue-700 hover:text-blue-800 flex items-center gap-1 cursor-pointer transition-colors"
+                className="text-xs sm:text-sm font-black text-blue-800 hover:text-blue-950 flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <span>探索你的夢境 DNA →</span>
               </button>
@@ -525,27 +484,27 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           {/* Card 2: 星圖解析 */}
-          <div className="card p-6 rounded-3xl bg-white border border-slate-200 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-all">
+          <div className="p-7 rounded-3xl bg-gradient-to-b from-[#F8FAFF] to-white border-2 border-blue-200 flex flex-col justify-between shadow-md hover:border-blue-400 transition-all">
             <div>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-blue-700 mb-2">
-                <Compass className="w-4 h-4 text-blue-600" />
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-blue-900 mb-2.5">
+                <Compass className="w-4 h-4 text-blue-700" />
                 <span>星圖解析</span>
               </div>
               <div className="my-2 flex justify-center">
                 <ConstellationAstrolabeArtwork className="w-full h-36" />
               </div>
-              <h3 className="font-celestial-serif font-black text-2xl text-slate-900 tracking-tight mt-2 mb-1.5">
+              <h3 className="font-celestial-serif font-black text-2xl text-slate-950 tracking-tight mt-2 mb-1.5">
                 星圖解析
               </h3>
-              <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-800 font-bold leading-relaxed">
                 結合星象能量，解讀夢境中的行星與星座意義。
               </p>
             </div>
-            <div className="pt-4 mt-3 border-t border-slate-200">
+            <div className="pt-4 mt-3 border-t-2 border-blue-100">
               <button
                 type="button"
                 onClick={() => onGoToApp('constellation')}
-                className="text-xs sm:text-sm font-bold text-blue-700 hover:text-blue-800 flex items-center gap-1 cursor-pointer transition-colors"
+                className="text-xs sm:text-sm font-black text-blue-800 hover:text-blue-950 flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <span>查看星圖報告 →</span>
               </button>
@@ -553,27 +512,27 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           {/* Card 3: 30 晚潛意識檔案 */}
-          <div className="card p-6 rounded-3xl bg-white border border-slate-200 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-all">
+          <div className="p-7 rounded-3xl bg-gradient-to-b from-[#F8FAFF] to-white border-2 border-blue-200 flex flex-col justify-between shadow-md hover:border-blue-400 transition-all">
             <div>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-blue-700 mb-2">
-                <Key className="w-4 h-4 text-blue-600" />
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-blue-900 mb-2.5">
+                <Key className="w-4 h-4 text-blue-700" />
                 <span>30 晚潛意識檔案</span>
               </div>
               <div className="my-2 flex justify-center">
                 <OracleCardsArtwork className="w-full h-36" />
               </div>
-              <h3 className="font-celestial-serif font-black text-2xl text-slate-900 tracking-tight mt-2 mb-1.5">
+              <h3 className="font-celestial-serif font-black text-2xl text-slate-950 tracking-tight mt-2 mb-1.5">
                 30 晚潛意識檔案
               </h3>
-              <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-800 font-bold leading-relaxed">
                 連續 30 晚的夢境記錄，建立你的潛意識成長檔案。
               </p>
             </div>
-            <div className="pt-4 mt-3 border-t border-slate-200">
+            <div className="pt-4 mt-3 border-t-2 border-blue-100">
               <button
                 type="button"
                 onClick={() => onGoToApp('mystery')}
-                className="text-xs sm:text-sm font-bold text-blue-700 hover:text-blue-800 flex items-center gap-1 cursor-pointer transition-colors"
+                className="text-xs sm:text-sm font-black text-blue-800 hover:text-blue-950 flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <span>探索你的 30 晚檔案 →</span>
               </button>
@@ -586,24 +545,24 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* 🌟 5. 解夢選物店推薦橫幅 🌟 */}
       {/* ============================================================ */}
       <section className="shell py-10" id="shop-highlight">
-        <div className="p-8 rounded-[28px] bg-slate-50 border border-slate-200 shadow-sm">
+        <div className="p-8 sm:p-9 rounded-[32px] bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 border-2 border-emerald-300 shadow-md">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 text-left">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
-                <ShoppingBag className="w-3.5 h-3.5 text-emerald-600" />
+            <div className="space-y-2.5 text-left">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-200 text-emerald-950 text-xs font-black border border-emerald-400">
+                <ShoppingBag className="w-4 h-4 text-emerald-800" />
                 <span>解夢選物店 · 身心靈轉化</span>
               </div>
-              <h3 className="text-2xl sm:text-3xl font-bold text-slate-900">
+              <h3 className="text-2xl sm:text-3xl font-black text-slate-950">
                 將夢中的訊息，轉化為守護與療癒能量
               </h3>
-              <p className="text-sm text-slate-600 max-w-xl leading-relaxed">
+              <p className="text-sm sm:text-base text-slate-800 max-w-xl leading-relaxed font-bold">
                 精選香港手工純天然複方深眠精油、月光白水晶柱、鼠尾草淨化薰香塔，助你安睡好眠，梳理內在雜念。
               </p>
             </div>
             <button
               type="button"
               onClick={() => onGoToApp('workspace')}
-              className="px-6 py-3 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-sm transition-all shrink-0 cursor-pointer"
+              className="px-7 py-3.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm sm:text-base shadow-md transition-all shrink-0 cursor-pointer"
             >
               前往解夢選物店 →
             </button>
@@ -616,34 +575,34 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* ============================================================ */}
       <section className="shell py-12 max-w-3xl mx-auto" id="faq">
         <div className="text-center mb-8">
-          <p className="text-xs font-serif text-blue-700 font-semibold tracking-widest uppercase">FAQ</p>
-          <h2 className="font-celestial-serif font-black text-2xl sm:text-3xl text-slate-900 mt-1">
+          <p className="text-xs sm:text-sm font-serif text-blue-800 font-black tracking-widest uppercase">FAQ</p>
+          <h2 className="font-celestial-serif font-black text-2xl sm:text-3xl text-slate-950 mt-1">
             常見疑問解答
           </h2>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3.5">
           {faqItems.map((item, idx) => {
             const isOpen = openFaqIndex === idx;
             return (
               <div
                 key={idx}
-                className="rounded-2xl border border-slate-200 bg-white overflow-hidden transition-all shadow-xs"
+                className="rounded-2xl border-2 border-blue-200 bg-white overflow-hidden transition-all shadow-xs"
               >
                 <button
                   type="button"
                   onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                  className="w-full px-5 py-4 text-left flex items-center justify-between text-sm sm:text-base font-bold text-slate-900 hover:text-blue-700 cursor-pointer"
+                  className="w-full px-5 py-4 text-left flex items-center justify-between text-base sm:text-lg font-black text-slate-950 hover:text-blue-700 cursor-pointer"
                 >
                   <span>{item.q}</span>
                   {isOpen ? (
-                    <ChevronUp className="w-4 h-4 text-blue-600 shrink-0" />
+                    <ChevronUp className="w-5 h-5 text-blue-600 shrink-0" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+                    <ChevronDown className="w-5 h-5 text-slate-600 shrink-0" />
                   )}
                 </button>
                 {isOpen && (
-                  <div className="px-5 pb-4 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                  <div className="px-5 pb-5 text-sm sm:text-base text-slate-800 leading-relaxed border-t-2 border-blue-100 pt-3.5 font-bold">
                     {item.a}
                   </div>
                 )}
@@ -657,13 +616,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* 🌟 7. 底部感性寄語（每一個夢 ✦ 都是你內心的智慧 ✦） 🌟 */}
       {/* ============================================================ */}
       <section className="shell py-12 sm:py-16 text-center">
-        <p className="text-xs sm:text-sm font-serif text-blue-700 font-semibold tracking-widest uppercase mb-1">
+        <p className="text-xs sm:text-sm font-serif text-blue-800 font-black tracking-widest uppercase mb-1">
           —— 每一個夢 ——
         </p>
-        <h2 className="font-celestial-serif font-black text-3xl sm:text-4xl md:text-5xl text-slate-900 tracking-wide">
+        <h2 className="font-brush text-3xl sm:text-5xl md:text-6xl tracking-wide select-none text-[#1E3A8A]">
           ✦ 都是你內心的智慧 ✦
         </h2>
-        <p className="text-xs sm:text-sm text-slate-600 mt-2 max-w-md mx-auto">
+        <p className="text-sm sm:text-base text-slate-800 font-bold mt-2 max-w-md mx-auto">
           DreamWisdom 與你一起，探索夢境、遇見真實的自己。
         </p>
       </section>

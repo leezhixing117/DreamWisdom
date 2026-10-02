@@ -25,6 +25,7 @@
   /* 經典字型體系 */
   --font-brand: "Cormorant Garamond", "Playfair Display", Georgia, serif;
   --font-serif-tc: "Noto Serif TC", "Source Han Serif TC", "Songti TC", STSong, MingLiU, serif;
+  --font-brush: "Ma Shan Zheng", "Long Cang", "Zhi Mang Xing", "Kaiti TC", "STKaiti", "BiauKai", "DFKai-SB", "Noto Serif TC", cursive, serif;
   --font-sans: "Plus Jakarta Sans", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -57,12 +58,21 @@ body {
   font-feature-settings: "palt";
 }
 
-/* 高對比藍黑標題文字特效 (極高清晰度，永不發虛) */
+/* 靈動毛筆書法字型 (Chinese Brush Calligraphy) */
+.font-brush {
+  font-family: var(--font-brush);
+  font-feature-settings: "palt";
+  letter-spacing: 0.03em;
+}
+
+/* 水墨天體石青字體色彩 (Rich Celestial Ink Indigo) */
+.text-celestial-brush {
+  color: #1E3A8A;
+}
+
+/* 高對比深藍黑標題文字 (極高清晰度，永不發虛) */
 .text-celestial-grad {
-  background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 65%, #1D4ED8 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #1E3A8A;
 }
 
 .text-celestial-blue {
@@ -79,26 +89,66 @@ a {
   text-decoration: none;
 }
 
-/* 標題與內文高清晰度基礎規則 (徹底消除淺色背景文字模糊與不明顯) */
+/* 標題與內文高清晰度基礎規則 (徹底消除淺色背景文字模糊與不明顯，字型放大、極致清晰) */
 h1, h2, h3, h4, h5, h6 {
-  color: #0F172A;
-  letter-spacing: -0.02em;
-  font-weight: 750;
+  color: #090D16;
+  letter-spacing: -0.015em;
+  font-weight: 800;
+  text-rendering: optimizeLegibility;
 }
 
 p, li, td, label {
-  color: #1E293B;
+  color: #0F172A;
+  text-rendering: optimizeLegibility;
+}
+
+/* 杜絕模糊淡灰字：將過度淡化的灰色強制提升至清晰深墨色，每字清晰可辨 */
+.text-slate-400 {
+  color: #334155 !important;
+}
+
+.text-slate-500 {
+  color: #1E293B !important;
+  font-weight: 600 !important;
+}
+
+.text-slate-600 {
+  color: #0F172A !important;
+  font-weight: 600 !important;
+}
+
+.text-slate-700 {
+  color: #090D16 !important;
+}
+
+/* 放大字型：杜絕繁體中文在 10px / 11px / 12px 筆畫擠壓模糊 */
+.text-\[10px\] {
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+}
+
+.text-\[11px\] {
+  font-size: 13.5px !important;
+  font-weight: 650 !important;
+  line-height: 1.4 !important;
+}
+
+.text-xs {
+  font-size: 14px !important;
+  line-height: 1.45 !important;
 }
 
 button, input, textarea, select {
   font: inherit;
-  color: #0F172A;
+  color: #090D16;
 }
 
 input, textarea, select {
   background-color: #FFFFFF !important;
-  color: #0F172A !important;
-  border-color: #CBD5E1;
+  color: #090D16 !important;
+  border-color: #94A3B8;
+  font-weight: 550;
 }
 
 input::placeholder, textarea::placeholder {
@@ -108,7 +158,7 @@ input::placeholder, textarea::placeholder {
 
 /* 確保任何卡片與容器內的文字不因白字殘留而隱形 */
 .card, .dreambox, .historyItem, .sidecard, .modal-card {
-  color: #1E293B;
+  color: #0F172A;
 }
 
 .shell {
