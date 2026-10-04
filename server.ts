@@ -45,6 +45,21 @@ import {
   DREAM_TAGS,
   DREAM_SYMBOLS,
 } from './server/dreamAstraData';
+import {
+  getAllCategories,
+  addCategory,
+  updateCategory,
+  deleteCategory,
+  getProducts,
+  getShopBootstrap,
+  getRecommendProducts,
+  verifyAdminPassword,
+  isValidAdminToken,
+  revokeAdminToken,
+  getCached,
+  setCached,
+  invalidateCache,
+} from './server/shopStore';
 
 dotenv.config();
 
@@ -1531,6 +1546,209 @@ ${combinedText}
       },
     });
   }
+});
+
+// ==========================================
+// 解夢選物店 API & 獨立三頁前端服務
+// ==========================================
+
+// Cookie 解析輔助函式 (禁止 JWT/Token 放 localStorage，由 HttpOnly Cookie 承載)
+function parseCookies(req: express.Request): Record<string, string> {
+  const list: Record<string, string> = {};
+  const cookieHeader = req.headers.cookie;
+  if (!cookieHeader) return list;
+  cookieHeader.split(';').forEach((cookie) => {
+    const parts = cookie.split('=');
+    const name = parts[0]?.trim();
+    if (!name) return;
+    const value = parts.slice(1).join('=').trim();
+    list[name] = decodeURIComponent(value);
+  });
+  return list;
+}
+
+// 管理員鑑權中介層：檢查 HttpOnly dw_admin_token Cookie，403 即權限不足
+function requireAdminCookie(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const cookies = parseCookies(req);
+  const token = cookies['dw_admin_token'];
+  if (!isValidAdminToken(token)) {
+    return res.status(403).json({
+      success: false,
+      error: '管理員權限不足，請重新登入',
+    });
+  }
+  next();
+}
+
+// 1. 管理員登入與驗證 (設定 HttpOnly + SameSite=Lax Cookie)
+app.post('/api/admin/login', (req, res) => {
+  const { password } = req.body || {};
+  const token = verifyAdminPassword(password);
+  if (!token) {
+    return res.status(401).json({ success: false, error: '管理員密碼錯誤' });
+  }
+
+  const isProd = process.env.NODE_ENV === 'production';
+  const cookieOptions = [
+    `dw_admin_token=${encodeURIComponent(token)}`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Lax',
+    'Max-Age=86400',
+  ];
+  if (isProd) {
+    cookieOptions.push('Secure');
+  }
+
+  res.setHeader('Set-Cookie', cookieOptions.join('; '));
+  res.setHeader('Cache-Control', 'no-store');
+  return res.json({ success: true, message: '管理員已成功登入' });
+});
+
+// 2. 管理員登出 (清除 HttpOnly Cookie)
+app.post('/api/admin/logout', (req, res) => {
+  const cookies = parseCookies(req);
+  revokeAdminToken(cookies['dw_admin_token']);
+
+  res.setHeader('Set-Cookie', 'dw_admin_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
+  res.setHeader('Cache-Control', 'no-store');
+  return res.json({ success: true, message: '已成功登出管理員身份' });
+});
+
+// 3. 管理員身分檢查
+app.get('/api/admin/status', (req, res) => {
+  const cookies = parseCookies(req);
+  const isAdmin = isValidAdminToken(cookies['dw_admin_token']);
+  res.setHeader('Cache-Control', 'no-store');
+  return res.json({ isAdmin });
+});
+
+// 4. GET /api/categories (支援後端快取與 Cache-Control)
+app.get('/api/categories', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=60');
+  const cached = getCached('categories_all');
+  if (cached) {
+    return res.json(cached);
+  }
+  const cats = getAllCategories();
+  setCached('categories_all', cats, 60);
+  return res.json(cats);
+});
+
+// 5. POST /api/categories (需管理員 Cookie，403 阻擋，禁用快取)
+app.post('/api/categories', requireAdminCookie, (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const { name, description, order } = req.body || {};
+  if (!name || !name.trim()) {
+    return res.status(400).json({ success: false, error: '分類名稱不能為空' });
+  }
+  const newCat = addCategory(name, description || '', order);
+  return res.status(201).json(newCat);
+});
+
+// 6. PUT /api/categories/:id (需管理員 Cookie，403 阻擋，禁用快取)
+app.put('/api/categories/:id', requireAdminCookie, (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const { id } = req.params;
+  const { name, description, order } = req.body || {};
+  const updated = updateCategory(id, name, description, order);
+  if (!updated) {
+    return res.status(404).json({ success: false, error: '找不到指定分類' });
+  }
+  return res.json(updated);
+});
+
+// 7. DELETE /api/categories/:id (需管理員 Cookie，403 阻擋，二次確認後刪除)
+app.delete('/api/categories/:id', requireAdminCookie, (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const { id } = req.params;
+  const deleted = deleteCategory(id);
+  if (!deleted) {
+    return res.status(404).json({ success: false, error: '找不到指定分類或無法刪除' });
+  }
+  return res.json({ success: true, message: '分類已成功刪除' });
+});
+
+// 8. GET /api/products?categoryId&page&limit (分頁，預設 limit=12)
+app.get('/api/products', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=60');
+  const categoryId = (req.query.categoryId as string) || 'all';
+  const page = parseInt(req.query.page as string, 10) || 1;
+  const limit = parseInt(req.query.limit as string, 10) || 12;
+
+  const cacheKey = `products_${categoryId}_${page}_${limit}`;
+  const cached = getCached(cacheKey);
+  if (cached) {
+    return res.json(cached);
+  }
+
+  const result = getProducts(categoryId, page, limit);
+  setCached(cacheKey, result, 60);
+  return res.json(result);
+});
+
+// 9. GET /api/shop-bootstrap (合併返回分類、初始商品與精選套裝)
+app.get('/api/shop-bootstrap', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=60');
+  const cached = getCached('shop_bootstrap');
+  if (cached) {
+    return res.json(cached);
+  }
+
+  const bootstrap = getShopBootstrap();
+  setCached('shop_bootstrap', bootstrap, 60);
+  return res.json(bootstrap);
+});
+
+// 10. GET /api/recommend-products?theme=xxx (解夢報告頁專用，依夢境主題推薦 2-3 件商品)
+app.get('/api/recommend-products', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=60');
+  const theme = (req.query.theme as string) || '';
+  const limit = parseInt(req.query.limit as string, 10) || 3;
+
+  const cacheKey = `recommend_${theme}_${limit}`;
+  const cached = getCached(cacheKey);
+  if (cached) {
+    return res.json(cached);
+  }
+
+  const recs = getRecommendProducts(theme, limit);
+  setCached(cacheKey, recs, 60);
+  return res.json(recs);
+});
+
+// 獨立三頁路由服務 (首頁、報告頁動態 theme 注入、選物店)
+app.get(['/home', '/standalone/home', '/home.html'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=30');
+  const homePath = path.join(process.cwd(), 'public', 'home.html');
+  if (fs.existsSync(homePath)) {
+    return res.sendFile(homePath);
+  }
+  return res.redirect('/');
+});
+
+app.get(['/report', '/standalone/report', '/report.html'], (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
+  const reportPath = path.join(process.cwd(), 'public', 'report.html');
+  if (fs.existsSync(reportPath)) {
+    let html = fs.readFileSync(reportPath, 'utf8');
+    const theme = (req.query.theme as string) || 'purify';
+    const dream = (req.query.dream as string) || '';
+    // 後端將 theme 與 dream 注入 JS 變數，方便報告頁直接渲染
+    const injection = `<script>window.__DREAM_THEME__ = ${JSON.stringify(theme)}; window.__USER_DREAM__ = ${JSON.stringify(dream)};</script>`;
+    html = html.replace('<!-- BACKEND_INJECTION -->', injection);
+    return res.send(html);
+  }
+  return res.status(404).send('Report page not found');
+});
+
+app.get(['/shop', '/standalone/shop', '/shop.html'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=30');
+  const shopPath = path.join(process.cwd(), 'public', 'shop.html');
+  if (fs.existsSync(shopPath)) {
+    return res.sendFile(shopPath);
+  }
+  return res.status(404).send('Shop page not found');
 });
 
 // Vite integration or static file serving

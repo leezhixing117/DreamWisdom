@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>DreamWisdom 解夢選物店 ｜ 將夢中的訊息，轉化為守護與療癒能量</title>
+  <meta name="description" content="將夢中的訊息轉化為日常守護。零離碌柚葉好運香水、白鼠尾草、原礦晶簇、晚安草本舒緩茶。身心靈生活美學輔助，非醫療製品。">
+  
+  <!-- CDN 字體引入 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Noto+Serif+TC:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dwPrimary: '#4A47A3',     // 主色：深天體青藍（嚴禁紫色）
+            dwPrimaryHover: '#3B3888',
+            dwSecondary: '#8BA690',   // 輔色：尤加利鼠尾草綠
+            dwSecondaryLight: '#E8EFEA',
+            dwAccent: '#D97706',      // 溫潤琥珀金
+            dwIceBg: '#F0F5FA',       // 淺冰藍漸變底色
+            dwTextMain: '#1E293B',
+            dwTextMuted: '#64748B',
+          },
+          fontFamily: {
+            hero: ['"Playfair Display"', '"Noto Serif TC"', 'serif'],
+            sans: ['"Inter"', '"Noto Sans TC"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+      background: linear-gradient(145deg, #f0f6fa 0%, #e6eef8 45%, #f4f8fc 100%);
+      color: #1E293B;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .body-text {
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    @media (min-width: 768px) {
+      .body-text {
+        font-size: 17px;
+        line-height: 1.75;
+      }
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(139, 166, 144, 0.22);
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(74, 71, 163, 0.05);
+      transition: transform 0.28s ease, box-shadow 0.28s ease;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 36px rgba(74, 71, 163, 0.09);
+    }
+
+    .btn-touch {
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    /* 橫向分類捲軸優化 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <!-- ======================================================== -->
+  <!-- 1. 共用頂部導航列 (Universal Navbar) -->
+  <!-- ======================================================== -->
+  <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-[#8BA690]/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- 品牌 Logo -->
+      <a href="home.html" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-full bg-[#4A47A3] flex items-center justify-center text-white font-bold shadow-md shadow-[#4A47A3]/20 group-hover:scale-105 transition-transform">
+          ✦
+        </div>
+        <div class="flex flex-col">
+          <span class="font-hero text-xl font-bold tracking-tight text-[#4A47A3]">DreamWisdom</span>
+          <span class="text-[11px] text-[#8BA690] font-medium tracking-wider">廣東話榮格夢境宇宙</span>
+        </div>
+      </a>
+
+      <!-- 桌面端導航選單 -->
+      <nav class="hidden md:flex items-center gap-8 text-[15px] font-medium text-slate-700">
+        <a href="home.html" class="hover:text-[#4A47A3] transition-colors">首頁</a>
+        <a href="home.html#dream-record" class="hover:text-[#4A47A3] transition-colors">記錄夢境</a>
+        <a href="report.html" class="hover:text-[#4A47A3] transition-colors">解夢報告</a>
+        <a href="shop.html" class="text-[#4A47A3] font-semibold border-b-2 border-[#4A47A3] pb-1 flex items-center gap-1.5">
+          <span>解夢選物店</span>
+          <span class="text-[10px] bg-[#8BA690]/20 text-[#2E4A35] font-semibold px-2 py-0.5 rounded-full">身心靈</span>
+        </a>
+        <a href="home.html#faq" class="hover:text-[#4A47A3] transition-colors">FAQ</a>
+      </nav>
+
+      <!-- 右側動作區 -->
+      <div class="flex items-center gap-4">
+        <button id="cartBtn" class="relative p-2.5 rounded-full hover:bg-slate-100 transition-colors btn-touch" title="查看購物車">
+          <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span id="cartCountBadge" class="hidden absolute top-1 right-1 bg-[#D97706] text-white text-[11px] font-bold w-5 h-5 rounded-full items-center justify-center">0</span>
+        </button>
+
+        <a href="home.html#dream-record" class="hidden sm:inline-flex btn-touch px-5 py-2.5 rounded-full bg-[#4A47A3] hover:bg-[#3B3888] text-white text-sm font-medium shadow-md shadow-[#4A47A3]/25">
+          記錄夢境
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- 2. 選物店主視覺橫幅 (Banner & 商店專屬免責) -->
+  <!-- ======================================================== -->
+  <section class="pt-10 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="glass-card p-8 md:p-12 text-center relative overflow-hidden">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#8BA690]/20 text-[#243E2C] text-xs font-semibold tracking-wider mb-3">
+        <span>🌿 PSYCHE & WELLNESS APOTHECARY</span>
+      </div>
+      <h1 class="font-hero text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-3">
+        DreamWisdom 解夢選物店
+      </h1>
+      <p class="text-base sm:text-lg text-[#4A47A3] font-medium max-w-2xl mx-auto mb-4">
+        「將夢中的訊息，轉化為守護與療癒能量」
+      </p>
+
+      <!-- 商店專屬免責聲明 -->
+      <div class="max-w-3xl mx-auto bg-amber-50/90 border border-amber-200/80 rounded-xl p-3.5 text-xs text-slate-700 leading-relaxed">
+        <span class="text-amber-800 font-bold">⚠️ 商店溫馨提示：</span>
+        選物店所有產品均為日常身心靈儀式、草本芳香與生活美學輔助物件，<strong>非醫療製品，不具任何醫療、治療或診斷功效</strong>，不能替代專業心理學或醫學治療。
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- 3. 精選儀式套裝推廣區 (Featured Bundles) -->
+  <!-- ======================================================== -->
+  <section class="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="font-hero text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <span>🌟 心靈儀式套裝 · 團隊精選</span>
+        </h2>
+        <p class="text-xs text-slate-500">專屬配方組合，全面呵護睡眠品質與氣場重置</p>
+      </div>
+    </div>
+
+    <div id="bundleContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- 套裝內容由 shop-bootstrap API 動態注入 -->
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- 4. 分類橫向標籤欄 (支援 200ms 防抖切換) -->
+  <!-- ======================================================== -->
+  <section class="py-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-200/80 mb-6">
+      <div id="categoryTabs" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <!-- 分類按鈕動態注入 -->
+        <button class="cat-tab-btn active px-4 py-2 rounded-full bg-[#4A47A3] text-white text-xs font-semibold btn-touch" data-id="all">全部商品</button>
+      </div>
+
+      <div class="text-xs text-slate-400 hidden sm:block whitespace-nowrap">
+        共 <span id="totalProductCount" class="font-bold text-[#4A47A3]">0</span> 件心靈物件
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- 5. 商品展示網格 (桌面 3 欄 / 平板 2 欄 / 手機 1 欄，支援分頁) -->
+  <!-- ======================================================== -->
+  <main class="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-16">
+    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- 商品卡片由 API 動態渲染 -->
+      <div class="glass-card p-8 text-center animate-pulse col-span-full py-20">
+        <div class="w-16 h-16 bg-slate-200 rounded-full mx-auto mb-4"></div>
+        <div class="h-4 bg-slate-200 rounded w-1/3 mx-auto mb-2"></div>
+        <div class="text-xs text-slate-400">正在調用 /api/shop-bootstrap 載入選物店數據...</div>
+      </div>
+    </div>
+
+    <!-- 分頁器 (每頁預設 12 件) -->
+    <div id="paginationContainer" class="mt-12 flex items-center justify-center gap-2"></div>
+
+    <!-- 底部免責卡片 -->
+    <div class="mt-16 glass-card p-6 border-l-4 border-l-[#8BA690] text-xs text-slate-600 leading-relaxed">
+      <h3 class="font-bold text-slate-800 text-sm mb-1">關於解夢選物店產品的使用承諾</h3>
+      <p>
+        選物店精選之嶺南碌柚葉、高地薰衣草、白鼠尾草、天然晶簇與洋甘菊草本茶，皆旨在透過嗅覺、觸覺與睡前神聖儀式，為緊繃的心靈騰出放鬆喘息空間。本平台所有商品文案<strong>嚴格遵守非醫療規範</strong>，絕無醫療宣稱。如有反覆困擾之精神健康議題，請務必尋求香港認可之專業臨床心理學家或精神科醫生協助。
+      </p>
+    </div>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- 6. 商品詳情彈窗 Modal -->
+  <!-- ======================================================== -->
+  <div id="productModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[110] hidden flex items-center justify-center p-4">
+    <div class="glass-card bg-white max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 relative">
+      <button id="closeModalBtn" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-800 btn-touch">✕</button>
+      
+      <div id="modalContent" class="space-y-4">
+        <!-- 內容動態填充 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 7. 隱藏式管理員登入與分類維護面板 (角落隱藏入口) -->
+  <!-- ======================================================== -->
+  <div class="fixed bottom-4 right-4 z-40">
+    <button id="adminToggleBtn" class="w-8 h-8 rounded-full bg-slate-300/60 hover:bg-[#4A47A3] text-white flex items-center justify-center text-xs opacity-40 hover:opacity-100 transition-opacity" title="管理員安全通道">
+      🔒
+    </button>
+  </div>
+
+  <!-- 管理員維護抽屜/彈窗 (需 HttpOnly Cookie 鑑權) -->
+  <div id="adminModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[120] hidden flex items-center justify-center p-4">
+    <div class="glass-card bg-white max-w-xl w-full p-6 md:p-8 relative">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+        <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+          <span>🛠️ DreamWisdom 選物店分類維護後台</span>
+        </h3>
+        <button id="closeAdminBtn" class="p-2 text-slate-400 hover:text-slate-800 btn-touch">✕</button>
+      </div>
+
+      <!-- 未登入狀態：密碼登入 -->
+      <div id="adminLoginForm" class="space-y-4">
+        <p class="text-xs text-slate-500">
+          * 安全規範：認證採用 <strong>HttpOnly + Secure + SameSite=Lax Cookie</strong>，前端無 Token 暫存，防範 XSS 攻擊。
+        </p>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">請輸入管理員密碼：</label>
+          <input type="password" id="adminPasswordInput" placeholder="輸入管理密碼..." class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#4A47A3]">
+        </div>
+        <button id="adminLoginBtn" class="w-full btn-touch py-2.5 bg-[#4A47A3] hover:bg-[#3B3888] text-white font-bold text-sm rounded-xl">
+          登入管理員身分
+        </button>
+      </div>
+
+      <!-- 已登入狀態：分類 CRUD 操作區 -->
+      <div id="adminDashboard" class="hidden space-y-5">
+        <div class="flex items-center justify-between bg-emerald-50 text-emerald-800 p-2.5 rounded-lg text-xs font-semibold">
+          <span>✅ 管理員 HttpOnly Cookie 已就緒 (403 鑑權保護)</span>
+          <button id="adminLogoutBtn" class="text-xs text-rose-600 underline">登出</button>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">現有分類管理</h4>
+          <div id="adminCategoryList" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200">
+          <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">新增商品分類</h4>
+          <div class="space-y-2">
+            <input type="text" id="newCatName" placeholder="分類名稱 (例：放鬆冥想)" class="w-full p-2 border border-slate-300 rounded-lg text-xs">
+            <input type="text" id="newCatDesc" placeholder="分類描述 (身心靈日常輔助語境)" class="w-full p-2 border border-slate-300 rounded-lg text-xs">
+            <button id="addCatBtn" class="btn-touch w-full py-2 bg-[#8BA690] hover:bg-[#728c77] text-white font-bold text-xs rounded-lg">
+              確認新增分類 (清空快取並重拉)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 購物車抽屜 (共用) -->
+  <div id="cartDrawerBackdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden transition-opacity"></div>
+  <div id="cartDrawer" class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white shadow-2xl z-[101] transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🛍️</span>
+        <h3 class="font-bold text-slate-800 text-lg">我的心靈選物袋</h3>
+      </div>
+      <button id="closeCartBtn" class="p-2 text-slate-400 hover:text-slate-700 btn-touch">✕</button>
+    </div>
+
+    <div id="cartItemsContainer" class="flex-grow overflow-y-auto p-5 space-y-4"></div>
+
+    <div class="p-5 border-t border-slate-200 bg-slate-50 space-y-3">
+      <div class="flex items-center justify-between text-base font-bold text-slate-800">
+        <span>小計：</span>
+        <span id="cartDrawerTotal" class="text-xl text-[#4A47A3]">HK$ 0</span>
+      </div>
+      <button id="checkoutBtn" class="w-full btn-touch py-3 rounded-xl bg-[#4A47A3] hover:bg-[#3B3888] text-white font-bold text-sm shadow-md">
+        前往結帳 (模擬訂單)
+      </button>
+    </div>
+  </div>
+
+  <!-- 共用頁尾 -->
+  <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 text-sm mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs space-y-2">
+      <p>© 2026 DreamWisdom HK. 廣東話榮格夢境自我反思工具 ｜ 解夢選物店.</p>
+      <p class="text-slate-500">所有產品均屬日常身心靈輔助物件，非醫療製品，不能替代專業心理學或醫學治療。</p>
+    </div>
+  </footer>
+
+  <!-- ======================================================== -->
+  <!-- 8. 前端邏輯 JS 模組 (API 呼叫、防抖、管理員 CRUD、無 localStorage) -->
+  <!-- ======================================================== -->
+  <script type="module">
+    import {
+      loadShopBootstrap,
+      loadProducts,
+      loadCategories,
+      createCategory,
+      updateCategory,
+      removeCategory,
+      adminLogin,
+      adminLogout,
+      checkAdminStatus,
+      clearApiCache,
+      debounce,
+      addToCart,
+      getCart,
+      getCartCount,
+      getCartTotal,
+      updateCartQuantity,
+      onCartChange
+    } from './api.js';
+
+    // 狀態存於當前頁面閉包記憶體中（絕不使用 localStorage / sessionStorage）
+    let currentCategoryId = 'all';
+    let currentPage = 1;
+    let allCategories = [];
+    let currentProducts = [];
+
+    // 1. 初始化頁面：呼叫 /api/shop-bootstrap
+    async function initShop() {
+      try {
+        const bootstrap = await loadShopBootstrap();
+        allCategories = bootstrap.categories || [];
+        renderCategoryTabs(allCategories);
+        renderBundles(bootstrap.bundles || []);
+        renderProducts(bootstrap.initialProducts || []);
+        document.getElementById('totalProductCount').textContent = bootstrap.totalProducts || 0;
+      } catch (err) {
+        console.error('初始化選物店失敗:', err);
+        document.getElementById('productGrid').innerHTML = `
+          <div class="col-span-full text-center py-12 text-slate-400">
+            加載選物店時發生網絡問題，請刷新頁面再試。
+          </div>
+        `;
+      }
+    }
+
+    // 2. 渲染分類橫向 Tabs
+    function renderCategoryTabs(categories) {
+      const container = document.getElementById('categoryTabs');
+      container.innerHTML = categories.map(cat => `
+        <button class="cat-tab-btn ${cat.id === currentCategoryId ? 'bg-[#4A47A3] text-white' : 'bg-white/80 text-slate-700 hover:bg-slate-100'} px-4 py-2 rounded-full border border-slate-200 text-xs font-semibold btn-touch whitespace-nowrap transition-colors" data-id="${cat.id}">
+          ${cat.name}
+        </button>
+      `).join('');
+
+      // 綁定點擊事件 (使用 200ms 防抖處理快速切換)
+      container.querySelectorAll('.cat-tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const catId = e.currentTarget.dataset.id;
+          if (catId === currentCategoryId) return;
+          currentCategoryId = catId;
+          currentPage = 1;
+
+          // 更新按鈕樣式
+          container.querySelectorAll('.cat-tab-btn').forEach(b => {
+            b.classList.remove('bg-[#4A47A3]', 'text-white');
+            b.classList.add('bg-white/80', 'text-slate-700');
+          });
+          e.currentTarget.classList.add('bg-[#4A47A3]', 'text-white');
+          e.currentTarget.classList.remove('bg-white/80', 'text-slate-700');
+
+          debouncedFetchProducts(currentCategoryId, currentPage);
+        });
+      });
+    }
+
+    // 3. 200ms 防抖調用商品 API
+    const debouncedFetchProducts = debounce(async (catId, page) => {
+      const grid = document.getElementById('productGrid');
+      grid.innerHTML = '<div class="col-span-full text-center py-16 text-slate-400">正在獲取心靈物件...</div>';
+      try {
+        const res = await loadProducts(catId, page, 12);
+        renderProducts(res.products || []);
+        renderPagination(res.totalPages || 1, page);
+      } catch (err) {
+        console.error('切換分類失敗:', err);
+      }
+    }, 200);
+
+    // 4. 渲染套裝推廣區
+    function renderBundles(bundles) {
+      const container = document.getElementById('bundleContainer');
+      if (!bundles || bundles.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+
+      container.innerHTML = bundles.map(b => `
+        <div class="glass-card p-6 flex flex-col sm:flex-row gap-5 items-center justify-between border-2 border-[#8BA690]/40">
+          <img src="${b.imageUrl}" alt="${b.name}" class="w-full sm:w-36 h-36 object-cover rounded-xl shadow-sm">
+          <div class="flex-grow space-y-2 text-center sm:text-left">
+            <span class="text-[11px] font-bold bg-[#D97706]/15 text-[#D97706] px-2.5 py-0.5 rounded-full">${b.badge || '熱賣套裝'}</span>
+            <h3 class="font-bold text-slate-900 text-base md:text-lg">${b.name}</h3>
+            <p class="text-xs text-slate-500 line-clamp-2">${b.subTitle}</p>
+            <div class="flex items-center justify-center sm:justify-start gap-3">
+              <span class="text-xl font-bold text-[#4A47A3]">HK$ ${b.priceHKD}</span>
+              <span class="text-xs text-slate-400 line-through">HK$ ${b.originalPriceHKD}</span>
+            </div>
+          </div>
+          <button class="add-bundle-btn btn-touch px-6 py-2.5 bg-[#4A47A3] hover:bg-[#3B3888] text-white text-xs font-bold rounded-xl whitespace-nowrap shadow-md" data-product='${JSON.stringify(b)}'>
+            帶走套裝
+          </button>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.add-bundle-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const product = JSON.parse(e.currentTarget.dataset.product);
+          addToCart(product, 1);
+          alert(`已將套裝「${product.name}」加入選物袋！`);
+        });
+      });
+    }
+
+    // 5. 渲染商品網格 (卡片含圖、分類標籤、名稱、廣東話非醫療描述、售價、加入購物車、查看詳情)
+    function renderProducts(products) {
+      currentProducts = products;
+      const grid = document.getElementById('productGrid');
+      if (!products || products.length === 0) {
+        grid.innerHTML = '<div class="col-span-full text-center py-16 text-slate-400">此分類暫無商品</div>';
+        return;
+      }
+
+      grid.innerHTML = products.map(prod => `
+        <div class="glass-card overflow-hidden flex flex-col justify-between group">
+          <div>
+            <div class="h-48 overflow-hidden relative">
+              <img src="${prod.imageUrl}" alt="${prod.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+              <div class="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur-md text-[11px] font-bold text-[#4A47A3] px-2.5 py-1 rounded-md shadow-sm">
+                ${prod.categoryLabel || '身心靈輔助'}
+              </div>
+            </div>
+            
+            <div class="p-6">
+              <div class="text-[11px] font-semibold text-[#8BA690] mb-1">${prod.brand}</div>
+              <h3 class="font-bold text-slate-900 text-base line-clamp-1 mb-1">${prod.name}</h3>
+              <p class="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed">${prod.subTitle}</p>
+              
+              <div class="flex items-baseline gap-2 mb-2">
+                <span class="text-xl font-bold text-[#4A47A3]">HK$ ${prod.priceHKD}</span>
+                <span class="text-xs text-slate-400 line-through">HK$ ${prod.originalPriceHKD}</span>
+              </div>
+              <div class="text-[11px] text-slate-400 font-medium">${prod.volumeOrSpec} · ${prod.availabilityStatus}</div>
+            </div>
+          </div>
+
+          <div class="px-6 pb-6 pt-2 border-t border-slate-100 flex items-center gap-2">
+            <button class="view-detail-btn btn-touch flex-1 py-2.5 bg-white border border-slate-200 hover:border-[#4A47A3] text-slate-700 hover:text-[#4A47A3] text-xs font-semibold rounded-xl" data-id="${prod.id}">
+              查看詳情
+            </button>
+            <button class="add-to-cart-btn btn-touch flex-1 py-2.5 bg-[#4A47A3] hover:bg-[#3B3888] text-white text-xs font-semibold rounded-xl shadow-sm" data-id="${prod.id}">
+              加入選物袋
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      // 查看詳情彈窗
+      grid.querySelectorAll('.view-detail-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.currentTarget.dataset.id;
+          const product = currentProducts.find(p => p.id === id);
+          if (product) openProductModal(product);
+        });
+      });
+
+      // 加入購物車
+      grid.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.currentTarget.dataset.id;
+          const product = currentProducts.find(p => p.id === id);
+          if (product) {
+            addToCart(product, 1);
+            alert(`已將「${product.name}」加入選物袋！`);
+          }
+        });
+      });
+    }
+
+    // 6. 分頁器渲染
+    function renderPagination(totalPages, page) {
+      const container = document.getElementById('paginationContainer');
+      if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+
+      let html = '';
+      for (let i = 1; i <= totalPages; i++) {
+        html += `
+          <button class="btn-touch w-10 h-10 rounded-xl text-xs font-bold ${i === page ? 'bg-[#4A47A3] text-white' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'}" data-page="${i}">
+            ${i}
+          </button>
+        `;
+      }
+      container.innerHTML = html;
+
+      container.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          currentPage = parseInt(e.currentTarget.dataset.page, 10);
+          debouncedFetchProducts(currentCategoryId, currentPage);
+        });
+      });
+    }
+
+    // 7. 商品詳情 Modal
+    const productModal = document.getElementById('productModal');
+    const modalContent = document.getElementById('modalContent');
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      productModal.classList.add('hidden');
+    });
+
+    function openProductModal(product) {
+      modalContent.innerHTML = `
+        <div class="flex flex-col md:flex-row gap-6">
+          <img src="${product.imageUrl}" class="w-full md:w-56 h-56 object-cover rounded-2xl shadow-md" alt="${product.name}">
+          <div class="flex-grow space-y-2">
+            <span class="text-xs font-bold text-[#8BA690] bg-[#8BA690]/15 px-2.5 py-0.5 rounded-full">${product.categoryLabel}</span>
+            <h3 class="text-xl font-bold text-slate-900">${product.name}</h3>
+            <p class="text-xs text-slate-500">${product.subTitle}</p>
+            <div class="flex items-baseline gap-2 pt-2">
+              <span class="text-2xl font-bold text-[#4A47A3]">HK$ ${product.priceHKD}</span>
+              <span class="text-xs text-slate-400 line-through">HK$ ${product.originalPriceHKD}</span>
+            </div>
+            <div class="text-xs text-slate-600 font-medium">規格：${product.volumeOrSpec} ｜ 保存期：${product.shelfLife}</div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-slate-100 space-y-3 text-xs md:text-sm text-slate-700">
+          <div>
+            <h4 class="font-bold text-slate-900 mb-1">🌿 核心成分與調理特點：</h4>
+            <ul class="list-disc pl-5 space-y-1">
+              ${(product.keyBenefits || []).map(b => `<li>${b}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-slate-900 mb-1">💡 適合夢境對應：</h4>
+            <div class="flex flex-wrap gap-1.5">
+              ${(product.suitableDreams || []).map(d => `<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs">${d}</span>`).join('')}
+            </div>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-slate-900 mb-1">📖 使用方法：</h4>
+            <p class="text-slate-600 leading-relaxed">${product.usageGuide || '睡前使用'}</p>
+          </div>
+
+          <div class="bg-amber-50 p-3 rounded-xl border border-amber-100 text-xs text-slate-600">
+            <span class="font-bold text-amber-800">⚠️ 注意事項：</span>
+            ${(product.cautions || []).join(' ')}
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-slate-100 flex justify-end">
+          <button id="modalAddToCartBtn" class="btn-touch px-8 py-2.5 bg-[#4A47A3] hover:bg-[#3B3888] text-white text-xs font-bold rounded-xl shadow-md">
+            加入心靈選物袋 (HK$ ${product.priceHKD})
+          </button>
+        </div>
+      `;
+
+      document.getElementById('modalAddToCartBtn').addEventListener('click', () => {
+        addToCart(product, 1);
+        productModal.classList.add('hidden');
+        alert(`已將「${product.name}」加入選物袋！`);
+      });
+
+      productModal.classList.remove('hidden');
+    }
+
+    // 8. 角落隱藏管理員入口與 CRUD 控制
+    const adminToggleBtn = document.getElementById('adminToggleBtn');
+    const adminModal = document.getElementById('adminModal');
+    const closeAdminBtn = document.getElementById('closeAdminBtn');
+    const adminLoginForm = document.getElementById('adminLoginForm');
+    const adminDashboard = document.getElementById('adminDashboard');
+    const adminPasswordInput = document.getElementById('adminPasswordInput');
+    const adminLoginBtn = document.getElementById('adminLoginBtn');
+    const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+    const adminCategoryList = document.getElementById('adminCategoryList');
+    const addCatBtn = document.getElementById('addCatBtn');
+
+    adminToggleBtn.addEventListener('click', async () => {
+      adminModal.classList.remove('hidden');
+      const isAdmin = await checkAdminStatus();
+      if (isAdmin) {
+        showAdminDashboard();
+      } else {
+        adminLoginForm.classList.remove('hidden');
+        adminDashboard.classList.add('hidden');
+      }
+    });
+
+    closeAdminBtn.addEventListener('click', () => {
+      adminModal.classList.add('hidden');
+    });
+
+    adminLoginBtn.addEventListener('click', async () => {
+      const pwd = adminPasswordInput.value.trim();
+      if (!pwd) return;
+      try {
+        await adminLogin(pwd);
+        showAdminDashboard();
+      } catch (err) {
+        alert('登入失敗：' + err.message);
+      }
+    });
+
+    adminLogoutBtn.addEventListener('click', async () => {
+      await adminLogout();
+      adminLoginForm.classList.remove('hidden');
+      adminDashboard.classList.add('hidden');
+      clearApiCache();
+    });
+
+    async function showAdminDashboard() {
+      adminLoginForm.classList.add('hidden');
+      adminDashboard.classList.remove('hidden');
+      await refreshAdminCategories();
+    }
+
+    async function refreshAdminCategories() {
+      try {
+        const cats = await loadCategories();
+        adminCategoryList.innerHTML = cats.map(c => `
+          <div class="flex items-center justify-between p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+            <div>
+              <span class="font-bold text-slate-800">${c.name}</span>
+              <span class="text-slate-400 ml-2">(${c.id})</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <button class="edit-cat-btn text-xs text-blue-600 hover:underline px-1" data-id="${c.id}" data-name="${c.name}" data-desc="${c.description}">編輯</button>
+              <button class="delete-cat-btn text-xs text-rose-600 hover:underline px-1" data-id="${c.id}" data-name="${c.name}">刪除</button>
+            </div>
+          </div>
+        `).join('');
+
+        // 綁定編輯
+        adminCategoryList.querySelectorAll('.edit-cat-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = e.currentTarget.dataset.id;
+            const curName = e.currentTarget.dataset.name;
+            const curDesc = e.currentTarget.dataset.desc;
+            const newName = prompt('請輸入修改後的分類名稱：', curName);
+            if (newName && newName.trim()) {
+              const newDesc = prompt('請輸入分類描述：', curDesc);
+              await updateCategory(id, { name: newName, description: newDesc });
+              alert('分類修改成功！');
+              await refreshAdminCategories();
+              initShop(); // 刷新選物店前端頁面
+            }
+          });
+        });
+
+        // 綁定刪除 (包含二次確認)
+        adminCategoryList.querySelectorAll('.delete-cat-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = e.currentTarget.dataset.id;
+            const name = e.currentTarget.dataset.name;
+            const confirm1 = confirm(`確定要刪除分類「${name}」嗎？`);
+            if (confirm1) {
+              const confirm2 = confirm(`【二次確認】刪除分類後無法復原，確定要執行嗎？`);
+              if (confirm2) {
+                await removeCategory(id);
+                alert('分類已成功刪除！');
+                await refreshAdminCategories();
+                initShop();
+              }
+            }
+          });
+        });
+
+      } catch (err) {
+        console.error('加載管理分類失敗:', err);
+      }
+    }
+
+    addCatBtn.addEventListener('click', async () => {
+      const name = document.getElementById('newCatName').value.trim();
+      const desc = document.getElementById('newCatDesc').value.trim();
+      if (!name) {
+        alert('請填寫分類名稱');
+        return;
+      }
+      try {
+        await createCategory({ name, description: desc });
+        document.getElementById('newCatName').value = '';
+        document.getElementById('newCatDesc').value = '';
+        alert('新分類已建立！前端記憶體快取已清空並重新加載。');
+        await refreshAdminCategories();
+        initShop();
+      } catch (err) {
+        alert('建立失敗：' + err.message);
+      }
+    });
+
+    // 9. 記憶體購物車側欄抽屜邏輯
+    const cartBtn = document.getElementById('cartBtn');
+    const closeCartBtn = document.getElementById('closeCartBtn');
+    const cartDrawer = document.getElementById('cartDrawer');
+    const cartDrawerBackdrop = document.getElementById('cartDrawerBackdrop');
+    const cartCountBadge = document.getElementById('cartCountBadge');
+    const cartItemsContainer = document.getElementById('cartItemsContainer');
+    const cartDrawerTotal = document.getElementById('cartDrawerTotal');
+
+    function openCart() {
+      cartDrawerBackdrop.classList.remove('hidden');
+      cartDrawer.classList.remove('translate-x-full');
+      renderCart();
+    }
+
+    function closeCart() {
+      cartDrawerBackdrop.classList.add('hidden');
+      cartDrawer.classList.add('translate-x-full');
+    }
+
+    cartBtn.addEventListener('click', openCart);
+    closeCartBtn.addEventListener('click', closeCart);
+    cartDrawerBackdrop.addEventListener('click', closeCart);
+
+    function renderCart() {
+      const cart = getCart();
+      const count = getCartCount();
+      const total = getCartTotal();
+
+      if (count > 0) {
+        cartCountBadge.textContent = count;
+        cartCountBadge.classList.remove('hidden');
+        cartCountBadge.classList.add('flex');
+      } else {
+        cartCountBadge.classList.add('hidden');
+        cartCountBadge.classList.remove('flex');
+      }
+
+      cartDrawerTotal.textContent = `HK$ ${total}`;
+
+      if (cart.length === 0) {
+        cartItemsContainer.innerHTML = '<div class="text-center py-16 text-slate-400 text-sm">選物袋目前為空</div>';
+        return;
+      }
+
+      cartItemsContainer.innerHTML = cart.map(item => `
+        <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+          <img src="${item.product.imageUrl}" class="w-14 h-14 object-cover rounded-lg" alt="${item.product.name}">
+          <div class="flex-grow">
+            <h4 class="text-xs font-bold text-slate-800 line-clamp-1">${item.product.name}</h4>
+            <div class="text-xs text-[#4A47A3] font-semibold mt-0.5">HK$ ${item.product.priceHKD}</div>
+            <div class="flex items-center gap-2 mt-2">
+              <button class="cart-qty-btn px-2 py-0.5 bg-white border border-slate-200 rounded text-xs" data-id="${item.product.id}" data-delta="-1">-</button>
+              <span class="text-xs font-bold text-slate-700">${item.quantity}</span>
+              <button class="cart-qty-btn px-2 py-0.5 bg-white border border-slate-200 rounded text-xs" data-id="${item.product.id}" data-delta="1">+</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      cartItemsContainer.querySelectorAll('.cart-qty-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.currentTarget.dataset.id;
+          const delta = parseInt(e.currentTarget.dataset.delta, 10);
+          updateCartQuantity(id, delta);
+        });
+      });
+    }
+
+    onCartChange(renderCart);
+
+    document.getElementById('checkoutBtn').addEventListener('click', () => {
+      const count = getCartCount();
+      if (count === 0) {
+        alert('選物袋為空');
+        return;
+      }
+      alert('【模擬訂單已成功建立】\n正式支付將對接香港本地支付（FPS / PayMe / 信用卡），商品將經由順豐速運配送！');
+    });
+
+    // 啟動選物店
+    initShop();
+  </script>
+</body>
+</html>
