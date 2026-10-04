@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { BookBrainItem, EngineSettings, EnginePresetType, User, UserRole, ProductItem, AdVideoItem, TherapistItem, BannedRecord, LoginRecord, AdWatchRecord, ShopVisitRecord, normalizeRole, getRoleDisplayName } from '../types';
 import { INITIAL_PRODUCTS } from '../data/products';
 import { INITIAL_AD_VIDEOS, ENGINE_PRESETS, EnginePresetDefinition, INITIAL_SETTINGS } from '../data';
@@ -266,17 +266,29 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({
 
   // Synchronize users when initialUsers changes
   useEffect(() => {
-    setUsers(initialUsers);
+    if (initialUsers) {
+      setUsers((prev) => (prev === initialUsers ? prev : initialUsers));
+    }
   }, [initialUsers]);
 
   // Synchronize settings when initialSettings changes
+  const isSettingsMountedRef = useRef(false);
   useEffect(() => {
+    if (!isSettingsMountedRef.current) {
+      isSettingsMountedRef.current = true;
+      return;
+    }
     if (initialSettings) {
-      setSettings((prev) => ({
-        ...INITIAL_SETTINGS,
-        ...prev,
-        ...initialSettings,
-      }));
+      setSettings((prev) => {
+        if (JSON.stringify(prev) === JSON.stringify(initialSettings)) {
+          return prev;
+        }
+        return {
+          ...INITIAL_SETTINGS,
+          ...prev,
+          ...initialSettings,
+        };
+      });
     }
   }, [initialSettings]);
 

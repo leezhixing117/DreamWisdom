@@ -120,7 +120,12 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
   const [mysteryJourney, setMysteryJourney] = useState(initialThirtyNightsJourney);
 
   // Sync constellation when history updates with newly recorded dreams
+  const isConstellationMountedRef = useRef(false);
   useEffect(() => {
+    if (!isConstellationMountedRef.current) {
+      isConstellationMountedRef.current = true;
+      return;
+    }
     setConstellationData(buildConstellationFromHistory(history));
   }, [history]);
 

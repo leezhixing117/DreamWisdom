@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Compass, RotateCw, Sparkles, Orbit, Info, ArrowUpRight, Crown, Lock, CheckCircle2, X } from 'lucide-react';
 
 interface Archetype {
@@ -29,6 +29,8 @@ interface CelestialRotatingAstrolabeProps {
   className?: string;
   isPaidMember?: boolean;
   onRequirePaid?: () => void;
+  hideHeader?: boolean;
+  compact?: boolean;
 }
 
 /**
@@ -44,11 +46,12 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
   className = '',
   isPaidMember = false,
   onRequirePaid,
+  hideHeader = false,
+  compact = false,
 }) => {
   const [rotation, setRotation] = useState<number>(15);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [isAutoSpinning, setIsAutoSpinning] = useState<boolean>(true);
-  const [activeArchetype, setActiveArchetype] = useState<Archetype>(ARCHETYPES[0]);
   const [isAligning, setIsAligning] = useState<boolean>(false);
   const [showVipModal, setShowVipModal] = useState<boolean>(false);
 
@@ -56,13 +59,12 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
   const lastAngleRef = useRef<number>(0);
   const autoSpinAnimRef = useRef<number | null>(null);
 
-  // Calculate current active archetype based on rotation angle (normalized 0-360)
-  const updateActiveArchetype = useCallback((deg: number) => {
-    const normalized = ((deg % 360) + 360) % 360;
-    // Find closest archetype (each step is 30 deg)
+  // Pure derived active archetype based on rotation angle (normalized 0-360)
+  const activeArchetype = useMemo(() => {
+    const normalized = ((rotation % 360) + 360) % 360;
     const index = Math.round(normalized / 30) % 12;
-    setActiveArchetype(ARCHETYPES[index]);
-  }, []);
+    return ARCHETYPES[index];
+  }, [rotation]);
 
   // Continuous gentle ambient spin when auto-spinning is on and not dragging
   useEffect(() => {
@@ -72,11 +74,7 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
       lastTime = now;
 
       if (isAutoSpinning && !isDragging && !isAligning) {
-        setRotation((prev) => {
-          const next = (prev + delta * 0.015) % 360;
-          updateActiveArchetype(next);
-          return next;
-        });
+        setRotation((prev) => (prev + delta * 0.015) % 360);
       }
       autoSpinAnimRef.current = requestAnimationFrame(animate);
     };
@@ -85,7 +83,7 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
     return () => {
       if (autoSpinAnimRef.current) cancelAnimationFrame(autoSpinAnimRef.current);
     };
-  }, [isAutoSpinning, isDragging, isAligning, updateActiveArchetype]);
+  }, [isAutoSpinning, isDragging, isAligning]);
 
   // Pointer / Drag Calculation
   const getAngleFromEvent = (e: MouseEvent | TouchEvent): number => {
@@ -116,11 +114,7 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
     const diff = currentAngle - lastAngleRef.current;
     lastAngleRef.current = currentAngle;
 
-    setRotation((prev) => {
-      const next = (prev + diff + 360) % 360;
-      updateActiveArchetype(next);
-      return next;
-    });
+    setRotation((prev) => (prev + diff + 360) % 360);
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -169,13 +163,11 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
       const ease = 1 - Math.pow(1 - progress, 4);
       const current = rotation + (finalRot - rotation) * ease;
       setRotation(current);
-      updateActiveArchetype(current);
 
       if (progress < 1) {
         requestAnimationFrame(step);
       } else {
         setIsAligning(false);
-        setActiveArchetype(targetArchetype);
         if (onSelectArchetype) onSelectArchetype(targetArchetype);
       }
     };
@@ -186,40 +178,42 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
   return (
     <div className={`w-full max-w-4xl mx-auto flex flex-col items-center ${className}`} id="celestial-astrolabe-widget">
       {/* 標題與簡介 (付費會員尊享專區 + OracleVox 莊嚴東方哲學風格) */}
-      <div className="text-center mb-6 max-w-2xl px-4">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-50 to-blue-50 border border-amber-200/80 text-amber-900 text-xs font-bold mb-2.5 shadow-2xs">
-          <Crown className="w-3.5 h-3.5 text-amber-600" />
-          <span>👑 付費會員尊享專區 · ORACLE ASTROLABE</span>
-        </div>
-        <h3 className="font-celestial-serif font-black text-2xl sm:text-3xl text-slate-900 tracking-wide flex items-center justify-center gap-2">
-          <span>✦ 潛意識天體星盤 · 12 宿心靈原型 ✦</span>
-        </h3>
-        <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed">
-          按住圓盤隨意探索天體軌道；<strong className="text-blue-700">「撥動星盤」為付費會員專屬特權</strong>，與心靈原型深度共振。
-        </p>
+      {!hideHeader && (
+        <div className="text-center mb-6 max-w-2xl px-4">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-50 to-blue-50 border border-amber-200/80 text-amber-900 text-xs font-bold mb-2.5 shadow-2xs">
+            <Crown className="w-3.5 h-3.5 text-amber-600" />
+            <span>👑 付費會員尊享專區 · ORACLE ASTROLABE</span>
+          </div>
+          <h3 className="font-celestial-serif font-black text-2xl sm:text-3xl text-slate-900 tracking-wide flex items-center justify-center gap-2">
+            <span>✦ 潛意識天體星盤 · 12 宿心靈原型 ✦</span>
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed">
+            按住圓盤隨意探索天體軌道；<strong className="text-blue-700">「撥動星盤」為付費會員專屬特權</strong>，與心靈原型深度共振。
+          </p>
 
-        {/* 尊享資格狀態條 */}
-        <div className="mt-2.5 flex items-center justify-center">
-          {isPaidMember ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>已解鎖付費特權：您享有無限次撥動星盤感應權限</span>
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                if (onRequirePaid) onRequirePaid();
-                else setShowVipModal(true);
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-medium cursor-pointer transition-colors shadow-2xs"
-            >
-              <Lock className="w-3.5 h-3.5 text-amber-600" />
-              <span>撥動星盤為付費會員專屬特權 · 點擊解鎖升級 →</span>
-            </button>
-          )}
+          {/* 尊享資格狀態條 */}
+          <div className="mt-2.5 flex items-center justify-center">
+            {isPaidMember ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>已解鎖付費特權：您享有無限次撥動星盤感應權限</span>
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  if (onRequirePaid) onRequirePaid();
+                  else setShowVipModal(true);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-medium cursor-pointer transition-colors shadow-2xs"
+              >
+                <Lock className="w-3.5 h-3.5 text-amber-600" />
+                <span>撥動星盤為付費會員專屬特權 · 點擊解鎖升級 →</span>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ============================================================ */}
       {/* 核心天體轉動圖案區域 (Multi-Ring Interactive Astrolabe) */}

@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { TherapeuticSupportModal } from './TherapeuticSupportModal';
 import { SampleReportPreviewModal } from './SampleReportPreviewModal';
+import { CelestialRotatingAstrolabe } from './CelestialRotatingAstrolabe';
 import { TherapistItem, User, normalizeRole } from '../types';
 import {
   StepNotepadIcon,
@@ -246,53 +247,54 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   return (
     <main id="home-view-main" className="overflow-hidden bg-transparent pb-16">
-      {/* 快速錨點導航條 (1. 完全移除首頁解夢選物店預覽入口，僅保留導航列) */}
+      {/* 快速錨點導航條 (僅保留導航列，無首頁商品陳列) */}
       <div className="w-full bg-white/90 border-b border-slate-200/80 backdrop-blur-md sticky top-16 z-30 py-2.5 px-4 shadow-xs">
-        <div className="shell flex items-center justify-between text-xs text-slate-700 overflow-x-auto gap-3 scrollbar-none">
-          <div className="flex items-center gap-1 shrink-0 font-bold text-[#4A47A3]">
+        <div className="shell flex items-center justify-between text-xs text-[var(--text-sub)] overflow-x-auto gap-3 scrollbar-none">
+          <div className="flex items-center gap-1 shrink-0 font-bold text-[var(--primary-700)]">
             <span>快速導航：</span>
           </div>
           <div className="flex items-center gap-4 shrink-0 font-medium">
-            <a href="#recorddream" className="hover:text-[#4A47A3] transition-colors">✍️ 記夢</a>
-            <a href="#how" className="hover:text-[#4A47A3] transition-colors">☁️ 三步解讀</a>
-            <a href="#three-pillars-section" className="hover:text-[#4A47A3] transition-colors">🧬 潛意識模組</a>
-            <a href="#hotlines-section" className="hover:text-[#4A47A3] transition-colors">🩺 支援熱線</a>
-            <a href="#faq" className="hover:text-[#4A47A3] transition-colors">💬 常見疑問</a>
+            <a href="#recorddream" className="hover:text-[var(--primary-800)] transition-colors">✍️ 記夢輸入</a>
+            <a href="#hero-astrolabe-deck" className="hover:text-[var(--primary-800)] transition-colors">🪐 天體星盤</a>
+            <a href="#three-pillars-section" className="hover:text-[var(--primary-800)] transition-colors">🧬 潛意識模組</a>
+            <a href="#how" className="hover:text-[var(--primary-800)] transition-colors">☁️ 三步解讀</a>
+            <a href="#hotlines-section" className="hover:text-[var(--primary-800)] transition-colors">🩺 支援熱線</a>
+            <a href="#faq" className="hover:text-[var(--primary-800)] transition-colors">💬 常見疑問</a>
           </div>
         </div>
       </div>
 
       {/* ============================================================ */}
-      {/* 🌟 1. HERO 頂部視覺（9. H1 嚴格首頁大標，無障礙與 SEO） 🌟 */}
+      {/* 🌟 1. HERO 頂部視覺（H1 嚴格首頁大標，無障礙與 SEO） 🌟 */}
       {/* ============================================================ */}
       <section className="shell relative pt-8 sm:pt-12 pb-6 text-center" id="hero-section">
         
         {/* 頂部徽章 */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#4A47A3]/10 border border-[#4A47A3]/20 text-[#4A47A3] text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5 text-[#4A47A3]" />
-          <span>DREAMWISDOM · 專為香港廣東話設計的夢境宇宙</span>
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-[var(--primary-800)] text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
+          <Sparkles className="w-3.5 h-3.5 text-[var(--primary-600)]" />
+          <span>✦ DREAMWISDOM · 專為香港廣東話設計的夢境宇宙 ✦</span>
         </div>
 
-        {/* 9. 核心主標題 (H1 標籤) */}
+        {/* 9. 核心主標題 (H1 標籤，行高 1.2-1.3) */}
         <h1
           id="hero-title"
-          className="font-celestial-serif font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-slate-900 tracking-wide leading-tight sm:leading-tight mb-4 max-w-4xl mx-auto"
+          className="font-celestial-serif font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[var(--text-heading)] tracking-wide leading-[1.2] mb-4 max-w-4xl mx-auto"
         >
           每一個夢，都是潛意識留給你的信。
         </h1>
 
         {/* 副標題 */}
-        <p className="font-sans font-bold text-lg sm:text-xl md:text-2xl text-[#4A47A3] tracking-wide mb-3">
+        <p className="font-sans font-bold text-lg sm:text-xl md:text-2xl text-[var(--primary-700)] tracking-wide mb-3">
           別人解讀你的夢。我們記得你的夢。
         </p>
 
         {/* 心理學理論與產品介紹 */}
-        <p className="font-sans text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed mb-5">
+        <p className="font-sans text-sm sm:text-base text-[var(--text-body)] max-w-2xl mx-auto leading-[1.65] mb-4">
           DreamWisdom 唔係憑空估，而係從榮格原型心理學找出相應理論，結合你過往夢境，整理可能值得留意嘅潛意識訊息。
         </p>
 
         {/* 產品邊界聲明 */}
-        <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-2xl bg-amber-50/90 border border-amber-200 text-amber-900 text-xs sm:text-sm font-medium mb-3 max-w-3xl mx-auto text-left sm:text-center shadow-2xs">
+        <div className="card-secondary-warm inline-flex items-center justify-center gap-2 px-4 py-2.5 text-[var(--text-heading)] text-xs sm:text-sm font-medium mb-3 max-w-3xl mx-auto text-left sm:text-center shadow-2xs">
           <span>⚠️ 產品邊界：本平台不是心理治療、不是精神科服務；只做基於心理學的自我反思工具，不做吉凶預測。</span>
         </div>
 
@@ -300,297 +302,275 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <div className="mb-6">
           <a
             href="#hotlines-section"
-            className="text-xs sm:text-sm text-slate-600 hover:text-[#4A47A3] transition-colors inline-flex items-center gap-1.5 cursor-pointer underline decoration-slate-300 hover:decoration-[#4A47A3] underline-offset-4"
+            className="text-xs sm:text-sm text-[var(--text-sub)] hover:text-[var(--text-heading)] transition-colors inline-flex items-center gap-1.5 cursor-pointer underline decoration-slate-300 hover:decoration-[var(--primary-600)] underline-offset-4"
           >
             <span>若重複夢魘持續帶來困擾，</span>
-            <span className="text-rose-600 font-medium flex items-center gap-1">
-              <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500" /> 我們提供香港專業心理支援與熱線指引
+            <span className="text-rose-700 font-medium flex items-center gap-1">
+              <Heart className="w-3.5 h-3.5 fill-rose-600 text-rose-600" /> 我們提供香港專業心理支援與熱線指引
             </span>
           </a>
         </div>
 
         {/* ============================================================ */}
-        {/* 🌟 2. 完整夢境解讀卡片（10. 統一圓角/霧面/陰影，嚴格無紫色） 🌟 */}
+        {/* 🌟 2. VERSION B 雙欄互動巨幕 (記夢輸入卡片 + 潛意識天體星盤) 🌟 */}
         {/* ============================================================ */}
         <div id="recorddream" className="scroll-mt-28" />
-        <div
-          className="max-w-3xl mx-auto relative z-10 w-full bg-white/90 backdrop-blur-md shadow-md border border-slate-200/80 rounded-3xl p-5 sm:p-7 text-left transition-all"
-          id="hero-dreambox"
-        >
-          {/* 卡片頂部欄：記錄今晨夢境 + 建議字數 */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5">
-            <div className="flex items-center gap-2 text-slate-900 font-bold text-base sm:text-lg">
-              <Sparkles className="w-4 h-4 text-[#4A47A3]" />
-              <span>記錄今晨夢境</span>
-            </div>
-            <span className="text-xs text-slate-500 font-medium">
-              輸入醒來記得的任何片段 · 建議 15 字以上
-            </span>
-          </div>
-
-          {/* 3. 記夢引導改為可折疊模塊，預設收起 (預設 isGuideOpen = false) */}
-          <div className="rounded-2xl bg-slate-50/90 border border-slate-200/80 mb-3.5 overflow-hidden transition-all">
-            <button
-              type="button"
-              onClick={() => setIsGuideOpen(!isGuideOpen)}
-              className="w-full px-4 py-3 flex items-center justify-between text-xs sm:text-sm font-bold text-[#4A47A3] hover:bg-slate-100/60 transition-colors select-none"
-            >
-              <span className="flex items-center gap-2">
-                <span>💡 記夢引導（點擊帶入回憶結構小貼士）</span>
-              </span>
-              <span className="flex items-center gap-1 text-xs text-slate-500">
-                <span>{isGuideOpen ? '收起引導' : '展開引導'}</span>
-                {isGuideOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </span>
-            </button>
-
-            {isGuideOpen && (
-              <div className="p-4 pt-1 border-t border-slate-200/60 space-y-3">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleAddGuidePrompt('characters')}
-                    className="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-[#4A47A3]/5 border border-slate-200 hover:border-[#4A47A3] text-xs text-slate-800 hover:text-[#4A47A3] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                    title="點擊帶入【人物】提示"
-                  >
-                    <span>👥</span>
-                    <span>有邊啲人物？</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddGuidePrompt('scene')}
-                    className="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-[#4A47A3]/5 border border-slate-200 hover:border-[#4A47A3] text-xs text-slate-800 hover:text-[#4A47A3] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                    title="點擊帶入【場景】提示"
-                  >
-                    <span>📍</span>
-                    <span>場景係邊度？</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddGuidePrompt('emotion')}
-                    className="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-[#4A47A3]/5 border border-slate-200 hover:border-[#4A47A3] text-xs text-slate-800 hover:text-[#4A47A3] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                    title="點擊帶入【感覺】提示"
-                  >
-                    <span>💭</span>
-                    <span>感覺驚／不安？</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddGuidePrompt('objects')}
-                    className="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-[#4A47A3]/5 border border-slate-200 hover:border-[#4A47A3] text-xs text-slate-800 hover:text-[#4A47A3] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                    title="點擊帶入【物件】提示"
-                  >
-                    <span>🚪</span>
-                    <span>有冇特定物件？</span>
-                  </button>
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start text-left mt-4" id="hero-interactive-deck">
+          
+          {/* 左欄 (7 Cols)：記夢輸入核心卡片 */}
+          <div
+            className="card-featured-dream lg:col-span-7 relative z-10 w-full p-5 sm:p-7 flex flex-col justify-between"
+            id="hero-dreambox"
+          >
+            <div>
+              {/* 卡片頂部欄：記錄今晨夢境 + 建議字數 */}
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5">
+                <div className="flex items-center gap-2 text-[var(--text-heading)] font-bold text-base sm:text-lg">
+                  <Sparkles className="w-4 h-4 text-[var(--primary-600)]" />
+                  <span>記錄今晨夢境</span>
                 </div>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  提示：醒來第一時間哪怕只記低一個感覺或單字，點擊標籤即可快速建立結構，由潛意識自主延伸。
-                </p>
+                <span className="text-xs text-[var(--text-sub)] font-medium">
+                  廣東話口語輸入即可 · 建議 15 字以上
+                </span>
               </div>
-            )}
-          </div>
 
-          {/* 6. 隱私承諾使用淺底色小卡片強化識別 */}
-          <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-3 mb-3.5 flex flex-wrap items-center justify-between gap-2 text-xs shadow-2xs">
-            <div className="flex items-center gap-2 text-emerald-900 font-semibold">
-              <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
-              <span>私隱保證：夢境內容屬私密個人投射，絕不用於 AI 訓練</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-emerald-800 font-medium">
-              <Lock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span>沙盒專屬隔離 · 絕不轉交第三方</span>
-            </div>
-          </div>
-
-          {/* 5 & 12. 主要夢境文字輸入框（實時字數顯示、防虛擬鍵盤遮擋） */}
-          <div className="relative mb-3">
-            <textarea
-              ref={textareaRef}
-              value={draftDream}
-              onChange={handleDreamChange}
-              placeholder="寫低你記得嘅夢境……醒來時有甚麼畫面？你當時感覺點？（可點擊上方「記夢引導」或下方意象標籤快速填寫）"
-              id="hero-dream-textarea"
-              rows={4}
-              className={`w-full bg-slate-50/90 focus:bg-white border ${
-                validationError ? 'border-rose-400 focus:border-rose-500' : 'border-slate-200 focus:border-[#4A47A3]'
-              } rounded-2xl text-slate-900 placeholder:text-slate-400 text-sm sm:text-base p-4 focus:outline-none resize-none leading-relaxed min-h-[120px] max-h-[380px] overflow-y-auto transition-all shadow-inner focus:ring-2 ${
-                validationError ? 'focus:ring-rose-100' : 'focus:ring-blue-100'
-              }`}
-            />
-            
-            {/* 5. 輸入框實時顯示字數提示 */}
-            <div className="flex items-center justify-between text-[11px] text-slate-500 px-2 mt-1">
-              <span>醒來零碎記憶都可以隨手寫，字數不限</span>
-              <span className="font-mono font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
-                目前字數：{draftDream.length} 字 {draftDream.length >= 15 ? '✓ (良好長度)' : ''}
-              </span>
-            </div>
-
-            {/* 5. 友好校驗提示 */}
-            {validationError && (
-              <div className="mt-2.5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2 animate-fadeIn">
-                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                <span>{validationError}</span>
-              </div>
-            )}
-          </div>
-
-          {/* 4. 補充意象詞全部實作為可點擊標籤，點擊文字自動插入輸入框 */}
-          <div className="mb-5 pt-1">
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold mb-2">
-              <span>✦ 點擊意象標籤，自動插入夢境內容：</span>
-            </div>
-            <div className="flex flex-wrap gap-2 text-xs">
-              {dreamTags.map((tag) => (
+              {/* 3. 記夢引導改為可折疊模塊，預設收起 (預設 isGuideOpen = false) */}
+              <div className="rounded-2xl bg-white/80 border border-slate-200/90 mb-3.5 overflow-hidden transition-all shadow-xs">
                 <button
-                  key={tag.label}
                   type="button"
-                  onClick={() => handleApplyQuickTag(tag.label)}
-                  className="px-3 py-1.5 rounded-xl bg-slate-100/80 hover:bg-[#4A47A3]/10 border border-slate-200 hover:border-[#4A47A3]/40 text-slate-800 hover:text-[#4A47A3] font-medium transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
+                  onClick={() => setIsGuideOpen(!isGuideOpen)}
+                  className="w-full px-4 py-3 flex items-center justify-between text-xs sm:text-sm font-bold text-[var(--primary-700)] hover:bg-blue-50/50 transition-colors select-none"
                 >
-                  <span className="text-[#4A47A3] font-bold text-sm">+</span>
-                  <span>{tag.icon}</span>
-                  <span>{tag.label}</span>
+                  <span className="flex items-center gap-2">
+                    <span>💡 記夢引導（點擊帶入回憶結構小貼士）</span>
+                  </span>
+                  <span className="flex items-center gap-1 text-xs text-[var(--text-sub)]">
+                    <span>{isGuideOpen ? '收起引導' : '展開引導'}</span>
+                    {isGuideOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </span>
                 </button>
-              ))}
+
+                {isGuideOpen && (
+                  <div className="p-4 pt-1 border-t border-slate-100 space-y-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleAddGuidePrompt('characters')}
+                        className="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-[var(--primary-600)] text-xs text-[var(--text-body)] hover:text-[var(--primary-700)] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                        title="點擊帶入【人物】提示"
+                      >
+                        <span>👥</span>
+                        <span>有邊啲人物？</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleAddGuidePrompt('scene')}
+                        className="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-[var(--primary-600)] text-xs text-[var(--text-body)] hover:text-[var(--primary-700)] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                        title="點擊帶入【場景】提示"
+                      >
+                        <span>📍</span>
+                        <span>場景係邊度？</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleAddGuidePrompt('emotion')}
+                        className="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-[var(--primary-600)] text-xs text-[var(--text-body)] hover:text-[var(--primary-700)] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                        title="點擊帶入【感覺】提示"
+                      >
+                        <span>💭</span>
+                        <span>感覺驚／不安？</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleAddGuidePrompt('objects')}
+                        className="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-[var(--primary-600)] text-xs text-[var(--text-body)] hover:text-[var(--primary-700)] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                        title="點擊帶入【物件】提示"
+                      >
+                        <span>🚪</span>
+                        <span>有冇特定物件？</span>
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-[var(--text-sub)] leading-relaxed">
+                      提示：醒來第一時間哪怕只記低一個感覺或單字，點擊標籤即可快速建立結構，由潛意識自主延伸。
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* 6. 隱私承諾使用淺底色小卡片強化識別 (WCAG AA 高對比深文字) */}
+              <div className="card-secondary-warm p-3 mb-3.5 flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-heading)] font-medium">
+                <div className="flex items-center gap-2 font-semibold">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>香港本地私隱承諾：夢境內容屬私密個人投射，絕不用於 AI 訓練</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[var(--text-sub)]">
+                  <Lock className="w-3.5 h-3.5 text-[var(--primary-600)] shrink-0" />
+                  <span>沙盒專屬隔離 · 絕不轉交第三方</span>
+                </div>
+              </div>
+
+              {/* 5 & 12. 主要夢境文字輸入框（實時字數顯示、防虛擬鍵盤遮擋） */}
+              <div className="relative mb-3">
+                <textarea
+                  ref={textareaRef}
+                  value={draftDream}
+                  onChange={handleDreamChange}
+                  placeholder="寫低你記得嘅夢境……醒來時有甚麼畫面？你當時感覺點？（可點擊右側星盤感應原型，或點擊下方意象標籤快速填寫）"
+                  id="hero-dream-textarea"
+                  rows={5}
+                  className={`w-full bg-white/95 focus:bg-white border ${
+                    validationError ? 'border-rose-400 focus:border-rose-500' : 'border-slate-300 focus:border-[var(--primary-600)]'
+                  } rounded-2xl text-[var(--text-heading)] placeholder:text-[var(--text-muted)] text-sm sm:text-base p-4 focus:outline-none resize-none leading-[1.65] min-h-[130px] max-h-[380px] overflow-y-auto transition-all shadow-inner focus:ring-2 ${
+                    validationError ? 'focus:ring-rose-100' : 'focus:ring-blue-100'
+                  }`}
+                />
+                
+                {/* 5. 輸入框實時顯示字數提示 */}
+                <div className="flex items-center justify-between text-xs text-[var(--text-sub)] mt-1.5 px-1">
+                  <span>醒來零碎記憶都可以隨手寫，字數不限</span>
+                  <span className="font-mono font-medium text-[var(--text-heading)] bg-slate-100 px-2 py-0.5 rounded-md">
+                    目前字數：{draftDream.length} 字 {draftDream.length >= 15 ? '✓ (良好長度)' : ''}
+                  </span>
+                </div>
+
+                {/* 5. 友好校驗提示 */}
+                {validationError && (
+                  <div className="mt-2.5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2 animate-fadeIn">
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                    <span>{validationError}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 4. 意象標籤：點擊自動填入輸入框 */}
+              <div className="mb-5 pt-1">
+                <div className="flex items-center gap-1.5 text-xs text-[var(--text-sub)] font-semibold mb-2">
+                  <span>✦ 點擊意象標籤，自動插入夢境內容：</span>
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {dreamTags.map((tag) => (
+                    <button
+                      key={tag.label}
+                      type="button"
+                      onClick={() => handleApplyQuickTag(tag.label)}
+                      className="tag-chip-warm px-3 py-1.5 font-medium transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
+                    >
+                      <span className="text-[var(--primary-600)] font-bold text-sm">+</span>
+                      <span>{tag.icon}</span>
+                      <span>{tag.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 2 & 12. 底部操作欄（兩按鈕分開：主CTA天藍漸變、次要線框新分頁開，按鈕高度≥48px） */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-slate-200/80">
+              <div className="text-xs text-[var(--text-sub)] font-medium flex items-center gap-1.5">
+                <span>榮格深度心理學原型意象</span>
+                <span className="text-slate-300">·</span>
+                <span>專屬自我反思鏡像</span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                {/* 語音按鈕 */}
+                <button
+                  type="button"
+                  onClick={handleToggleVoice}
+                  className={`min-h-[48px] px-3.5 py-2.5 rounded-2xl border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all ${
+                    isListening
+                      ? 'bg-rose-50 border-rose-400 text-rose-700 animate-pulse'
+                      : 'bg-white hover:bg-slate-50 border-slate-300 text-[var(--text-body)]'
+                  }`}
+                  title="語音錄音（支援廣東話及普通話）"
+                >
+                  <Mic className={`w-4 h-4 ${isListening ? 'text-rose-600' : 'text-[var(--primary-600)]'}`} />
+                  <span>{isListening ? '聆聽中…' : '語音記夢'}</span>
+                </button>
+
+                {/* 2. 次要按鈕：觀看示範報告（線框風格，在新分頁開啟，不覆蓋首頁） */}
+                <a
+                  href="/report?demo=1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleOpenSampleNewTab}
+                  className="btn-secondary-outline px-5 py-2.5 shadow-2xs"
+                  title="在新分頁開啟示範報告預覽，不影響當前首頁"
+                >
+                  <Eye className="w-4 h-4 text-[var(--primary-600)]" />
+                  <span>觀看示範報告</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-[var(--text-sub)]" />
+                </a>
+
+                {/* 1. 主CTA：記錄夢境開始分析（天體藍漸變，白色文字，高度≥48px） */}
+                <button
+                  type="button"
+                  onClick={handleStartAnalysis}
+                  className="btn-primary-cta px-7 py-3 flex-1 sm:flex-initial"
+                  id="hero-cta-record-btn"
+                >
+                  <span>記錄夢境開始分析</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* 2 & 12. 底部操作欄（兩按鈕分開：主CTA高權重、次要線框新分頁開，按鈕高度≥48px） */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-slate-200/80">
-            <div className="text-xs text-slate-600 font-medium flex items-center gap-1.5">
-              <span>榮格深度心理學原型意象</span>
-              <span className="text-slate-300">·</span>
-              <span>專屬自我反思鏡像</span>
+          {/* 右欄 (5 Cols)：天體旋轉星盤（Version B 首頁天幕互動核心） */}
+          <div
+            className="card-featured-dream lg:col-span-5 relative z-10 w-full p-5 sm:p-6 flex flex-col justify-between"
+            id="hero-astrolabe-deck"
+          >
+            <div>
+              {/* 星盤頂部標題 */}
+              <div className="flex items-center justify-between gap-2 mb-2 pb-2.5 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <Compass className="w-4 h-4 text-[var(--primary-600)]" />
+                  <span className="font-bold text-sm sm:text-base text-[var(--text-heading)]">天體星盤 · 隨機撥動</span>
+                </div>
+                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-[var(--primary-700)] border border-blue-200/80">
+                  12 宿心理原型
+                </span>
+              </div>
+
+              <p className="text-xs text-[var(--text-sub)] leading-relaxed mb-3">
+                輕按撥動探索天體軌道，感應今日心靈原型，點選直接將代碼帶入左側日記。
+              </p>
+
+              {/* 嵌入天體旋轉星盤 */}
+              <div className="py-1">
+                <CelestialRotatingAstrolabe
+                  hideHeader={true}
+                  compact={true}
+                  isPaidMember={isPaidMember}
+                  onRequirePaid={onGoToPricing}
+                  onSelectArchetype={(archetype) => {
+                    const symbolTag = `【今日潛意識原型：${archetype.label} · ${archetype.symbol}】`;
+                    setDraftDream((prev) => (prev ? `${prev}\n${symbolTag}` : symbolTag));
+                    if (textareaRef.current) {
+                      textareaRef.current.focus();
+                      textareaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }}
+                />
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-              {/* 語音按鈕 */}
-              <button
-                type="button"
-                onClick={handleToggleVoice}
-                className={`min-h-[48px] px-3.5 py-2.5 rounded-2xl border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all ${
-                  isListening
-                    ? 'bg-rose-50 border-rose-400 text-rose-700 animate-pulse'
-                    : 'bg-slate-50 hover:bg-slate-100 border-slate-300 text-slate-700'
-                }`}
-                title="語音錄音（支援廣東話及普通話）"
-              >
-                <Mic className={`w-4 h-4 ${isListening ? 'text-rose-600' : 'text-[#4A47A3]'}`} />
-                <span>{isListening ? '聆聽中…' : '語音記夢'}</span>
-              </button>
-
-              {/* 2. 次要按鈕：觀看示範報告（線框樣式，點擊開新分頁，不可覆蓋首頁） */}
-              <a
-                href="/report?demo=1"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleOpenSampleNewTab}
-                className="min-h-[48px] px-5 py-2.5 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-300 hover:border-slate-500 text-slate-700 hover:text-slate-900 text-xs sm:text-sm font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-2xs"
-                title="在新分頁開啟示範報告預覽，不影響當前首頁"
-              >
-                <Eye className="w-4 h-4 text-slate-500" />
-                <span>觀看示範報告</span>
-                <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-              </a>
-
-              {/* 2. 主CTA：記錄夢境開始分析（高權重樣式，高度≥48px） */}
-              <button
-                type="button"
-                onClick={handleStartAnalysis}
-                className="min-h-[48px] px-7 py-3 rounded-2xl bg-[#4A47A3] hover:bg-[#3B3888] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#4A47A3]/30 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 flex-1 sm:flex-initial"
-                id="hero-cta-record-btn"
-              >
-                <span>記錄夢境開始分析</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-[var(--text-sub)]">
+              <span>天體共時性感應</span>
+              <span className="font-medium text-[var(--primary-600)]">滑動探索 / 點擊連動</span>
             </div>
           </div>
+
         </div>
       </section>
 
       {/* ============================================================ */}
-      {/* 🌟 3. 如何解讀你的夢（9. H2 章節語義標籤） 🌟 */}
+      {/* 🌟 3. 三大潛意識心靈解析模組 (Version B 深度體系) 🌟 */}
       {/* ============================================================ */}
-      <section className="shell py-10 sm:py-16 text-center" id="how">
-        <div className="max-w-2xl mx-auto mb-12">
-          <p className="text-xs sm:text-sm font-serif text-[#4A47A3] font-semibold tracking-widest uppercase mb-1">
-            —— 理論轉化流程 ——
-          </p>
-          <h2 className="font-celestial-serif font-black text-2xl sm:text-4xl text-slate-900 tracking-wide">
-            如何解讀你的夢：三步驟開啟心靈智慧
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600 mt-3 max-w-xl mx-auto leading-relaxed">
-            DreamWisdom 透過榮格原型心理模型與你的潛意識對話，將夢境轉化為專屬於你的生活洞察。
-          </p>
-        </div>
-
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 lg:gap-6 max-w-5xl mx-auto">
-          {/* Step 1: 記錄夢境 */}
-          <div className="card w-full md:w-1/3 p-6 rounded-3xl bg-white/90 backdrop-blur-md border border-slate-200/80 relative flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all">
-            <div className="relative mb-3">
-              <StepNotepadIcon className="w-20 h-20" />
-              <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-[#4A47A3] text-white text-[11px] font-mono font-bold shadow-xs">
-                01
-              </span>
-            </div>
-            <h3 className="font-celestial-serif font-bold text-lg sm:text-xl text-slate-900 mb-2">
-              記錄夢境
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              輸入你的夢境細節，可以文字或語音，越即時越真實越好。
-            </p>
-          </div>
-
-          <div className="hidden md:flex text-slate-400 text-3xl font-light select-none">
-            ›
-          </div>
-
-          {/* Step 2: 榮格原型 AI 分析 */}
-          <div className="card w-full md:w-1/3 p-6 rounded-3xl bg-white/90 backdrop-blur-md border border-slate-200/80 relative flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all">
-            <div className="relative mb-3">
-              <StepAiBrainIcon className="w-20 h-20" />
-              <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-[#4A47A3] text-white text-[11px] font-mono font-bold shadow-xs">
-                02
-              </span>
-            </div>
-            <h3 className="font-celestial-serif font-bold text-lg sm:text-xl text-slate-900 mb-2">
-              榮格原型 AI 分析
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              DreamWisdom 結合心理象徵、陰影整合與共時性理論，客觀拆解深層訊號。
-            </p>
-          </div>
-
-          <div className="hidden md:flex text-slate-400 text-3xl font-light select-none">
-            ›
-          </div>
-
-          {/* Step 3: 獲得洞察 */}
-          <div className="card w-full md:w-1/3 p-6 rounded-3xl bg-white/90 backdrop-blur-md border border-slate-200/80 relative flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all">
-            <div className="relative mb-3">
-              <StepInsightIcon className="w-20 h-20" />
-              <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-[#4A47A3] text-white text-[11px] font-mono font-bold shadow-xs">
-                03
-              </span>
-            </div>
-            <h3 className="font-celestial-serif font-bold text-lg sm:text-xl text-slate-900 mb-2">
-              獲得心靈洞察
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              獲得專屬於你的解析報告，包含潛意識投射、自我反思提問與情緒建議。
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================ */}
-      {/* 🌟 4. 三大功能模塊（9. H2 語義標籤，11. 避免死鏈404） 🌟 */}
-      {/* ============================================================ */}
-      <section className="shell py-6 sm:py-12" id="three-pillars-section">
+      <section className="shell py-12 sm:py-16" id="three-pillars-section">
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <p className="text-xs sm:text-sm font-serif text-[#8BA690] font-semibold tracking-widest uppercase mb-1">
+          <p className="text-xs sm:text-sm font-serif text-[var(--primary-600)] font-semibold tracking-widest uppercase mb-1">
             —— 深度沉澱體系 ——
           </p>
           <h2 className="font-celestial-serif font-black text-2xl sm:text-4xl text-slate-900 tracking-wide">
@@ -692,6 +672,81 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <span className="text-base">→</span>
               </button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================ */}
+      {/* 🌟 4. 如何解讀你的夢（三步驟開啟心靈智慧） 🌟 */}
+      {/* ============================================================ */}
+      <section className="shell py-10 sm:py-16 text-center" id="how">
+        <div className="max-w-2xl mx-auto mb-12">
+          <p className="text-xs sm:text-sm font-serif text-[var(--primary-600)] font-semibold tracking-widest uppercase mb-1">
+            —— 理論轉化流程 ——
+          </p>
+          <h2 className="font-celestial-serif font-black text-2xl sm:text-4xl text-[var(--text-heading)] tracking-wide leading-[1.25]">
+            如何解讀你的夢：三步驟開啟心靈智慧
+          </h2>
+          <p className="text-xs sm:text-sm text-[var(--text-sub)] mt-3 max-w-xl mx-auto leading-[1.65]">
+            DreamWisdom 透過榮格原型心理模型與你的潛意識對話，將夢境轉化為專屬於你的生活洞察。
+          </p>
+        </div>
+
+        <div className="flex flex-col md:flex-row items-center justify-center gap-4 lg:gap-6 max-w-5xl mx-auto">
+          {/* Step 1: 普通內容卡片 */}
+          <div className="card-standard w-full md:w-1/3 p-6 sm:p-7 relative flex flex-col items-center text-center">
+            <div className="relative mb-3">
+              <StepNotepadIcon className="w-20 h-20" />
+              <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-[var(--primary-600)] text-white text-[11px] font-mono font-bold shadow-xs">
+                01
+              </span>
+            </div>
+            <h3 className="font-celestial-serif font-bold text-lg sm:text-xl text-[var(--text-heading)] mb-2">
+              醒時速記夢境
+            </h3>
+            <p className="text-xs sm:text-sm text-[var(--text-body)] leading-[1.65]">
+              用最自然嘅香港廣東話口語低聲記錄。無須在乎文法，捕捉第一瞬間嘅感官與情緒。
+            </p>
+          </div>
+
+          <div className="hidden md:flex text-slate-400 text-3xl font-light select-none">
+            ›
+          </div>
+
+          {/* Step 2: 普通內容卡片 */}
+          <div className="card-standard w-full md:w-1/3 p-6 sm:p-7 relative flex flex-col items-center text-center">
+            <div className="relative mb-3">
+              <StepAiBrainIcon className="w-20 h-20" />
+              <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-[var(--primary-600)] text-white text-[11px] font-mono font-bold shadow-xs">
+                02
+              </span>
+            </div>
+            <h3 className="font-celestial-serif font-bold text-lg sm:text-xl text-[var(--text-heading)] mb-2">
+              榮格原型 AI 分析
+            </h3>
+            <p className="text-xs sm:text-sm text-[var(--text-body)] leading-[1.65]">
+              DreamWisdom 結合心理象徵、陰影整合與共時性理論，客觀拆解深層訊號。
+            </p>
+          </div>
+
+          <div className="hidden md:flex text-slate-400 text-3xl font-light select-none">
+            ›
+          </div>
+
+          {/* Step 3: 普通內容卡片 */}
+          <div className="card-standard w-full md:w-1/3 p-6 sm:p-7 relative flex flex-col items-center text-center">
+            <div className="relative mb-3">
+              <StepInsightIcon className="w-20 h-20" />
+              <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-[var(--primary-600)] text-white text-[11px] font-mono font-bold shadow-xs">
+                03
+              </span>
+            </div>
+            <h3 className="font-celestial-serif font-bold text-lg sm:text-xl text-[var(--text-heading)] mb-2">
+              獲得心靈洞察
+            </h3>
+            <p className="text-xs sm:text-sm text-[var(--text-body)] leading-[1.65]">
+              獲得專屬於你的解析報告，包含潛意識投射、自我反思提問與情緒建議。
+            </p>
           </div>
         </div>
       </section>

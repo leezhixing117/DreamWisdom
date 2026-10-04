@@ -1,26 +1,47 @@
 @import "tailwindcss";
 
 :root {
-  /* 主要色彩：深藍 (Deep Royal Blue)、銀白 (Silver White) 與淺灰白 (Light Grey-White) */
+  /* Version B 經典天體深藍與銀白高對比星空主題 */
+  --bg-base: #F8FAFC;
+  --bg-gradient-1: #F8FAFC;
+  --bg-gradient-2: #F0F7FF;
+  --primary-400: #38BDF8;
+  --primary-600: #2563EB;
+  --primary-700: #1D4ED8;
+  --primary-800: #1E40AF;
+  --primary-900: #0F172A;
+  --accent-sky: #0284C7;
+  --accent-sky-light: #E0F2FE;
+  --accent-amber: #D97706;
+  --accent-amber-light: #FEF3C7;
+  --text-heading: #0F172A;
+  --text-body: #1E293B;
+  --text-sub: #475569;
+  --text-muted: #64748B;
+  --text-white: #FFFFFF;
+  --shadow-light: rgba(15, 23, 42, 0.06);
+  --shadow-medium: rgba(37, 99, 235, 0.12);
+
+  /* 基礎通用變數映射 */
   --bg: #F8FAFC;
-  --bg2: #F1F5F9;
-  --bg-gradient: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 50%, #F8FAFC 100%);
+  --bg2: #F0F7FF;
+  --bg-gradient: linear-gradient(135deg, #F8FAFC 0%, #EEF6FF 50%, #F8FAFC 100%);
   --card: #FFFFFF;
   --card2: #F8FAFC;
   --line: #E2E8F0;
   --line-strong: #CBD5E1;
-  --text: #0F172A;
-  --text-title: #0F172A;
-  --muted: #475569;
-  --accent: #1D4ED8;
-  --accent-hover: #1E40AF;
-  --accent2: #0284C7;
-  --accent-cyan: #0284C7;
+  --text: var(--text-body);
+  --text-title: var(--text-heading);
+  --muted: var(--text-muted);
+  --accent: var(--primary-700);
+  --accent-hover: var(--primary-800);
+  --accent2: var(--primary-400);
+  --accent-cyan: var(--accent-sky);
   --good: #059669;
   --warn: #D97706;
   --danger: #DC2626;
-  --shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 4px -1px rgba(15, 23, 42, 0.04);
-  --r: 20px;
+  --shadow: 0 4px 16px -2px var(--shadow-light);
+  --r: 24px;
 
   /* 經典字型體系 */
   --font-brand: "Cormorant Garamond", "Playfair Display", Georgia, serif;
@@ -38,13 +59,156 @@ html {
 
 body {
   margin: 0;
-  background-color: var(--bg);
-  background: var(--bg-gradient);
+  background-color: var(--bg-base);
+  background: linear-gradient(135deg, #F8FAFC 0%, #EEF6FF 45%, #F8FAFC 100%);
   background-attachment: fixed;
-  color: var(--text);
+  color: var(--text-body);
   font-family: var(--font-sans);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+}
+
+/* 嚴格 WCAG AA 對比度文字排版規範 */
+h1, h2, .text-heading {
+  color: var(--text-heading);
+  line-height: 1.25;
+}
+
+p, .text-body {
+  color: var(--text-body);
+  line-height: 1.65;
+}
+
+.text-sub {
+  color: var(--text-sub);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* 4 種層次區分卡片體系 */
+/* 1. 普通內容卡片 (三步驟、功能介紹)：白色毛玻璃底色，精緻輕陰影，微邊框 */
+.card-standard, .card-content {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 24px var(--shadow-light);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 24px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.card-standard:hover, .card-content:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.1);
+  border-color: rgba(147, 197, 253, 0.5);
+}
+
+/* 2. 記夢輸入重點卡片：高雅純白微藍漸變，天體天藍細邊框，--shadow-medium陰影，視覺突出 */
+.card-featured-dream {
+  background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(191, 219, 254, 0.9);
+  box-shadow: 0 12px 32px var(--shadow-medium);
+  border-radius: 28px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.card-featured-dream:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px rgba(37, 99, 235, 0.16);
+  border-color: rgba(96, 165, 250, 0.9);
+}
+
+/* 3. FAQ、免責、心理支援次要卡片：淡天藍或琥珀底色 */
+.card-secondary-warm {
+  background: #F0F9FF;
+  border: 1px solid rgba(186, 230, 253, 0.8);
+  box-shadow: 0 4px 14px var(--shadow-light);
+  border-radius: 24px;
+}
+
+/* 4. 意象標籤：晶片質感，天藍底色，hover加深 */
+.tag-chip-warm {
+  background: #F1F5F9;
+  color: #1E293B;
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.tag-chip-warm:hover {
+  background: #E0F2FE;
+  border-color: #38BDF8;
+  color: #0369A1;
+  transform: scale(1.02);
+}
+
+/* 按鈕三級樣式 */
+/* 1. 主CTA按鈕 (記錄夢境開始分析)：經典天體深藍漸變，白色文字，高權重 */
+.btn-primary-cta {
+  background: linear-gradient(135deg, #1D4ED8 0%, #0284C7 100%);
+  color: #FFFFFF !important;
+  min-height: 48px;
+  border-radius: 16px;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(29, 78, 216, 0.25);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+}
+.btn-primary-cta:hover {
+  background: linear-gradient(135deg, #1E40AF 0%, #0369A1 100%);
+  box-shadow: 0 8px 24px rgba(29, 78, 216, 0.35);
+  transform: translateY(-1px);
+}
+.btn-primary-cta:active {
+  transform: translateY(0);
+}
+
+/* 2. 次要按鈕 (觀看示範報告)：經典天藍線框風格，清晰高對比 */
+.btn-secondary-outline {
+  background: #FFFFFF;
+  border: 1.5px solid #2563EB;
+  color: #1D4ED8 !important;
+  min-height: 48px;
+  border-radius: 16px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+}
+.btn-secondary-outline:hover {
+  background: #EFF6FF;
+  border-color: #1D4ED8;
+  color: #1E40AF !important;
+  transform: translateY(-1px);
+}
+
+/* 3. 文字連結按鈕 */
+.btn-link-text {
+  background: none;
+  border: none;
+  color: #2563EB !important;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.btn-link-text:hover {
+  color: #1D4ED8 !important;
+  text-decoration: underline;
 }
 
 /* 經典襯線標題字型 (Brand & Calligraphic Serif) */
@@ -705,6 +869,25 @@ button, input, textarea, select {
 }
 
 @media (max-width: 860px) {
+  .navin {
+    height: auto;
+    min-height: 60px;
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .navlinks {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 6px;
+    gap: 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .navlinks::-webkit-scrollbar {
+    display: none;
+  }
   .grid3, .grid2, .adminGrid, .layout {
     grid-template-columns: 1fr;
   }

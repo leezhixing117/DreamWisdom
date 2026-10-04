@@ -34,8 +34,8 @@ export const SampleReportPreviewModal: React.FC<SampleReportPreviewModalProps> =
   const [activeTab, setActiveTab] = useState<'dna' | 'constellation' | 'mystery'>(initialTab);
 
   React.useEffect(() => {
-    if (initialTab) {
-      setActiveTab(initialTab);
+    if (isOpen && initialTab) {
+      setActiveTab((prev) => (prev === initialTab ? prev : initialTab));
     }
   }, [initialTab, isOpen]);
 

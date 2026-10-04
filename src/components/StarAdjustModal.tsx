@@ -18,7 +18,7 @@ export const StarAdjustModal: React.FC<StarAdjustModalProps> = ({
   const [stars, setStars] = useState<number>(0);
 
   useEffect(() => {
-    if (user) {
+    if (isOpen && user) {
       setStars(user.stars ?? 0);
     }
   }, [user, isOpen]);

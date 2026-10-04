@@ -39,11 +39,15 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
 
   // Sync if props change
   React.useEffect(() => {
-    setNodes(initialNodes);
+    if (initialNodes) {
+      setNodes((prev) => (prev === initialNodes ? prev : initialNodes));
+    }
   }, [initialNodes]);
 
   React.useEffect(() => {
-    setLinks(initialLinks);
+    if (initialLinks) {
+      setLinks((prev) => (prev === initialLinks ? prev : initialLinks));
+    }
   }, [initialLinks]);
 
   // Selected star state

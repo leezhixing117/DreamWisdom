@@ -158,10 +158,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={() => onNavigate('stars')}
           className="sideitem text-amber-800 hover:text-amber-950 hover:bg-amber-50"
           id="sidebar-item-stars"
-          title="獨立星星幣頁面：查看儲幣、消耗明細與有效期限"
+          title="星星幣中心：睇片儲星、方案定價與功能權益"
         >
           <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
-          <span>⭐ 星星幣詳情</span>
+          <span>⭐ 星星幣與方案</span>
         </button>
 
         <button
@@ -169,9 +169,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={() => onNavigate('pricing')}
           className="sideitem text-[#1D4ED8] hover:text-[#1E40AF] hover:bg-blue-50"
           id="sidebar-item-pricing"
+          title="付費會員專區 · 潛意識天體星盤"
         >
           <Crown className="w-4 h-4 text-amber-500 fill-amber-400" />
-          <span>💎 VIP 方案升級</span>
+          <span>👑 付費會員專區</span>
         </button>
 
         {/* Product Store / Healing goods */}

@@ -675,6 +675,7 @@ export default function App() {
           onOpenLogin={() => setIsLoginOpen(true)}
           onUpgradeToPaid={handleUpgradeToPaid}
           onGoToApp={(tab) => handleNavigate('app', tab || 'workspace')}
+          onGoToStars={() => handleNavigate('stars')}
         />
       )}
 
@@ -713,6 +714,7 @@ export default function App() {
           onOpenEarnStars={() => setIsStarVideoOpen(true)}
           onGoToWorkspace={() => handleNavigate('app', 'workspace')}
           onGoToPricing={() => handleNavigate('pricing')}
+          onUpgradeToPaid={handleUpgradeToPaid}
         />
       )}
 

@@ -124,7 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>星星幣</span>
           </button>
 
-          {/* 5. 付費專區 */}
+          {/* 5. 付費會員專區 */}
           <button
             type="button"
             onClick={() => setCurrentView('pricing')}
@@ -132,10 +132,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               currentView === 'pricing' ? 'text-amber-800 font-bold' : 'text-slate-800 hover:text-amber-800'
             }`}
             id="nav-link-pricing"
-            title="查看會員方案與付費會員專區"
+            title="付費會員專區 · 潛意識天體星盤"
           >
             <Crown className="w-3.5 h-3.5 text-amber-600" />
-            <span>付費專區</span>
+            <span>付費會員專區</span>
           </button>
 
           {/* 6. 私隱 */}
@@ -245,15 +245,24 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 登出
               </button>
+              <button
+                type="button"
+                onClick={onOpenLogin}
+                className="btn2 text-xs text-blue-700 hover:text-blue-900 border-blue-200 bg-blue-50/60 hover:bg-blue-100 cursor-pointer"
+                title="切換帳戶"
+                id="nav-switch-user-btn"
+              >
+                切換
+              </button>
             </div>
           ) : (
             <button
               type="button"
               onClick={onOpenLogin}
-              className="px-4 py-1.5 rounded-full border border-[#60A5FA] bg-white/90 hover:bg-white text-[#1D4ED8] hover:text-[#1E40AF] text-[13px] font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+              className="px-4 py-1.5 rounded-full border border-blue-600 bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
               id="nav-login-btn"
             >
-              <UserCircle className="w-4 h-4 text-[#2563EB]" />
+              <UserCircle className="w-4 h-4 text-white" />
               <span>登入</span>
             </button>
           )}
