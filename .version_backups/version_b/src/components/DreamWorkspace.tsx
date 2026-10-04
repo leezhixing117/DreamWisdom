@@ -2487,7 +2487,11 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
               setActiveTab('workspace');
             }}
             onOpenReportDetail={(entry) => setSelectedEntry(entry)}
-            onNavigateToShop={() => onGoToPricing()}
+            onNavigateToShop={(productId) => {
+              if (onGoToStore) {
+                onGoToStore(productId);
+              }
+            }}
           />
         </div>
       )}

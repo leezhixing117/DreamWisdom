@@ -83,7 +83,7 @@ export const PricingView: React.FC<PricingViewProps> = ({
                 className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-extrabold text-xs shadow-md shadow-amber-500/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer hover:scale-[1.02] active:scale-98"
               >
                 <Crown className="w-4 h-4" />
-                <span>立即開通付費會員</span>
+                <span>立即開通付費會員（新張特惠 HK$89/月 起）</span>
               </button>
             )}
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ProductItem, User, PurchaseOrder, normalizeRole, ProductAvailabilityStatus } from '../types';
 import { trackShopVisitEvent } from '../utils/auditLogger';
 import {
@@ -767,6 +767,50 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
       {/* TAB 1: PUBLIC PRODUCTS STOREFRONT */}
       {storeViewMode === 'public' && (
         <div className="space-y-6">
+          {/* 來自天體星盤之今日守護物導航頂部導引卡 */}
+          {recommendedProduct && (
+            <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/15 via-teal-500/10 to-indigo-500/15 border-2 border-amber-400 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-fade-in">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <span className="text-3xl p-2.5 rounded-2xl bg-white/90 border border-amber-300 shadow-xs shrink-0">🌿</span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="text-xs font-black text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                      ✦ 潛意識天體星盤 · 今日對應守護物 ✦
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-bold border border-emerald-300">
+                      星盤即時定位
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-base sm:text-lg text-slate-900 truncate">
+                    {recommendedProduct.name}
+                  </h3>
+                  <p className="text-xs text-slate-600 line-clamp-1 mt-0.5 font-medium">
+                    {recommendedProduct.recommendationReason || recommendedProduct.subtitle || '與今日星盤原型深度共振，淨化磁場、轉化潛意識能量。'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 shrink-0 self-stretch sm:self-center">
+                <button
+                  type="button"
+                  onClick={() => setActiveDetailProduct(recommendedProduct)}
+                  className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-extrabold text-xs shadow-md shadow-amber-500/20 cursor-pointer whitespace-nowrap hover:scale-102 transition-transform"
+                >
+                  查看守護物詳情
+                </button>
+                {onGoBackToAstrolabe && (
+                  <button
+                    type="button"
+                    onClick={onGoBackToAstrolabe}
+                    className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold text-xs shadow-2xs cursor-pointer whitespace-nowrap"
+                  >
+                    ← 返回星盤占卜
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Category Filter */}
           <div className="flex flex-wrap items-center gap-2.5">
             <button
@@ -883,10 +927,11 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
               return (
                 <div
                   key={product.id}
+                  id={`product-card-${product.id}`}
                   className={`rounded-3xl transition-all flex flex-col justify-between overflow-hidden group ${theme.cardBorder} ${theme.cardBg} ${theme.cardHover} ${
                     isAvailable ? '' : 'opacity-90'
                   } ${
-                    isRecommended ? 'ring-2 ring-amber-400 shadow-xl' : ''
+                    isRecommended ? 'ring-4 ring-amber-400 shadow-2xl scale-[1.01]' : ''
                   }`}
                 >
                   {/* Product Image & Badges */}

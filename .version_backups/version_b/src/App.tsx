@@ -679,7 +679,12 @@ export default function App() {
           onGoToStars={() => handleNavigate('stars')}
           onStartWithDream={handleStartWithDream}
           onOpenReportDetail={() => handleNavigate('app', 'workspace')}
-          onNavigateToShop={() => setCurrentView('shop')}
+          onNavigateToShop={(productId) => {
+            if (productId) {
+              setTargetProductId(productId);
+            }
+            handleNavigate('store');
+          }}
         />
       )}
 
@@ -709,6 +714,7 @@ export default function App() {
           onNavigateToWorkspace={() => handleNavigate('app', 'workspace')}
           onUpdateProducts={(updated) => setProducts(updated)}
           onNavigateToAdmin={() => handleNavigate('admin')}
+          onGoBackToAstrolabe={() => handleNavigate('pricing')}
         />
       )}
 

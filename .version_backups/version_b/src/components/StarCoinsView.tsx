@@ -463,7 +463,7 @@ export const StarCoinsView: React.FC<StarCoinsViewProps> = ({
                 一次開晒全部功能：完整互動星圖、30 日全息報告、無限儲存、PDF 匯出備份，完全唔使睇廣告！
               </p>
 
-              {/* Billing switcher: 月費 / 年費 / 終身 */}
+              {/* Billing switcher: 月費 / 年費 / 終生 */}
               <div className="my-4 p-1 rounded-xl bg-slate-200/80 border border-slate-300 flex items-center text-xs gap-1">
                 <button
                   type="button"
@@ -472,7 +472,10 @@ export const StarCoinsView: React.FC<StarCoinsViewProps> = ({
                     billingCycle === 'monthly' ? 'bg-blue-700 text-white shadow-sm' : 'text-slate-700 hover:text-blue-900'
                   }`}
                 >
-                  月費方案
+                  <span>月費方案</span>
+                  <span className="ml-1 text-[10px] px-1 py-0.2 rounded bg-amber-400 text-black font-extrabold">
+                    新張特惠
+                  </span>
                 </button>
                 <button
                   type="button"
@@ -483,48 +486,70 @@ export const StarCoinsView: React.FC<StarCoinsViewProps> = ({
                 >
                   <span>年費方案</span>
                   <span className="ml-1 text-[10px] px-1 py-0.2 rounded bg-amber-400 text-black font-extrabold">
-                    慳35%
+                    慳HK$899
                   </span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setBillingCycle('lifetime')}
-                  className={`py-1.5 px-2.5 rounded-lg font-bold transition-all cursor-pointer text-center ${
+                  className={`py-1.5 px-3 rounded-lg font-bold transition-all cursor-pointer text-center ${
                     billingCycle === 'lifetime' ? 'bg-blue-700 text-white shadow-sm' : 'text-slate-700 hover:text-blue-900'
                   }`}
                 >
-                  終身
+                  終生方案
                 </button>
               </div>
 
               {/* Price & Billing Cycle Display */}
               <div className="pb-4 mb-4 border-b border-slate-200">
-                <div className="flex items-baseline gap-1.5">
+                <div className="flex items-baseline gap-2 flex-wrap">
                   <span className="text-3xl sm:text-4xl font-black text-blue-700 font-mono">
                     {billingCycle === 'yearly'
-                      ? 'HK$298'
+                      ? 'HK$789'
                       : billingCycle === 'monthly'
-                      ? 'HK$38'
-                      : 'HK$588'}
+                      ? 'HK$89'
+                      : 'HK$2388'}
                   </span>
+                  {billingCycle === 'monthly' && (
+                    <span className="text-sm text-slate-400 line-through font-mono">
+                      原價 HK$168
+                    </span>
+                  )}
+                  {billingCycle === 'yearly' && (
+                    <span className="text-sm text-slate-400 line-through font-mono">
+                      原價 HK$1688
+                    </span>
+                  )}
                   <span className="text-xs text-slate-600 font-bold">
                     {billingCycle === 'yearly'
-                      ? '/ 年費 (HKD)'
+                      ? '/ 年費 (HKD · 新張期特惠)'
                       : billingCycle === 'monthly'
-                      ? '/ 月費 (HKD)'
-                      : '/ 終身買斷 (HKD)'}
+                      ? '/ 月費 (HKD · 新張期特惠)'
+                      : '/ 終生買斷 (HKD · 終生尊享)'}
                   </span>
                 </div>
 
                 {billingCycle === 'yearly' && (
                   <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold">
-                    <span>🔥 年費限時特惠：折合約 HK$24.8 / 月 · 享 35% 優惠（即慳 HK$158）！</span>
+                    <span>🔥 年費新張限時特惠：現只需 HK$789/年（原價 HK$1688，即慳 HK$899，折合約 HK$65.8/月）！</span>
                   </div>
                 )}
 
-                <p className="text-[11px] text-emerald-800 mt-1.5 font-mono font-bold">
+                {billingCycle === 'monthly' && (
+                  <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold">
+                    <span>🎉 月費新張特惠：現只需 HK$89/月（原價 HK$168，即刻慳 HK$79）！</span>
+                  </div>
+                )}
+
+                {billingCycle === 'lifetime' && (
+                  <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold">
+                    <span>💎 終生永久買斷：一次性付款 HK$2388，永久享用全部 VIP 特權，無後續續費！</span>
+                  </div>
+                )}
+
+                <p className="text-[11px] text-emerald-800 mt-2 font-mono font-bold">
                   {billingCycle === 'yearly'
-                    ? '週期：按年扣款 · 全年無限解夢 · 送完整星圖與 30 晚檔案'
+                    ? '週期：按年扣款 · 全年無限解夢 · 送完整星圖與 30 晚全息檔案'
                     : billingCycle === 'monthly'
                     ? '週期：按月扣款 · 彈性自由 · 隨時可取消訂閱無合約束縛'
                     : '週期：一次付款 · 終生永久無限探索潛意識'}
@@ -579,10 +604,10 @@ export const StarCoinsView: React.FC<StarCoinsViewProps> = ({
                   <Crown className="w-4 h-4 text-amber-300" />
                   <span>
                     {billingCycle === 'yearly'
-                      ? '立即啟用付費會員（年費特惠 HK$298/年 · 慳35%）'
+                      ? '立即啟用付費會員（年費新張特惠 HK$789/年 · 原價 HK$1688）'
                       : billingCycle === 'monthly'
-                      ? '立即啟用付費會員（月費 HK$38/月）'
-                      : '立即啟用付費會員（終生買斷 HK$588）'}
+                      ? '立即啟用付費會員（月費新張特惠 HK$89/月 · 原價 HK$168）'
+                      : '立即啟用付費會員（終生尊享 HK$2388 · 終身買斷）'}
                   </span>
                 </button>
               )}
@@ -630,7 +655,7 @@ export const StarCoinsView: React.FC<StarCoinsViewProps> = ({
                       <Crown className="w-3.5 h-3.5 text-amber-600" />
                       <span>💎 付費 VIP 進階</span>
                     </span>
-                    <span className="text-[10px] text-emerald-800 font-bold font-mono">HK$38/月 或 HK$298/年</span>
+                    <span className="text-[10px] text-emerald-800 font-bold font-mono">新張特惠 HK$89/月 或 HK$789/年</span>
                   </th>
                 </tr>
               </thead>

@@ -1231,7 +1231,7 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
                 }}
                 className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-700 to-sky-600 hover:from-blue-800 hover:to-sky-700 text-white font-bold text-sm shadow-md shadow-blue-700/20 flex items-center justify-center gap-2 cursor-pointer transition-all"
               >
-                <span>前往升級付費會員 (HK$ 38 / 月起)</span>
+                <span>前往升級付費會員（新張特惠 HK$89/月 起）</span>
                 <ArrowUpRight className="w-4 h-4" />
               </button>
               <button
