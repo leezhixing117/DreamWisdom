@@ -18,7 +18,7 @@
       theme: {
         extend: {
           colors: {
-            dwPrimary: '#4A47A3',     // 主色：深天體青藍（非紫色）
+            dwPrimary: '#4A47A3',     // 主色：深天體青藍（嚴格禁止紫色）
             dwPrimaryHover: '#3B3888',
             dwSecondary: '#8BA690',   // 輔色：尤加利鼠尾草綠
             dwSecondaryLight: '#E8EFEA',
@@ -37,7 +37,7 @@
   </script>
 
   <style>
-    /* 視覺強制規範：禁止任何紫色，淺冰藍漸變背景，半透大圓角卡片 */
+    /* 10. 視覺強制規範：嚴格禁止任何紫色，淺冰藍漸變背景，半透大圓角毛玻璃卡片 */
     body {
       font-family: 'Inter', 'Noto Sans TC', sans-serif;
       background: linear-gradient(145deg, #f0f6fa 0%, #e6eef8 45%, #f4f8fc 100%);
@@ -59,12 +59,12 @@
       }
     }
 
-    /* 大圓角半透毛玻璃卡片 */
+    /* 10. 大圓角半透毛玻璃卡片（統一圓角 24px、霧面、陰影參數） */
     .glass-card {
-      background: rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.90);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(139, 166, 144, 0.22);
+      border: 1px solid rgba(139, 166, 144, 0.24);
       border-radius: 24px;
       box-shadow: 0 10px 30px rgba(74, 71, 163, 0.05);
       transition: transform 0.28s ease, box-shadow 0.28s ease;
@@ -76,7 +76,7 @@
       box-shadow: 0 16px 36px rgba(74, 71, 163, 0.09);
     }
 
-    /* 觸控按鈕規範：高度 ≥ 48px */
+    /* 12. 觸控按鈕規範：高度 ≥ 48px */
     .btn-touch {
       min-height: 48px;
       display: inline-flex;
@@ -85,10 +85,10 @@
       transition: all 0.2s ease;
     }
 
-    /* 標籤懸浮微動效 */
+    /* 4. 意象標籤晶片樣式 */
     .tag-chip {
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(74, 71, 163, 0.16);
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(74, 71, 163, 0.18);
       transition: all 0.2s ease;
       cursor: pointer;
     }
@@ -99,7 +99,7 @@
       transform: scale(1.02);
     }
 
-    /* 平滑手風琴 */
+    /* 平滑手風琴指示圖標 */
     details summary::-webkit-details-marker {
       display: none;
     }
@@ -108,9 +108,9 @@
 <body class="flex flex-col min-h-screen">
 
   <!-- ======================================================== -->
-  <!-- 1. 共用頂部導航列 (Universal Navbar) -->
+  <!-- 1. 共用頂部導航列 (1. 僅保留導航列入口，完全移除首頁內商品介紹區塊) -->
   <!-- ======================================================== -->
-  <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-[#8BA690]/20">
+  <header class="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-[#8BA690]/20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
       <!-- 品牌 Logo -->
@@ -128,18 +128,19 @@
       <nav class="hidden md:flex items-center gap-8 text-[15px] font-medium text-slate-700">
         <a href="home.html" class="text-[#4A47A3] font-semibold border-b-2 border-[#4A47A3] pb-1">首頁</a>
         <a href="#dream-record" class="hover:text-[#4A47A3] transition-colors">記錄夢境</a>
-        <a href="#dream-dna" class="hover:text-[#4A47A3] transition-colors">我的夢庫</a>
+        <a href="#three-pillars-section" class="hover:text-[#4A47A3] transition-colors">潛意識模組</a>
+        <!-- 1. 僅於導航列保留選物店入口 -->
         <a href="shop.html" class="hover:text-[#4A47A3] flex items-center gap-1.5 transition-colors">
           <span>解夢選物店</span>
           <span class="text-[10px] bg-[#8BA690]/20 text-[#2E4A35] font-semibold px-2 py-0.5 rounded-full">身心靈</span>
         </a>
-        <a href="#about" class="hover:text-[#4A47A3] transition-colors">關於我們</a>
+        <a href="#hotlines-section" class="hover:text-[#4A47A3] transition-colors">支援熱線</a>
         <a href="#faq" class="hover:text-[#4A47A3] transition-colors">FAQ</a>
       </nav>
 
       <!-- 右側動作區：購物車與快捷按鈕 -->
       <div class="flex items-center gap-4">
-        <!-- 購物車圖標 (觸發記憶體購物車側欄) -->
+        <!-- 購物車圖標 -->
         <button id="cartBtn" class="relative p-2.5 rounded-full hover:bg-slate-100 transition-colors btn-touch" title="查看購物車">
           <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -148,7 +149,7 @@
         </button>
 
         <!-- 立即記夢按鈕 -->
-        <a href="#dream-record" class="hidden sm:inline-flex btn-touch px-5 py-2.5 rounded-full bg-[#4A47A3] hover:bg-[#3B3888] text-white text-sm font-medium shadow-md shadow-[#4A47A3]/25">
+        <a href="#dream-record" class="hidden sm:inline-flex btn-touch px-6 py-2.5 rounded-2xl bg-[#4A47A3] hover:bg-[#3B3888] text-white text-sm font-semibold shadow-md shadow-[#4A47A3]/25">
           開始記夢
         </a>
 
@@ -166,22 +167,22 @@
     <div id="mobileMenu" class="hidden md:hidden px-4 pt-2 pb-6 bg-white/95 border-b border-slate-200 space-y-3">
       <a href="home.html" class="block py-2 text-[#4A47A3] font-bold">首頁</a>
       <a href="#dream-record" class="block py-2 text-slate-700 font-medium">記錄夢境</a>
-      <a href="#dream-dna" class="block py-2 text-slate-700 font-medium">我的夢庫</a>
+      <a href="#three-pillars-section" class="block py-2 text-slate-700 font-medium">潛意識模組</a>
       <a href="shop.html" class="block py-2 text-slate-700 font-medium flex items-center justify-between">
         <span>解夢選物店</span>
         <span class="text-xs bg-[#8BA690]/20 text-[#2E4A35] px-2 py-0.5 rounded-full">身心靈</span>
       </a>
-      <a href="#about" class="block py-2 text-slate-700 font-medium">關於我們</a>
+      <a href="#hotlines-section" class="block py-2 text-slate-700 font-medium">香港支援熱線</a>
       <a href="#faq" class="block py-2 text-slate-700 font-medium">FAQ</a>
     </div>
   </header>
 
   <!-- ======================================================== -->
-  <!-- 2. 全站核心免責公告橫幅 (全站置頂醒目宣告) -->
+  <!-- 2. 全站核心免責公告橫幅 -->
   <!-- ======================================================== -->
   <div class="bg-[#8BA690]/15 border-b border-[#8BA690]/30 py-2.5 px-4 text-center">
     <div class="max-w-5xl mx-auto flex items-center justify-center gap-2 text-xs md:text-sm text-[#243E2C] font-medium">
-      <span class="text-amber-700 font-bold">⚠️ 心理學反思聲明：</span>
+      <span class="text-amber-800 font-bold">⚠️ 心理學反思聲明：</span>
       <span>本平台不是心理治療或精神科服務，只屬心理學自我反思工具，不作吉凶預測。重複夢魘困擾請參考文末香港心理支援熱線。</span>
     </div>
   </div>
@@ -189,18 +190,18 @@
   <main class="flex-grow">
 
     <!-- ======================================================== -->
-    <!-- 3. HERO 主視覺與首屏記夢輸入區 (首頁禁止任何商品) -->
+    <!-- 3. HERO 主視覺與首屏記夢輸入區 (9. H1 大標) -->
     <!-- ======================================================== -->
-    <section id="dream-record" class="pt-12 pb-16 md:pt-20 md:pb-24 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+    <section id="dream-record" class="pt-10 pb-14 md:pt-16 md:pb-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto scroll-mt-28">
       
-      <!-- 標題文案 -->
-      <div class="text-center space-y-4 mb-10">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/70 border border-[#8BA690]/40 text-[#4A47A3] text-xs md:text-sm font-semibold tracking-wider uppercase">
+      <!-- 標題文案 (9. H1 嚴格語義) -->
+      <div class="text-center space-y-4 mb-8">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 border border-[#8BA690]/40 text-[#4A47A3] text-xs md:text-sm font-semibold tracking-wider uppercase">
           <span>✦ DREAMWISDOM</span>
           <span class="text-slate-300">·</span>
           <span>專為香港廣東話設計嘅夢境宇宙</span>
         </div>
-        <h1 class="font-hero text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-slate-900 leading-[1.25]">
+        <h1 class="font-hero text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-slate-900 leading-[1.2]">
           每一個夢，都是<br class="hidden sm:inline" />
           <span class="text-[#4A47A3]">潛意識留給你的信</span>
         </h1>
@@ -209,30 +210,25 @@
         </p>
       </div>
 
-      <!-- 記夢輸入核心卡片 (首屏可見) -->
-      <div class="glass-card p-6 md:p-10 relative">
-        <div class="flex items-center justify-between mb-4">
+      <!-- 記夢輸入核心卡片 (10. 統一圓角/霧面/陰影) -->
+      <div class="glass-card p-6 md:p-8 relative">
+        <div class="flex items-center justify-between mb-3.5">
           <label for="dreamInput" class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
             <span>✍️ 今朝醒來，你記得咩夢境？</span>
           </label>
-          <span class="text-xs text-slate-400 font-medium">廣東話口語輸入即可 · 繁簡皆可</span>
+          <span class="text-xs text-slate-500 font-medium">廣東話口語輸入即可 · 繁簡皆可</span>
         </div>
 
-        <!-- 文本輸入框 (虛擬鍵盤避讓) -->
-        <textarea id="dreamInput" rows="5" 
-          class="w-full p-4 rounded-xl border border-slate-200 bg-white/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#4A47A3] text-slate-800 placeholder-slate-400 text-base leading-relaxed transition-all resize-y"
-          placeholder="醒來記得咩細節？試低聲寫低：喺邊度出現、見到邊個、有咩顏色或怪事、當時你嘅情緒係驚慌、失重定困惑？例：夢見自己搭緊部電梯，突然失控狂升，門一開見到好大片海..."></textarea>
-
-        <!-- 可折疊記夢引導 -->
-        <div class="mt-4">
-          <details class="group bg-slate-50/80 rounded-xl p-3 border border-slate-200/80 text-xs md:text-sm text-slate-600">
+        <!-- 3. 記夢引導改為可折疊模塊，預設收起 (預設不帶 open 屬性) -->
+        <div class="mb-3.5">
+          <details class="group bg-slate-50/90 rounded-2xl p-3 border border-slate-200/80 text-xs md:text-sm text-slate-600">
             <summary class="cursor-pointer font-semibold text-[#4A47A3] flex items-center justify-between select-none">
               <span class="flex items-center gap-1.5">
-                <span>💡 點樣記錄先最有效？（記夢小貼士）</span>
+                <span>💡 點樣記錄先最有效？（記夢小貼士與結構引導）</span>
               </span>
-              <span class="text-xs transition-transform group-open:rotate-180">▼</span>
+              <span class="text-xs text-slate-500 group-open:rotate-180 transition-transform">▼</span>
             </summary>
-            <div class="mt-3 pt-3 border-t border-slate-200/60 space-y-2 text-slate-600 leading-normal">
+            <div class="mt-3 pt-3 border-t border-slate-200/60 space-y-2.5 text-slate-600 leading-normal">
               <p>1. <strong>醒來第一瞬間記低：</strong> 剛醒時趁潛意識殘餘仲有 80%，就算得殘片或一個單字都可以寫低。</p>
               <p>2. <strong>捕捉第一直覺情緒：</strong> 當時感受係窒息、焦急、平靜、定係不知所措？情緒係榮格解夢最關鍵嘅線索。</p>
               <p>3. <strong>記低特殊意象細節：</strong> 重複出現嘅人物、動物、水流、顏色或特定數字，往往係心靈原型的投影。</p>
@@ -240,42 +236,74 @@
           </details>
         </div>
 
-        <!-- 意象標籤快捷插入區 -->
-        <div class="mt-5 pt-4 border-t border-slate-100">
-          <div class="flex items-center gap-2 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            <span>常見夢境意象（點擊自動填入）：</span>
+        <!-- 6. 隱私承諾使用淺底色小卡片強化識別 -->
+        <div class="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-3 mb-3.5 flex flex-wrap items-center justify-between gap-2 text-xs text-emerald-900 font-medium shadow-2xs">
+          <div class="flex items-center gap-2 font-semibold">
+            <svg class="w-4 h-4 text-emerald-700 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+            </svg>
+            <span>香港本地私隱承諾：夢境內容屬私密個人資料，絕不作公共 AI 訓練</span>
           </div>
-          <div class="flex flex-wrap gap-2 text-xs md:text-sm" id="symbolTagsContainer">
-            <button type="button" class="tag-chip px-3 py-1.5 rounded-lg text-slate-700" data-tag="【牙齒脫落】">🦷 掉牙齒</button>
-            <button type="button" class="tag-chip px-3 py-1.5 rounded-lg text-slate-700" data-tag="【在天空飛翔】">🕊️ 飛翔</button>
-            <button type="button" class="tag-chip px-3 py-1.5 rounded-lg text-slate-700" data-tag="【高空墜落失重】">🕳️ 墜落失重</button>
-            <button type="button" class="tag-chip px-3 py-1.5 rounded-lg text-slate-700" data-tag="【被不明力量追趕】">🏃 被追趕</button>
-            <button type="button" class="tag-chip px-3 py-1.5 rounded-lg text-slate-700" data-tag="【搭錯車/遲到】">⏰ 趕車遲到</button>
-            <button type="button" class="tag-chip px-3 py-1.5 rounded-lg text-slate-700" data-tag="【浩瀚大水/被海浪包圍】">🌊 大水海浪</button>
-            <button type="button" class="tag-chip px-3 py-1.5 rounded-lg text-slate-700" data-tag="【迷路/找不到出口】">🏢 迷宮被困</button>
-            <button type="button" class="tag-chip px-3 py-1.5 rounded-lg text-slate-700" data-tag="【考試交白卷】">📝 考試交白卷</button>
-            <button type="button" class="tag-chip px-3 py-1.5 rounded-lg text-slate-700" data-tag="【電梯急速失控】">🛗 電梯失控</button>
-            <button type="button" class="tag-chip px-3 py-1.5 rounded-lg text-slate-700" data-tag="【蛇或神秘生物】">🐍 蛇與靈物</button>
+          <span class="text-emerald-700">沙盒專屬隔離 · 絕不轉交第三方</span>
+        </div>
+
+        <!-- 5 & 12. 文本輸入框 (虛擬鍵盤避讓、即時字數統計) -->
+        <div class="relative mb-3">
+          <textarea id="dreamInput" rows="5" 
+            class="w-full p-4 rounded-2xl border border-slate-200 bg-slate-50/90 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#4A47A3] text-slate-800 placeholder-slate-400 text-base leading-relaxed transition-all resize-y min-h-[120px]"
+            placeholder="醒來記得咩細節？試低聲寫低：喺邊度出現、見到邊個、有咩顏色或怪事、當時你嘅情緒係驚慌、失重定困惑？例：夢見自己搭緊部電梯，突然失控狂升，門一開見到好大片海..."></textarea>
+
+          <!-- 5. 實時顯示字數提示 -->
+          <div class="flex items-center justify-between text-xs text-slate-500 mt-1.5 px-1">
+            <span id="charNotice">醒來零碎記憶都可以隨手寫，字數不限</span>
+            <span id="charCountDisplay" class="font-mono font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">目前字數：0 字</span>
+          </div>
+
+          <!-- 5. 空內容提交友善校驗提示 (預設隱藏) -->
+          <div id="validationAlert" class="hidden mt-2.5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2 animate-fadeIn">
+            <span class="text-rose-600 font-bold">⚠️ 提示：</span>
+            <span>請先寫低幾句醒來記得嘅夢境片段或意象，哪怕只有零碎幾個字都可以～</span>
           </div>
         </div>
 
-        <!-- 隱私承諾與操作按鈕 -->
-        <div class="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div class="flex items-center gap-2 text-xs text-slate-500">
-            <svg class="w-4 h-4 text-[#8BA690]" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
-            </svg>
-            <span>香港本地私隱承諾：夢境屬純私密心靈投射，端對端傳輸保護</span>
+        <!-- 4. 補充意象詞全部實作為可點擊標籤，點擊文字自動插入輸入框 -->
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <div class="flex items-center gap-2 mb-2 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+            <span>✦ 點擊意象標籤，自動插入夢境內容：</span>
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs" id="symbolTagsContainer">
+            <button type="button" class="tag-chip px-3 py-1.5 rounded-xl text-slate-700 font-medium" data-tag="【牙齒脫落】">🦷 掉牙齒</button>
+            <button type="button" class="tag-chip px-3 py-1.5 rounded-xl text-slate-700 font-medium" data-tag="【在天空飛翔】">🕊️ 飛翔</button>
+            <button type="button" class="tag-chip px-3 py-1.5 rounded-xl text-slate-700 font-medium" data-tag="【高空墜落失重】">🕳️ 墜落失重</button>
+            <button type="button" class="tag-chip px-3 py-1.5 rounded-xl text-slate-700 font-medium" data-tag="【被不明力量追趕】">🏃 被追趕</button>
+            <button type="button" class="tag-chip px-3 py-1.5 rounded-xl text-slate-700 font-medium" data-tag="【搭錯車/遲到】">⏰ 趕車遲到</button>
+            <button type="button" class="tag-chip px-3 py-1.5 rounded-xl text-slate-700 font-medium" data-tag="【浩瀚大水/被海浪包圍】">🌊 大水海浪</button>
+            <button type="button" class="tag-chip px-3 py-1.5 rounded-xl text-slate-700 font-medium" data-tag="【迷路/找不到出口】">🏢 迷宮被困</button>
+            <button type="button" class="tag-chip px-3 py-1.5 rounded-xl text-slate-700 font-medium" data-tag="【考試交白卷】">📝 考試交白卷</button>
+            <button type="button" class="tag-chip px-3 py-1.5 rounded-xl text-slate-700 font-medium" data-tag="【電梯急速失控】">🛗 電梯失控</button>
+            <button type="button" class="tag-chip px-3 py-1.5 rounded-xl text-slate-700 font-medium" data-tag="【蛇或神秘生物】">🐍 蛇與靈物</button>
+          </div>
+        </div>
+
+        <!-- 2 & 12. 兩按鈕分開：主CTA高權重；次要線框樣式開新分頁，按鈕≥48px -->
+        <div class="mt-6 pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+            <span>經典心理學原型意象</span>
+            <span class="text-slate-300">·</span>
+            <span>專屬深度心靈洞察</span>
           </div>
 
           <div class="flex items-center gap-3 w-full sm:w-auto">
-            <!-- 示範報告按鈕 -->
-            <button id="demoReportBtn" class="btn-touch flex-1 sm:flex-initial px-5 py-2.5 rounded-full border border-slate-300 hover:border-[#4A47A3] text-slate-700 hover:text-[#4A47A3] bg-white font-medium text-sm">
-              觀看示範報告
-            </button>
+            <!-- 2. 次要按鈕：觀看示範報告（線框樣式，開新分頁，不可覆蓋首頁） -->
+            <a href="report.html?demo=1" target="_blank" rel="noopener noreferrer" 
+               class="btn-touch flex-1 sm:flex-initial px-5 py-2.5 rounded-2xl border-2 border-slate-300 hover:border-slate-500 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-bold text-sm shadow-2xs inline-flex items-center justify-center gap-1.5 transition-all">
+              <span>觀看示範報告</span>
+              <span class="text-xs text-slate-400">↗</span>
+            </a>
             
-            <!-- 開始分析按鈕 -->
-            <button id="analyzeDreamBtn" class="btn-touch flex-1 sm:flex-initial px-7 py-2.5 rounded-full bg-[#4A47A3] hover:bg-[#3B3888] text-white font-semibold text-sm shadow-md shadow-[#4A47A3]/30">
+            <!-- 2. 主CTA：記錄夢境開始分析（高權重樣式，高度≥48px） -->
+            <button id="analyzeDreamBtn" 
+                    class="btn-touch flex-1 sm:flex-initial px-8 py-3 rounded-2xl bg-[#4A47A3] hover:bg-[#3B3888] text-white font-bold text-sm shadow-md shadow-[#4A47A3]/30 transition-all active:scale-95">
               記錄夢境開始分析 →
             </button>
           </div>
@@ -284,13 +312,13 @@
     </section>
 
     <!-- ======================================================== -->
-    <!-- 4. 三步驟引導：從速記到心靈轉化 (Three Steps) -->
+    <!-- 4. 三步驟引導：從速記到心靈轉化 (9. H2 章節語義) -->
     <!-- ======================================================== -->
-    <section class="py-16 bg-white/50 border-y border-slate-200/50">
+    <section class="py-14 bg-white/50 border-y border-slate-200/60" id="how">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-2xl mx-auto mb-12">
+        <div class="text-center max-w-2xl mx-auto mb-10">
           <h2 class="font-hero text-2xl sm:text-3xl font-bold text-slate-900">
-            三步驟，讀懂你的潛意識心靈語言
+            如何解讀你的夢：三步驟開啟心靈智慧
           </h2>
           <p class="body-text text-slate-600 mt-2">
             將夜間混亂嘅夢境碎片，轉化為日間清晰嘅自我覺察指南。
@@ -298,7 +326,6 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
           <!-- Step 1 -->
           <div class="glass-card p-8 text-center flex flex-col items-center">
             <div class="w-14 h-14 rounded-2xl bg-[#4A47A3]/10 text-[#4A47A3] flex items-center justify-center text-2xl font-bold mb-6">
@@ -331,16 +358,15 @@
               獲取「給清醒自我的反思提問」，將夢境警示轉化為生活決策與情緒修復的平靜力量。
             </p>
           </div>
-
         </div>
       </div>
     </section>
 
     <!-- ======================================================== -->
-    <!-- 5. 三大核心模塊卡片 (Modules: DNA, Astrolabe, 30 Nights) -->
+    <!-- 5. 三大核心模塊卡片 (9. H2 章節語義，11. 標註即將推出防死鏈) -->
     <!-- ======================================================== -->
-    <section id="dream-dna" class="py-16 md:py-24 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-2xl mx-auto mb-14">
+    <section id="three-pillars-section" class="py-14 md:py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-12">
         <span class="text-xs font-semibold uppercase tracking-widest text-[#8BA690]">深度沉浸體系</span>
         <h2 class="font-hero text-3xl sm:text-4xl font-bold text-slate-900 mt-1">
           三大潛意識心靈解析模組
@@ -351,11 +377,10 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
         <!-- Module 1: DREAM DNA -->
         <div class="glass-card p-8 flex flex-col justify-between">
           <div>
-            <div class="w-12 h-12 rounded-xl bg-[#4A47A3]/10 text-[#4A47A3] flex items-center justify-center text-xl mb-5">
+            <div class="w-12 h-12 rounded-2xl bg-[#4A47A3]/10 text-[#4A47A3] flex items-center justify-center text-xl mb-5">
               🧬
             </div>
             <div class="text-xs font-bold uppercase tracking-wider text-[#4A47A3] mb-1">MODULE 01</div>
@@ -366,14 +391,14 @@
           </div>
           <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
             <span>原型共振追蹤</span>
-            <span class="text-[#4A47A3]">長期演進</span>
+            <span class="text-[#4A47A3] font-bold">正式上線</span>
           </div>
         </div>
 
         <!-- Module 2: 星圖解析 -->
         <div class="glass-card p-8 flex flex-col justify-between">
           <div>
-            <div class="w-12 h-12 rounded-xl bg-[#8BA690]/20 text-[#243E2C] flex items-center justify-center text-xl mb-5">
+            <div class="w-12 h-12 rounded-2xl bg-[#8BA690]/20 text-[#243E2C] flex items-center justify-center text-xl mb-5">
               🪐
             </div>
             <div class="text-xs font-bold uppercase tracking-wider text-[#8BA690] mb-1">MODULE 02</div>
@@ -384,14 +409,14 @@
           </div>
           <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
             <span>心靈共時性</span>
-            <span class="text-[#8BA690]">古典星盤</span>
+            <span class="text-[#8BA690] font-bold">尊享星盤</span>
           </div>
         </div>
 
-        <!-- Module 3: 30 晚檔案 -->
+        <!-- Module 3: 30 晚檔案 (11. 標註即將推出避免死鏈404) -->
         <div class="glass-card p-8 flex flex-col justify-between">
           <div>
-            <div class="w-12 h-12 rounded-xl bg-[#D97706]/15 text-[#D97706] flex items-center justify-center text-xl mb-5">
+            <div class="w-12 h-12 rounded-2xl bg-[#D97706]/15 text-[#D97706] flex items-center justify-center text-xl mb-5">
               🌌
             </div>
             <div class="text-xs font-bold uppercase tracking-wider text-[#D97706] mb-1">MODULE 03</div>
@@ -401,46 +426,45 @@
             </p>
           </div>
           <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
-            <span>30 天心靈蛻變</span>
-            <span class="text-[#D97706]">深度檔案</span>
+            <span>持續記錄解鎖</span>
+            <span class="text-[#D97706] font-bold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">即將推出</span>
           </div>
         </div>
-
       </div>
     </section>
 
     <!-- ======================================================== -->
-    <!-- 6. 香港本地心理支援熱線卡片 (可折疊) -->
+    <!-- 6. 香港本地心理支援熱線卡片 (7. 可折疊模塊，點擊直接顯示熱線號碼) -->
     <!-- ======================================================== -->
-    <section class="max-w-4xl mx-auto px-4 sm:px-6 mb-16">
-      <div class="bg-amber-50/90 border border-amber-200/80 rounded-2xl p-6 text-slate-800">
+    <section class="max-w-4xl mx-auto px-4 sm:px-6 mb-16" id="hotlines-section">
+      <div class="bg-amber-50/90 border border-amber-200/90 rounded-3xl p-6 text-slate-800 shadow-xs">
         <details class="group">
           <summary class="cursor-pointer font-bold flex items-center justify-between text-amber-900 select-none text-base">
             <span class="flex items-center gap-2">
               <span>🩺 香港心理健康及情緒支援熱線清單（遇到嚴重困擾請即求助）</span>
             </span>
-            <span class="text-xs text-amber-700 transition-transform group-open:rotate-180">▼ 展開熱線電話</span>
+            <span class="text-xs text-amber-800 font-semibold bg-white/80 border border-amber-300 px-3 py-1 rounded-xl transition-transform group-open:bg-amber-100">▼ 展開熱線電話</span>
           </summary>
-          <div class="mt-4 pt-4 border-t border-amber-200/60 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs md:text-sm text-slate-700">
-            <div class="bg-white/80 p-3 rounded-xl border border-amber-100">
+          <div class="mt-4 pt-4 border-t border-amber-200/70 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs md:text-sm text-slate-700">
+            <div class="bg-white/95 p-3.5 rounded-2xl border border-amber-100 shadow-2xs">
               <div class="font-bold text-slate-900">香港撒瑪利亞防止自殺會</div>
-              <div class="text-[#4A47A3] font-bold text-base mt-1">2389 2222</div>
-              <div class="text-xs text-slate-500">24小時情緒疏導熱線</div>
+              <div class="text-[#4A47A3] font-bold text-lg mt-0.5">2389 2222</div>
+              <div class="text-[11px] text-slate-500">24小時情緒疏導熱線 · 專業陪伴</div>
             </div>
-            <div class="bg-white/80 p-3 rounded-xl border border-amber-100">
+            <div class="bg-white/95 p-3.5 rounded-2xl border border-amber-100 shadow-2xs">
               <div class="font-bold text-slate-900">生命熱線 (Life Line)</div>
-              <div class="text-[#4A47A3] font-bold text-base mt-1">2382 0000</div>
-              <div class="text-xs text-slate-500">24小時防止自殺求助</div>
+              <div class="text-[#4A47A3] font-bold text-lg mt-0.5">2382 0000</div>
+              <div class="text-[11px] text-slate-500">24小時防止自殺求助支援服務</div>
             </div>
-            <div class="bg-white/80 p-3 rounded-xl border border-amber-100">
+            <div class="bg-white/95 p-3.5 rounded-2xl border border-amber-100 shadow-2xs">
               <div class="font-bold text-slate-900">醫院管理局 精神健康專線</div>
-              <div class="text-[#4A47A3] font-bold text-base mt-1">2466 7350</div>
-              <div class="text-xs text-slate-500">24小時專業精神科護士諮詢</div>
+              <div class="text-[#4A47A3] font-bold text-lg mt-0.5">2466 7350</div>
+              <div class="text-[11px] text-slate-500">24小時專業精神科護士諮詢熱線</div>
             </div>
-            <div class="bg-white/80 p-3 rounded-xl border border-amber-100">
+            <div class="bg-white/95 p-3.5 rounded-2xl border border-amber-100 shadow-2xs">
               <div class="font-bold text-slate-900">利民會「即時通」情緒支援</div>
-              <div class="text-[#4A47A3] font-bold text-base mt-1">3517 8966</div>
-              <div class="text-xs text-slate-500">24小時社區情緒支援</div>
+              <div class="text-[#4A47A3] font-bold text-lg mt-0.5">3517 8966</div>
+              <div class="text-[11px] text-slate-500">24小時社區情緒支援與關懷</div>
             </div>
           </div>
         </details>
@@ -448,20 +472,24 @@
     </section>
 
     <!-- ======================================================== -->
-    <!-- 7. FAQ 手風琴 (常見問題與解答) -->
+    <!-- 7. FAQ 手風琴 (8. 隱私同理論基礎兩條預設展開 open) -->
     <!-- ======================================================== -->
     <section id="faq" class="py-16 bg-white/60 border-t border-slate-200/60">
       <div class="max-w-4xl mx-auto px-4 sm:px-6">
-        <div class="text-center mb-12">
+        <div class="text-center mb-10">
           <h2 class="font-hero text-2xl sm:text-3xl font-bold text-slate-900">常見問題與解答 (FAQ)</h2>
           <p class="body-text text-slate-600 mt-2">清楚了解我們的定位、原則與科學心理學方法</p>
         </div>
 
         <div class="space-y-4">
           
-          <details class="glass-card p-5 group cursor-pointer">
-            <summary class="font-bold text-slate-800 text-base md:text-lg flex justify-between items-center select-none">
-              <span>Q1：DreamWisdom 係咪算命、解夢周公或者占卜？</span>
+          <!-- 8. 理論基礎：預設展開 (open) -->
+          <details class="glass-card p-5 group cursor-pointer" open>
+            <summary class="font-bold text-slate-900 text-base md:text-lg flex justify-between items-center select-none">
+              <span class="flex items-center gap-2">
+                <span class="text-xs bg-[#4A47A3]/10 text-[#4A47A3] px-2 py-0.5 rounded font-semibold">理論基礎</span>
+                <span>Q1：DreamWisdom 係咪算命、解夢周公或者占卜？</span>
+              </span>
               <span class="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p class="mt-3 text-slate-600 body-text border-t border-slate-100 pt-3">
@@ -469,9 +497,23 @@
             </p>
           </details>
 
+          <!-- 8. 隱私保證：預設展開 (open) -->
+          <details class="glass-card p-5 group cursor-pointer" open>
+            <summary class="font-bold text-slate-900 text-base md:text-lg flex justify-between items-center select-none">
+              <span class="flex items-center gap-2">
+                <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">隱私保證</span>
+                <span>Q2：我的夢境記錄會被其他人或 AI 訓練公開嗎？</span>
+              </span>
+              <span class="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <p class="mt-3 text-slate-600 body-text border-t border-slate-100 pt-3">
+              絕對不會。我們採用個人私隱沙盒隔離，所有夢境內容絕不用作通用大模型訓練，亦不會對第三方公開，保證潛意識記錄百分百安全。
+            </p>
+          </details>
+
           <details class="glass-card p-5 group cursor-pointer">
             <summary class="font-bold text-slate-800 text-base md:text-lg flex justify-between items-center select-none">
-              <span>Q2：點解你哋特別強調「廣東話」解夢？</span>
+              <span>Q3：點解你哋特別強調「廣東話」解夢？</span>
               <span class="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p class="mt-3 text-slate-600 body-text border-t border-slate-100 pt-3">
@@ -481,21 +523,11 @@
 
           <details class="glass-card p-5 group cursor-pointer">
             <summary class="font-bold text-slate-800 text-base md:text-lg flex justify-between items-center select-none">
-              <span>Q3：夢見掉牙齒或者被追，係咪代表現實有壞事發生？</span>
+              <span>Q4：夢見掉牙齒或者被追，係咪代表現實有壞事發生？</span>
               <span class="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
             </summary>
             <p class="mt-3 text-slate-600 body-text border-t border-slate-100 pt-3">
               不代表預兆壞事。在榮格心理學中，「掉牙」通常對應自我形象（Persona）的焦慮或掌控感流失；而「被追趕」則往往代表你正在逃避某個未處理的生活壓力或內在陰影（Shadow）。
-            </p>
-          </details>
-
-          <details class="glass-card p-5 group cursor-pointer">
-            <summary class="font-bold text-slate-800 text-base md:text-lg flex justify-between items-center select-none">
-              <span>Q4：解夢選物店嘅產品，點樣幫到我嘅夢境？</span>
-              <span class="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
-            </summary>
-            <p class="mt-3 text-slate-600 body-text border-t border-slate-100 pt-3">
-              選物店所有產品均為「身心靈生活美學與睡前儀式輔助物件」（例如碌柚葉好運噴霧、薰衣草枕頭噴霧、白鼠尾草草杖等）。透過植物芳香與儀式感，協助平息副交感神經亢奮。請注意：物件只為心靈輔助，非醫療製品。
             </p>
           </details>
 
@@ -504,9 +536,9 @@
     </section>
 
     <!-- ======================================================== -->
-    <!-- 8. 關於我們區塊 (About Us) -->
+    <!-- 8. 關於我們區塊 (9. H2 章節語義) -->
     <!-- ======================================================== -->
-    <section id="about" class="py-16 max-w-4xl mx-auto px-4 sm:px-6 text-center">
+    <section id="about" class="py-14 max-w-4xl mx-auto px-4 sm:px-6 text-center">
       <div class="glass-card p-8 md:p-12">
         <h2 class="font-hero text-2xl sm:text-3xl font-bold text-slate-900 mb-4">
           關於 DreamWisdom 心靈宇宙
@@ -522,9 +554,7 @@
 
   </main>
 
-  <!-- ======================================================== -->
-  <!-- 9. 記憶體購物車側邊抽屜 (純前端 UI 模擬，無 localStorage) -->
-  <!-- ======================================================== -->
+  <!-- 購物車抽屜 -->
   <div id="cartDrawerBackdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden transition-opacity"></div>
   <div id="cartDrawer" class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white shadow-2xl z-[101] transform translate-x-full transition-transform duration-300 flex flex-col">
     <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
@@ -536,13 +566,11 @@
     </div>
 
     <div id="cartItemsContainer" class="flex-grow overflow-y-auto p-5 space-y-4">
-      <!-- 購物車為空時提示 -->
       <div id="cartEmptyState" class="text-center py-16 text-slate-400">
         <div class="text-4xl mb-3">🧺</div>
         <p class="text-sm">選物袋目前仲係空嘅</p>
         <a href="shop.html" class="inline-block mt-4 text-xs text-[#4A47A3] font-bold underline">前往解夢選物店逛逛 →</a>
       </div>
-      <!-- 項目列表將動態渲染於此 -->
     </div>
 
     <div class="p-5 border-t border-slate-200 bg-slate-50 space-y-3">
@@ -550,21 +578,15 @@
         <span>小計：</span>
         <span id="cartDrawerTotal" class="text-xl text-[#4A47A3]">HK$ 0</span>
       </div>
-      <p class="text-[11px] text-slate-400">
-        * 選物店訂單支援香港本地順豐速運。本購物袋為記憶體模擬體驗，下單將交由後端處理。
-      </p>
-      <button id="checkoutBtn" class="w-full btn-touch py-3 rounded-xl bg-[#4A47A3] hover:bg-[#3B3888] text-white font-bold text-sm shadow-md">
+      <button id="checkoutBtn" class="w-full btn-touch py-3 rounded-2xl bg-[#4A47A3] hover:bg-[#3B3888] text-white font-bold text-sm shadow-md">
         前往結帳 (模擬訂單)
       </button>
     </div>
   </div>
 
-  <!-- ======================================================== -->
-  <!-- 10. 共用頁尾 (Universal Footer) -->
-  <!-- ======================================================== -->
+  <!-- 共用頁尾 -->
   <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 text-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-      
       <div class="space-y-3">
         <div class="flex items-center gap-2">
           <div class="w-7 h-7 rounded-full bg-[#4A47A3] flex items-center justify-center text-white text-xs font-bold">✦</div>
@@ -580,7 +602,7 @@
         <ul class="space-y-2 text-xs">
           <li><a href="home.html" class="hover:text-white transition-colors">首頁</a></li>
           <li><a href="#dream-record" class="hover:text-white transition-colors">記錄夢境</a></li>
-          <li><a href="#dream-dna" class="hover:text-white transition-colors">DREAM DNA</a></li>
+          <li><a href="#three-pillars-section" class="hover:text-white transition-colors">潛意識模組</a></li>
           <li><a href="shop.html" class="hover:text-white transition-colors">解夢選物店</a></li>
         </ul>
       </div>
@@ -600,7 +622,6 @@
           醫管局精神專線：2466 7350
         </p>
       </div>
-
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
@@ -608,9 +629,7 @@
     </div>
   </footer>
 
-  <!-- ======================================================== -->
-  <!-- 11. 前端邏輯 JS 模組 (完全無 localStorage) -->
-  <!-- ======================================================== -->
+  <!-- 前端邏輯 JS 模組 -->
   <script type="module">
     import { 
       getCart, 
@@ -620,10 +639,21 @@
       onCartChange 
     } from './api.js';
 
-    // 意象標籤快捷插入功能
     const dreamInput = document.getElementById('dreamInput');
     const tagsContainer = document.getElementById('symbolTagsContainer');
+    const charCountDisplay = document.getElementById('charCountDisplay');
+    const validationAlert = document.getElementById('validationAlert');
 
+    // 5. 輸入框實時顯示字數提示
+    dreamInput.addEventListener('input', () => {
+      const len = dreamInput.value.length;
+      charCountDisplay.textContent = `目前字數：${len} 字${len >= 15 ? ' ✓' : ''}`;
+      if (len > 0) {
+        validationAlert.classList.add('hidden');
+      }
+    });
+
+    // 4. 補充意象詞全部實作為可點擊標籤，點擊文字自動插入輸入框
     tagsContainer.addEventListener('click', (e) => {
       const btn = e.target.closest('.tag-chip');
       if (!btn) return;
@@ -632,26 +662,23 @@
         if (!dreamInput.value.includes(tagText)) {
           dreamInput.value = dreamInput.value ? `${dreamInput.value} ${tagText}` : tagText;
         }
+        validationAlert.classList.add('hidden');
         dreamInput.focus();
+        dreamInput.dispatchEvent(new Event('input'));
       }
     });
 
-    // 示範報告按鈕：填入經典示範夢境並跳轉報告頁
-    document.getElementById('demoReportBtn').addEventListener('click', () => {
-      const demoDream = '夢見自己搭緊部好舊嘅古董電梯，突然急速失控上升，衝破天花板。門一開見到一片平靜浩瀚嘅深海，海面有隻巨大的金色鳥緩慢盤旋。醒來個人心跳好快，但又覺得好震撼。';
-      // 跳轉至報告頁 (使用 URL Query 傳遞，前端不存儲業務數據於 localStorage)
-      window.location.href = `report.html?demo=1&theme=purify&dream=${encodeURIComponent(demoDream)}`;
-    });
-
-    // 開始分析按鈕：檢查輸入並跳轉報告頁
+    // 5. 空內容提交友好校驗提示；有內容則跳轉
     document.getElementById('analyzeDreamBtn').addEventListener('click', () => {
       const text = dreamInput.value.trim();
       if (!text) {
-        alert('請先寫低幾句你記得嘅夢境碎片，哪怕只有一個意象都可以～');
+        validationAlert.classList.remove('hidden');
         dreamInput.focus();
+        dreamInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
-      // 根據輸入簡單推斷 theme 傳給報告頁
+      validationAlert.classList.add('hidden');
+      
       let theme = 'purify';
       if (text.includes('累') || text.includes('趕') || text.includes('急') || text.includes('工')) {
         theme = 'sleep';
@@ -663,14 +690,14 @@
       window.location.href = `report.html?theme=${encodeURIComponent(theme)}&dream=${encodeURIComponent(text)}`;
     });
 
-    // 手機漢堡選單切換
+    // 手機導航選單
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
     mobileMenuBtn?.addEventListener('click', () => {
       mobileMenu.classList.toggle('hidden');
     });
 
-    // 記憶體購物車側邊抽屜操作
+    // 購物車抽屜
     const cartBtn = document.getElementById('cartBtn');
     const closeCartBtn = document.getElementById('closeCartBtn');
     const cartDrawer = document.getElementById('cartDrawer');
@@ -695,13 +722,11 @@
     closeCartBtn.addEventListener('click', closeCart);
     cartDrawerBackdrop.addEventListener('click', closeCart);
 
-    // 渲染購物車
     function renderCartDrawer() {
       const cart = getCart();
       const count = getCartCount();
       const total = getCartTotal();
 
-      // 更新 Badge
       if (count > 0) {
         cartCountBadge.textContent = count;
         cartCountBadge.classList.remove('hidden');
@@ -720,8 +745,8 @@
       }
 
       cartItemsContainer.innerHTML = cart.map(item => `
-        <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-          <img src="${item.product.imageUrl}" class="w-14 h-14 object-cover rounded-lg" alt="${item.product.name}">
+        <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+          <img src="${item.product.imageUrl}" class="w-14 h-14 object-cover rounded-xl" alt="${item.product.name}">
           <div class="flex-grow">
             <h4 class="text-xs font-bold text-slate-800 line-clamp-1">${item.product.name}</h4>
             <div class="text-xs text-[#4A47A3] font-semibold mt-0.5">HK$ ${item.product.priceHKD}</div>
@@ -734,7 +759,6 @@
         </div>
       `).join('');
 
-      // 綁定增減數量
       cartItemsContainer.querySelectorAll('.cart-qty-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           const id = e.currentTarget.dataset.id;
@@ -744,11 +768,8 @@
       });
     }
 
-    onCartChange(() => {
-      renderCartDrawer();
-    });
+    onCartChange(renderCartDrawer);
 
-    // 模擬結帳
     document.getElementById('checkoutBtn').addEventListener('click', () => {
       const count = getCartCount();
       if (count === 0) {
