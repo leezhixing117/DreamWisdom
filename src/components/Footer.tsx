@@ -1,9 +1,9 @@
 import React from 'react';
-import { ShieldCheck, Lock, Heart, Star, Sparkles, ShoppingBag, Crown } from 'lucide-react';
+import { ShieldCheck, Lock, Heart, Star, Sparkles, ShoppingBag } from 'lucide-react';
 import { CelestialLogo } from './CelestialLogo';
 
 interface FooterProps {
-  onNavigate: (view: 'home' | 'app' | 'pricing' | 'privacy' | 'store' | 'stars') => void;
+  onNavigate: (view: 'home' | 'app' | 'pricing' | 'privacy' | 'store') => void;
   onOpenTherapeuticSupport?: () => void;
   onOpenEarnStars?: () => void;
 }
@@ -58,20 +58,9 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigate('pricing')}
-                  className="text-slate-700 hover:text-blue-700 font-medium transition-colors cursor-pointer flex items-center gap-1"
+                  className="text-slate-700 hover:text-blue-700 font-medium transition-colors cursor-pointer"
                 >
-                  <Crown className="w-3.5 h-3.5 text-amber-600" />
-                  <span>付費會員專區 (天體星盤)</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() => onNavigate('stars')}
-                  className="text-slate-700 hover:text-amber-800 font-medium transition-colors cursor-pointer flex items-center gap-1"
-                >
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
-                  <span>星星幣中心</span>
+                  解夢點數與方案
                 </button>
               </li>
             </ul>

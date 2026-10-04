@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DreamDNA, DreamDnaSymbol } from '../types';
-import { Dna, Sparkles, TrendingUp, Compass, Share2, Check, ArrowRight, Eye, Cloud, Activity } from 'lucide-react';
+import { Dna, Sparkles, TrendingUp, Compass, Share2, Check, ArrowRight, Eye, Calendar, Cloud, Activity } from 'lucide-react';
 
 interface DreamDnaCardProps {
   dna: DreamDNA;
@@ -30,17 +30,17 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
 
   const activeTimeData = timeRange === 'this_week' ? emotionTimeDataWeek : emotionTimeDataAll;
 
-  // Keyword tag cloud items with high-contrast distinct pastel/bold colors
+  // Keyword tag cloud items with weights
   const keywordCloud = [
-    { text: '水 / 海洋', count: 4, size: 'text-base sm:text-lg', color: 'text-sky-950 bg-sky-100 hover:bg-sky-200 border-2 border-sky-300' },
-    { text: '門 / 出口', count: 3, size: 'text-base sm:text-lg', color: 'text-amber-950 bg-amber-100 hover:bg-amber-200 border-2 border-amber-300' },
-    { text: '被追逐 / 逃跑', count: 3, size: 'text-base sm:text-lg', color: 'text-rose-950 bg-rose-100 hover:bg-rose-200 border-2 border-rose-300' },
-    { text: '舊居屋邨', count: 2, size: 'text-sm sm:text-base', color: 'text-indigo-950 bg-indigo-100 hover:bg-indigo-200 border-2 border-indigo-300' },
-    { text: '走廊', count: 3, size: 'text-sm sm:text-base', color: 'text-emerald-950 bg-emerald-100 hover:bg-emerald-200 border-2 border-emerald-300' },
-    { text: '考場公開試', count: 2, size: 'text-sm sm:text-base', color: 'text-amber-900 bg-amber-50 hover:bg-amber-100 border-2 border-amber-300' },
-    { text: '赤腳奔走', count: 2, size: 'text-sm sm:text-base', color: 'text-slate-900 bg-slate-100 hover:bg-slate-200 border-2 border-slate-300' },
-    { text: '母親 / 神枱', count: 2, size: 'text-sm sm:text-base', color: 'text-purple-950 bg-purple-100 hover:bg-purple-200 border-2 border-purple-300' },
-    { text: '黑影 (Shadow)', count: 2, size: 'text-sm sm:text-base', color: 'text-slate-950 bg-slate-200 hover:bg-slate-300 border-2 border-slate-400' },
+    { text: '水 / 海洋', count: 4, size: 'text-lg sm:text-xl', color: 'text-[#71d9ff] bg-[#71d9ff]/10 border-[#71d9ff]/30' },
+    { text: '門 / 出口', count: 3, size: 'text-base sm:text-lg', color: 'text-[#ffd27a] bg-[#ffd27a]/10 border-[#ffd27a]/30' },
+    { text: '被追逐 / 逃跑', count: 3, size: 'text-base sm:text-lg', color: 'text-rose-400 bg-rose-500/10 border-rose-500/30' },
+    { text: '舊居屋邨', count: 2, size: 'text-sm sm:text-base', color: 'text-[#aa9cff] bg-[#aa9cff]/10 border-[#aa9cff]/30' },
+    { text: '走廊', count: 3, size: 'text-sm sm:text-base', color: 'text-[#78e1b5] bg-[#78e1b5]/10 border-[#78e1b5]/30' },
+    { text: '考場公開試', count: 2, size: 'text-sm', color: 'text-amber-300 bg-amber-400/10 border-amber-400/30' },
+    { text: '赤腳奔走', count: 2, size: 'text-sm', color: 'text-[#aab3d2] bg-white/5 border-white/10' },
+    { text: '母親 / 神枱', count: 2, size: 'text-sm sm:text-base', color: 'text-purple-300 bg-purple-400/10 border-purple-400/30' },
+    { text: '黑影 (Shadow)', count: 2, size: 'text-sm', color: 'text-indigo-300 bg-indigo-500/10 border-indigo-500/30' },
   ];
 
   const handleShareDna = () => {
@@ -53,58 +53,40 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
   };
 
   return (
-    <div
-      className="relative overflow-hidden p-6 sm:p-8 rounded-3xl space-y-6 bg-gradient-to-b from-[#F0F6FF] via-white to-[#EEF5FF] border-2 border-blue-300 shadow-xl"
-      id="dream-dna-card"
-    >
-      {/* 背景星宿幾何星座紋理水印 */}
-      <svg
-        className="absolute inset-0 w-full h-full pointer-events-none opacity-20 overflow-hidden"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <line x1="25%" y1="10%" x2="60%" y2="8%" stroke="#3B82F6" strokeWidth="1.5" strokeDasharray="3 3" />
-        <circle cx="25%" cy="10%" r="4" fill="#2563EB" />
-        <circle cx="60%" cy="8%" r="3.5" fill="#38BDF8" />
-        <circle cx="85%" cy="18%" r="4" fill="#F59E0B" />
-        <line x1="60%" y1="8%" x2="85%" y2="18%" stroke="#60A5FA" strokeWidth="1.2" />
-        <path d="M 580 60 A 35 35 0 0 1 545 25 A 35 35 0 1 0 580 60 Z" fill="#93C5FD" opacity="0.3" />
-      </svg>
+    <div className="card border-[#aa9cff]/30 bg-gradient-to-b from-[#111428] to-[#0a0d1d] relative overflow-hidden p-6 sm:p-8 rounded-3xl space-y-6" id="dream-dna-card">
+      {/* Decorative gradient orb */}
+      <div className="absolute top-0 right-1/4 w-80 h-80 bg-[#aa9cff]/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Header bar (高清晰白底大字) */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-200 pb-5">
-        <div className="flex items-center gap-3.5">
-          <div className="w-14 h-14 rounded-2xl bg-blue-100 border-2 border-blue-300 flex items-center justify-center text-blue-700 shadow-sm shrink-0">
-            <Dna className="w-7 h-7 animate-pulse" />
+      {/* Header bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-[#aa9cff]/15 border border-[#aa9cff]/30 flex items-center justify-center text-[#c3b9ff]">
+            <Dna className="w-5 h-5 animate-pulse" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5">
-              <span className="px-3.5 py-1 rounded-full bg-blue-700 text-white font-black text-xs uppercase tracking-wider shadow-xs">
-                DREAM DNA™️
-              </span>
-              <span className="text-xs sm:text-sm text-emerald-950 font-mono font-black flex items-center gap-1.5 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
-                已累積 {dna.totalDreams} 個夢境樣本
-              </span>
+            <div className="flex items-center gap-2">
+              <span className="badge">DREAM DNA™️</span>
+              <span className="text-xs text-[#78e1b5] font-mono">已累積 {dna.totalDreams} 個夢境樣本</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-black text-slate-950 mt-1.5 tracking-wide">
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white mt-1">
               你的個人夢境指紋
             </h2>
-            <p className="text-xs sm:text-sm text-amber-950 font-black mt-1">
-              👉 簡單講：系統統計你反覆夢見嘅畫面同情緒，睇潛意識最常關心嘅議題。
+            <p className="text-xs text-amber-300 font-medium mt-1">
+              👉簡單講：系統統計你反覆夢見嘅畫面同情緒，睇潛意識最常關心嘅議題。
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           {/* Time range switcher */}
-          <div className="flex items-center bg-white border-2 border-slate-300 rounded-xl p-1 text-xs sm:text-sm shadow-2xs">
+          <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-1 text-xs">
             <button
               type="button"
               onClick={() => setTimeRange('this_week')}
-              className={`px-4 py-2 rounded-lg transition-all cursor-pointer font-black ${
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 timeRange === 'this_week'
-                  ? 'bg-blue-700 text-white shadow-xs'
-                  : 'text-slate-800 hover:text-slate-950'
+                  ? 'bg-[#aa9cff] text-white font-semibold shadow-sm'
+                  : 'text-[#aab3d2] hover:text-white'
               }`}
             >
               本週
@@ -112,10 +94,10 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
             <button
               type="button"
               onClick={() => setTimeRange('all_time')}
-              className={`px-4 py-2 rounded-lg transition-all cursor-pointer font-black ${
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 timeRange === 'all_time'
-                  ? 'bg-blue-700 text-white shadow-xs'
-                  : 'text-slate-800 hover:text-slate-950'
+                  ? 'bg-[#aa9cff] text-white font-semibold shadow-sm'
+                  : 'text-[#aab3d2] hover:text-white'
               }`}
             >
               全部時間
@@ -125,75 +107,64 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
           <button
             type="button"
             onClick={handleShareDna}
-            className="text-xs sm:text-sm font-black flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-950 border-2 border-slate-300 hover:border-slate-400 cursor-pointer transition-all shadow-2xs"
+            className="btn2 text-xs flex items-center gap-1.5 px-3 py-2 rounded-xl"
           >
-            {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4 text-blue-600" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-[#78e1b5]" /> : <Share2 className="w-3.5 h-3.5" />}
             <span>{copied ? '已複製' : '分享 DNA'}</span>
           </button>
         </div>
       </div>
 
       {/* Breakthrough Algorithmic Summary Sentence Banner */}
-      <div className="relative z-10 p-6 sm:p-7 rounded-3xl bg-blue-100/90 border-2 border-blue-300 shadow-sm">
-        <div className="flex items-start gap-4">
-          <Sparkles className="w-7 h-7 text-blue-700 shrink-0 mt-0.5" />
-          <div className="space-y-2.5">
-            <div className="text-xs sm:text-sm font-black uppercase tracking-wider text-blue-950 flex items-center gap-2">
+      <div className="p-5 rounded-2xl bg-gradient-to-r from-[#aa9cff]/15 via-[#71d9ff]/10 to-transparent border border-[#aa9cff]/30 relative">
+        <div className="flex items-start gap-3">
+          <Sparkles className="w-5 h-5 text-[#aa9cff] shrink-0 mt-0.5" />
+          <div className="space-y-1.5">
+            <div className="text-xs font-semibold uppercase tracking-wider text-[#aa9cff] flex items-center gap-2">
               <span>跨夢境演算法洞察 · 潛意識一句總結</span>
-              <span className="text-xs px-3 py-0.5 rounded-full bg-blue-200 text-blue-950 border border-blue-400 font-black">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#aa9cff]/20 text-white font-normal">
                 {timeRange === 'this_week' ? '本週趨勢' : '長時趨勢'}
               </span>
             </div>
-            <p className="text-lg sm:text-xl text-slate-950 font-black leading-relaxed italic">
+            <p className="text-sm sm:text-base text-white font-medium leading-relaxed italic">
               「你嘅夢境經常出現逃離同被追趕，多伴隨焦慮感；近期水勢由洪水轉為平靜，提示心理自我調節正在發揮作用。」
             </p>
-            <div className="text-xs sm:text-sm text-slate-900 font-bold leading-relaxed">
+            <div className="text-xs text-[#aab3d2]">
               系統不只分析單一晚上的隨機意象，而是從長時記憶池中辨識你的核心生命課題與情緒修復進程。
             </div>
           </div>
         </div>
       </div>
 
-      {/* ============================================================ */}
       {/* Section: Emotional Time-Series Trend Curves */}
-      {/* ============================================================ */}
-      <div className="p-5 sm:p-6 rounded-3xl bg-slate-50 border-2 border-slate-200 space-y-4 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-1">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-100 border border-blue-300 flex items-center justify-center text-blue-700 shadow-xs">
-              <Activity className="w-5 h-5 text-blue-700" />
-            </div>
-            <div>
-              <div className="text-base sm:text-lg text-slate-900 font-black flex items-center gap-2">
-                <span>情緒時間曲線 (Emotional Time-Series Wave)</span>
-              </div>
-              <span className="text-xs sm:text-sm text-slate-600 font-bold block mt-0.5">
-                · 觀察恐懼、焦慮與平靜的波動軌跡
-              </span>
-            </div>
+      <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-xs text-white font-semibold">
+            <Activity className="w-4 h-4 text-[#71d9ff]" />
+            <span>情緒時間曲線 (Emotional Time-Series Wave)</span>
+            <span className="text-[#8d97b5] font-normal text-[11px]">· 觀察恐懼、焦慮與平靜的波動軌跡</span>
           </div>
 
-          {/* High-contrast legend tags */}
-          <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-100 text-amber-950 border-2 border-amber-400 font-black shadow-2xs">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-xs" /> 不安/焦慮
+          <div className="flex items-center gap-3 text-[11px]">
+            <span className="flex items-center gap-1 text-amber-300">
+              <span className="w-2 h-2 rounded-full bg-amber-400" /> 不安/焦慮
             </span>
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-100 text-rose-950 border-2 border-rose-400 font-black shadow-2xs">
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-xs" /> 恐懼
+            <span className="flex items-center gap-1 text-rose-400">
+              <span className="w-2 h-2 rounded-full bg-rose-400" /> 恐懼
             </span>
-            <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-100 text-emerald-950 border-2 border-emerald-400 font-black shadow-2xs">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs" /> 平靜
+            <span className="flex items-center gap-1 text-[#78e1b5]">
+              <span className="w-2 h-2 rounded-full bg-[#78e1b5]" /> 平靜
             </span>
           </div>
         </div>
 
-        {/* SVG Time Series Curve Graph (深邃夜空畫布，超高對比金白色大字) */}
-        <div className="relative min-h-[260px] sm:min-h-[280px] w-full bg-[#0F172A] rounded-2xl p-4 sm:p-5 border-2 border-slate-300 flex flex-col justify-between shadow-md">
-          <svg className="w-full h-36 sm:h-40 overflow-visible" preserveAspectRatio="none" viewBox="0 0 500 100">
+        {/* SVG Time Series Curve Graph */}
+        <div className="relative h-44 w-full bg-black/30 rounded-xl p-3 border border-white/5 flex flex-col justify-end">
+          <svg className="w-full h-32 overflow-visible" preserveAspectRatio="none" viewBox="0 0 500 100">
             {/* Grid Lines */}
-            <line x1="0" y1="20" x2="500" y2="20" stroke="rgba(255,255,255,0.15)" strokeDasharray="4" />
-            <line x1="0" y1="50" x2="500" y2="50" stroke="rgba(255,255,255,0.15)" strokeDasharray="4" />
-            <line x1="0" y1="80" x2="500" y2="80" stroke="rgba(255,255,255,0.15)" strokeDasharray="4" />
+            <line x1="0" y1="20" x2="500" y2="20" stroke="rgba(255,255,255,0.05)" strokeDasharray="4" />
+            <line x1="0" y1="50" x2="500" y2="50" stroke="rgba(255,255,255,0.05)" strokeDasharray="4" />
+            <line x1="0" y1="80" x2="500" y2="80" stroke="rgba(255,255,255,0.05)" strokeDasharray="4" />
 
             {/* Anxiety Curve (Yellow/Amber - Trending down) */}
             <path
@@ -203,8 +174,8 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
                   : 'M 20,15 Q 130,10 240,35 T 370,45 T 480,60'
               }
               fill="none"
-              stroke="#FBBF24"
-              strokeWidth="3.5"
+              stroke="#fbbf24"
+              strokeWidth="2.5"
               strokeLinecap="round"
             />
 
@@ -216,8 +187,8 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
                   : 'M 20,30 Q 130,20 240,50 T 370,55 T 480,75'
               }
               fill="none"
-              stroke="#FB7185"
-              strokeWidth="3.5"
+              stroke="#fb7185"
+              strokeWidth="2.5"
               strokeLinecap="round"
             />
 
@@ -229,8 +200,8 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
                   : 'M 20,80 Q 130,85 240,65 T 370,40 T 480,25'
               }
               fill="none"
-              stroke="#34D399"
-              strokeWidth="3.5"
+              stroke="#34d399"
+              strokeWidth="2.5"
               strokeLinecap="round"
             />
 
@@ -244,11 +215,9 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
                   <circle
                     cx={x}
                     cy={yAnxiety}
-                    r="6"
-                    fill="#FBBF24"
-                    stroke="#FFFFFF"
-                    strokeWidth="2"
-                    className="cursor-pointer hover:r-8 transition-all"
+                    r="4"
+                    fill="#fbbf24"
+                    className="cursor-pointer hover:r-6 transition-all"
                     onMouseEnter={() =>
                       setHoveredPoint({ date: pt.date, emotion: '不安/焦慮', score: pt.anxiety, dreamTitle: pt.dream })
                     }
@@ -256,11 +225,9 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
                   <circle
                     cx={x}
                     cy={yCalm}
-                    r="6"
-                    fill="#34D399"
-                    stroke="#FFFFFF"
-                    strokeWidth="2"
-                    className="cursor-pointer hover:r-8 transition-all"
+                    r="4"
+                    fill="#34d399"
+                    className="cursor-pointer hover:r-6 transition-all"
                     onMouseEnter={() =>
                       setHoveredPoint({ date: pt.date, emotion: '平靜指數', score: pt.calm, dreamTitle: pt.dream })
                     }
@@ -270,32 +237,22 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
             })}
           </svg>
 
-          {/* X-axis date & dream title labels (放大字型、超高清晰白卡片化佈局) */}
-          <div className="flex justify-between gap-2 pt-3.5 border-t border-white/20">
+          {/* X-axis date labels */}
+          <div className="flex justify-between text-[10px] text-[#8d97b5] font-mono pt-2 border-t border-white/5 px-2">
             {activeTimeData.map((pt, i) => (
-              <div
-                key={i}
-                className="flex-1 p-2 sm:p-2.5 rounded-xl bg-white/15 hover:bg-white/25 border-2 border-white/25 text-center shadow-sm transition-colors"
-              >
-                <span className="block text-xs sm:text-sm font-mono font-black text-amber-300 tracking-wider">
-                  {pt.date}
-                </span>
-                <span
-                  className="block text-xs sm:text-sm font-black text-white truncate mt-1"
-                  title={pt.dream}
-                >
-                  {pt.dream}
-                </span>
-              </div>
+              <span key={i} className="text-center">
+                {pt.date}
+                <span className="block text-[9px] text-[#5e6987] truncate max-w-[80px]">{pt.dream}</span>
+              </span>
             ))}
           </div>
 
           {/* Hover tooltip */}
           {hoveredPoint && (
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-[#1E293B] border-2 border-blue-400 text-xs sm:text-sm px-4 py-2 rounded-xl shadow-2xl text-white flex items-center gap-2.5 pointer-events-none z-20">
-              <span className="text-amber-300 font-mono font-black">{hoveredPoint.date}</span>
-              <span className="font-black">{hoveredPoint.dreamTitle}</span>
-              <span className="font-mono font-black px-2 py-0.5 rounded-md bg-blue-600 text-white">
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-[#12162e] border border-[#aa9cff]/40 text-xs px-3 py-1.5 rounded-xl shadow-xl text-white flex items-center gap-2 pointer-events-none">
+              <span className="text-[#aa9cff] font-semibold">{hoveredPoint.date}</span>
+              <span>{hoveredPoint.dreamTitle}</span>
+              <span className="font-mono text-[#ffd27a]">
                 {hoveredPoint.emotion}: {hoveredPoint.score}%
               </span>
             </div>
@@ -304,13 +261,13 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
       </div>
 
       {/* Section: Visual Keyword Cloud (關鍵詞雲) */}
-      <div className="p-5 sm:p-6 rounded-3xl bg-slate-50 border-2 border-slate-200 space-y-3 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-base font-black text-slate-900">
-            <Cloud className="w-5 h-5 text-amber-600" />
+      <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-semibold text-white">
+            <Cloud className="w-4 h-4 text-[#ffd27a]" />
             <span>潛意識核心關鍵詞雲 (Subconscious Keyword Cloud)</span>
           </div>
-          <span className="text-xs sm:text-sm text-slate-600 font-bold">點擊關鍵詞可直接定位演化軌跡</span>
+          <span className="text-[11px] text-[#8d97b5]">點擊關鍵詞可直接定位演化軌跡</span>
         </div>
 
         <div className="flex flex-wrap gap-2.5 items-center py-2">
@@ -322,10 +279,10 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
                 const found = dna.symbols.find((s) => s.name.includes(kw.text.split('/')[0].trim()));
                 if (found) setSelectedSymbol(found);
               }}
-              className={`px-4 py-2 rounded-2xl transition-all cursor-pointer hover:scale-105 font-black ${kw.size} ${kw.color} flex items-center gap-2 shadow-2xs`}
+              className={`px-3.5 py-2 rounded-2xl border transition-all cursor-pointer hover:scale-105 ${kw.size} ${kw.color} flex items-center gap-1.5`}
             >
               <span>{kw.text}</span>
-              <span className="text-xs font-mono font-black opacity-80">({kw.count})</span>
+              <span className="text-xs opacity-75 font-mono">({kw.count})</span>
             </button>
           ))}
         </div>
@@ -333,14 +290,14 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
 
       {/* Main Grid: Symbols Breakdown & Selected Evolution */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
-        {/* Left 2 Cols: Dream DNA Symbols List (對比 Screenshot 1：徹底解決白底白字隱形問題) */}
+        {/* Left 2 Cols: Dream DNA Symbols List */}
         <div className="lg:col-span-2 space-y-3">
-          <div className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center justify-between pb-1 border-b border-slate-200">
+          <div className="text-xs text-[#8d97b5] uppercase tracking-wider font-semibold flex items-center justify-between">
             <span>核心重複象徵演化 (點擊深入檢視)</span>
             <span>出現頻率</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {dna.symbols.map((sym) => {
               const isSelected = selectedSymbol?.name === sym.name;
               return (
@@ -348,14 +305,14 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
                   key={sym.name}
                   type="button"
                   onClick={() => setSelectedSymbol(sym)}
-                  className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-center justify-between ${
+                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
                     isSelected
-                      ? 'bg-blue-700 text-white border-blue-800 shadow-md'
-                      : 'bg-slate-50 hover:bg-blue-50/80 border-slate-200 hover:border-blue-400 text-slate-900 shadow-2xs'
+                      ? 'bg-[#aa9cff]/20 border-[#aa9cff] shadow-lg shadow-[#aa9cff]/10'
+                      : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">
+                    <span className="text-xl">
                       {sym.name.includes('水')
                         ? '🌊'
                         : sym.name.includes('門')
@@ -369,26 +326,18 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
                         : '🔮'}
                     </span>
                     <div>
-                      <div className={`text-base sm:text-lg font-black ${isSelected ? 'text-white' : 'text-slate-900'}`}>
-                        {sym.name}
-                      </div>
-                      <div className={`text-xs font-bold ${isSelected ? 'text-blue-100' : 'text-slate-600'}`}>
+                      <div className="text-sm font-semibold text-white">{sym.name}</div>
+                      <div className="text-[11px] text-[#8d97b5]">
                         {sym.evolution.length} 個演化節點
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span
-                      className={`text-xs sm:text-sm font-mono font-black px-2.5 py-1 rounded-full border ${
-                        isSelected
-                          ? 'bg-white text-blue-950 border-white shadow-2xs'
-                          : 'bg-blue-100 text-blue-900 border-blue-300'
-                      }`}
-                    >
+                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-white/10 text-[#71d9ff]">
                       出現 {sym.count} 次
                     </span>
-                    <ArrowRight className={`w-4 h-4 transition-transform ${isSelected ? 'text-white translate-x-1' : 'text-slate-400'}`} />
+                    <ArrowRight className={`w-3.5 h-3.5 text-[#aa9cff] transition-transform ${isSelected ? 'translate-x-1' : 'opacity-40'}`} />
                   </div>
                 </button>
               );
@@ -397,35 +346,35 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
 
           {/* Selected Symbol Evolution Viewer */}
           {selectedSymbol && (
-            <div className="mt-4 p-5 rounded-3xl bg-slate-50 border-2 border-slate-200 shadow-sm space-y-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-black text-blue-900 flex items-center gap-1.5">
-                  <Compass className="w-4 h-4 text-blue-700" />
+            <div className="mt-4 p-4 rounded-2xl bg-black/30 border border-white/10">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-semibold text-[#71d9ff] flex items-center gap-1.5">
+                  <Compass className="w-3.5 h-3.5" />
                   【{selectedSymbol.name}】在過去夢境中的角色改變弧度：
                 </span>
                 {onSelectSymbolForConstellation && (
                   <button
                     type="button"
                     onClick={() => onSelectSymbolForConstellation(selectedSymbol.name)}
-                    className="text-xs sm:text-sm font-black text-blue-700 hover:text-blue-900 hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] text-[#aa9cff] hover:underline flex items-center gap-1"
                   >
-                    <Eye className="w-3.5 h-3.5" />
+                    <Eye className="w-3 h-3" />
                     在星圖中定位
                   </button>
                 )}
               </div>
 
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {selectedSymbol.evolution.map((evo, i) => (
                   <div
                     key={i}
-                    className="p-3.5 rounded-xl bg-white border-2 border-slate-200 flex items-center justify-between text-xs sm:text-sm shadow-2xs"
+                    className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex items-start justify-between text-xs"
                   >
                     <div>
-                      <span className="text-amber-800 mr-2.5 font-mono font-black">{evo.date}</span>
-                      <b className="text-slate-900 font-black">{evo.dreamTitle}</b>
+                      <span className="text-[#8d97b5] mr-2 font-mono">{evo.date}</span>
+                      <b className="text-white">{evo.dreamTitle}</b>
                     </div>
-                    <span className="text-emerald-800 font-black bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 shrink-0 ml-3">
+                    <span className="text-[#78e1b5] font-medium shrink-0 ml-3">
                       {evo.state}
                     </span>
                   </div>
@@ -433,33 +382,33 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
               </div>
 
               {selectedSymbol.name.includes('水') && (
-                <div className="mt-3 text-xs sm:text-sm text-slate-800 font-semibold bg-blue-50/90 p-4 rounded-2xl border-2 border-blue-200 leading-relaxed shadow-2xs">
-                  💡 <b className="text-blue-900 font-black">關鍵發現：</b>你 30 日內有 4 個夢出現水。從一開始的平靜無聲漫漲、到洪水衝擊、涉水渡海、最後在岸邊看浪。<b className="text-blue-900">水的角色正在改變——從威脅轉變為平靜的力量！</b>
+                <div className="mt-3 text-xs text-[#aab3d2] bg-[#71d9ff]/10 p-2.5 rounded-xl border border-[#71d9ff]/20">
+                  💡 <b>關鍵發現：</b>你 30 日內有 4 個夢出現水。從一開始的平靜無聲漫漲、到洪水衝擊、涉水渡海、最後在岸邊看浪。<b>水的角色正在改變——從威脅轉變為平靜的力量！</b>
                 </div>
               )}
             </div>
           )}
         </div>
 
-        {/* Right Col: Emotions & Recurring Themes (對比 Screenshot 2：徹底解決深色底暗字問題) */}
+        {/* Right Col: Emotions & Recurring Themes */}
         <div className="space-y-6">
           {/* Emotion Spectrum */}
-          <div className="p-5 rounded-3xl bg-slate-50 border-2 border-slate-200 shadow-sm space-y-3">
-            <div className="text-xs sm:text-sm text-slate-900 uppercase tracking-wider font-black mb-2 flex items-center justify-between border-b border-slate-200 pb-2">
+          <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+            <div className="text-xs text-[#8d97b5] uppercase tracking-wider font-semibold mb-3 flex items-center justify-between">
               <span>情緒頻譜分析 ({timeRange === 'this_week' ? '本週' : '全部'})</span>
-              <span className="text-blue-800 font-mono font-black">
+              <span className="text-[#aa9cff] font-mono">
                 {timeRange === 'this_week' ? '40% 焦慮 · 45% 平靜' : '68% 焦慮'}
               </span>
             </div>
 
-            <div className="space-y-3.5">
+            <div className="space-y-3">
               {dna.emotionRatios.map((emo) => (
                 <div key={emo.emotion} className="space-y-1">
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-slate-900 font-black">{emo.emotion}</span>
-                    <span className="font-mono font-black text-slate-700">{emo.percentage}%</span>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-white">{emo.emotion}</span>
+                    <span className="font-mono text-[#8d97b5]">{emo.percentage}%</span>
                   </div>
-                  <div className="h-3 rounded-full bg-slate-200 overflow-hidden">
+                  <div className="h-2 rounded-full bg-white/10 overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
@@ -473,23 +422,23 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
             </div>
           </div>
 
-          {/* Recurring Themes (對應 Screenshot 2：大字黑字、極高對比) */}
-          <div className="p-5 rounded-3xl bg-slate-50 border-2 border-slate-200 shadow-sm space-y-3.5">
-            <div className="text-xs sm:text-sm text-slate-900 uppercase tracking-wider font-black mb-1 flex items-center gap-1.5 border-b border-slate-200 pb-2">
-              <TrendingUp className="w-4 h-4 text-emerald-700" />
-              <span>反覆出現的 THEME</span>
+          {/* Recurring Themes */}
+          <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+            <div className="text-xs text-[#8d97b5] uppercase tracking-wider font-semibold mb-3 flex items-center gap-1.5">
+              <TrendingUp className="w-3.5 h-3.5 text-[#78e1b5]" />
+              <span>反覆出現的 Theme</span>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {dna.recurringThemes.map((theme, idx) => (
-                <div key={idx} className="p-4 rounded-2xl bg-white border-2 border-slate-200/90 shadow-2xs space-y-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <b className="text-slate-900 font-black text-sm sm:text-base">{theme.theme}</b>
-                    <span className="text-xs font-mono font-black px-2.5 py-1 rounded-md bg-amber-100 text-amber-950 border border-amber-300 shrink-0">
+                <div key={idx} className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <b className="text-white font-medium">{theme.theme}</b>
+                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-white/5 text-[#ffd27a]">
                       出現 {theme.count} 次
                     </span>
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-bold">
+                  <p className="text-[11px] text-[#aab3d2] leading-relaxed">
                     {theme.description}
                   </p>
                 </div>
@@ -501,3 +450,4 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({ dna, onSelectSymbolF
     </div>
   );
 };
+

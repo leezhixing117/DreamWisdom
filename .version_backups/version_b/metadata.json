@@ -1,6 +1,0 @@
-{
-  "name": "DreamWisdom — 看懂你的夢",
-  "description": "香港專用廣東話 AI 記夢工具。唔係算命，以榮格心理學解讀夢境，儲存你的夢境檔案，發掘潛意識訊息。",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

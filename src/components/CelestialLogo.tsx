@@ -15,8 +15,8 @@ interface CelestialLogoProps {
 export const CelestialLogo: React.FC<CelestialLogoProps> = ({
   size = 'md',
   showText = true,
-  showSubtitle = false,
-  subtitle = '',
+  showSubtitle = true,
+  subtitle = '我的夢境',
   className = '',
   textClassName = '',
 }) => {
@@ -151,7 +151,7 @@ export const CelestialLogo: React.FC<CelestialLogoProps> = ({
       {showText && (
         <span className="flex items-center gap-1.5 sm:gap-2">
           <span
-            className={`font-brand italic tracking-tight font-bold text-[#1D4ED8] ${
+            className={`font-brand italic tracking-tight font-bold bg-gradient-to-r from-[#1E40AF] via-[#0284C7] to-[#38BDF8] bg-clip-text text-transparent drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] ${
               size === 'sm'
                 ? 'text-lg sm:text-xl'
                 : size === 'md'

@@ -51,31 +51,35 @@ export const DetectiveInquiryModal: React.FC<DetectiveInquiryModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md transition-all duration-300"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#05060b]/90 backdrop-blur-2xl transition-all duration-500"
       id="detective-inquiry-screen"
     >
+      {/* Cosmic background glows */}
+      <div className="absolute w-[500px] h-[500px] rounded-full bg-[#aa9cff]/10 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-[300px] h-[300px] rounded-full bg-[#71d9ff]/10 blur-[100px] pointer-events-none" />
+
       <div
-        className="w-full max-w-2xl bg-white border-2 border-indigo-200 shadow-2xl rounded-3xl p-6 sm:p-8 relative overflow-hidden text-left"
+        className="w-full max-w-2xl bg-[#0b0e1e]/95 border border-[#aa9cff]/30 shadow-2xl shadow-indigo-950/60 rounded-3xl p-6 sm:p-8 relative overflow-hidden text-left"
         id="detective-inquiry-card"
       >
         {/* Top Header Badge */}
-        <div className="flex items-center justify-between mb-4 border-b border-slate-200 pb-4">
+        <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-4">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-ping" />
-            <span className="text-xs font-bold tracking-wider text-blue-800 uppercase">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#aa9cff] animate-ping" />
+            <span className="text-xs font-semibold tracking-wider text-[#aa9cff] uppercase">
               FURTHER AI ANALYSIS · 進一步 AI 深度解夢
             </span>
           </div>
-          <div className="text-xs text-slate-600 font-mono font-bold">
+          <div className="text-xs text-[#8d97b5] font-mono">
             第 {currentStep + 1} / {totalSteps} 題
           </div>
         </div>
 
         {/* Cinematic intro text */}
-        <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 tracking-wide mb-2">
+        <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white tracking-wide mb-2">
           進一步解夢：請回答 3 條有關問題
         </h2>
-        <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed mb-6">
+        <p className="text-xs sm:text-sm text-[#aab3d2] leading-relaxed mb-6">
           同一個意象在不同情境下的心靈寓意大不相同。回答以下 3 條進一步問題，AI 將結合你的直覺感受，產出深度四層解構報告並存入你的 DREAM DNA™️。
         </p>
 
@@ -86,12 +90,12 @@ export const DetectiveInquiryModal: React.FC<DetectiveInquiryModalProps> = ({
               key={q.id}
               type="button"
               onClick={() => setCurrentStep(idx)}
-              className={`h-2 flex-1 rounded-full transition-all duration-300 ${
+              className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
                 idx === currentStep
-                  ? 'bg-blue-600'
+                  ? 'bg-gradient-to-r from-[#aa9cff] to-[#71d9ff]'
                   : answers[q.id]
-                  ? 'bg-emerald-500'
-                  : 'bg-slate-200'
+                  ? 'bg-[#78e1b5]'
+                  : 'bg-white/10'
               }`}
             />
           ))}
@@ -99,8 +103,8 @@ export const DetectiveInquiryModal: React.FC<DetectiveInquiryModalProps> = ({
 
         {/* Current Question Block */}
         <div className="space-y-4 min-h-[220px]">
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border-2 border-slate-200">
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-4 leading-snug">
+          <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+            <h3 className="text-base sm:text-lg font-medium text-white mb-4 leading-snug">
               {currentQ?.question}
             </h3>
 
@@ -113,17 +117,17 @@ export const DetectiveInquiryModal: React.FC<DetectiveInquiryModalProps> = ({
                     key={i}
                     type="button"
                     onClick={() => handleSelectOption(opt)}
-                    className={`p-3.5 rounded-xl text-xs sm:text-sm text-left transition-all duration-200 border-2 flex items-center justify-between group cursor-pointer ${
+                    className={`p-3.5 rounded-xl text-xs sm:text-sm text-left transition-all duration-200 border flex items-center justify-between group cursor-pointer ${
                       isSelected
-                        ? 'bg-blue-50 border-blue-600 text-blue-950 shadow-sm font-bold'
-                        : 'bg-white border-slate-200 text-slate-800 hover:border-slate-300 font-medium'
+                        ? 'bg-[#aa9cff]/20 border-[#aa9cff] text-white shadow-md shadow-[#aa9cff]/10 font-medium'
+                        : 'bg-white/[0.02] border-white/10 text-[#c3b9ff]/90 hover:bg-white/[0.06] hover:border-white/20'
                     }`}
                   >
                     <span>{opt}</span>
                     {isSelected ? (
-                      <CheckCircle2 className="w-4 h-4 text-blue-700 shrink-0 ml-2" />
+                      <CheckCircle2 className="w-4 h-4 text-[#78e1b5] shrink-0 ml-2" />
                     ) : (
-                      <span className="w-4 h-4 rounded-full border-2 border-slate-300 group-hover:border-slate-400 shrink-0 ml-2" />
+                      <span className="w-4 h-4 rounded-full border border-white/20 group-hover:border-white/40 shrink-0 ml-2" />
                     )}
                   </button>
                 );
@@ -134,22 +138,22 @@ export const DetectiveInquiryModal: React.FC<DetectiveInquiryModalProps> = ({
 
         {/* Psychological impact banner when all questions are answered */}
         {allAnswered && (
-          <div className="mt-5 p-3.5 rounded-xl bg-emerald-50 border-2 border-emerald-300 text-xs text-emerald-950 font-medium flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <Sparkles className="w-4 h-4 shrink-0 text-emerald-600" />
+          <div className="mt-5 p-3.5 rounded-xl bg-[#78e1b5]/10 border border-[#78e1b5]/30 text-xs text-[#78e1b5] flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <Sparkles className="w-4 h-4 shrink-0 text-[#78e1b5]" />
             <span>
-              <b className="text-emerald-900">偵探校準完成：</b>
+              <b>偵探校準完成：</b>
               現在，這個夢的意思已經和普通模板不同了——這是為你專屬量身校準的私人潛意識指引。
             </span>
           </div>
         )}
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between pt-6 mt-4 border-t border-slate-200">
+        <div className="flex items-center justify-between pt-6 mt-4 border-t border-white/10">
           <button
             type="button"
             onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
             disabled={currentStep === 0}
-            className="text-xs font-bold text-slate-600 hover:text-slate-900 disabled:opacity-30 transition-colors cursor-pointer"
+            className="text-xs text-[#8d97b5] hover:text-white disabled:opacity-30 transition-colors"
           >
             上一題
           </button>
@@ -159,7 +163,7 @@ export const DetectiveInquiryModal: React.FC<DetectiveInquiryModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                className="text-xs text-[#8d97b5] hover:text-white transition-colors"
               >
                 直接生成（略過確認）
               </button>
@@ -169,7 +173,7 @@ export const DetectiveInquiryModal: React.FC<DetectiveInquiryModalProps> = ({
               type="button"
               onClick={handleNextOrFinish}
               disabled={!isAnswered || isSubmitting}
-              className={`text-xs font-bold px-6 py-2.5 flex items-center gap-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white shadow-md shadow-blue-700/20 cursor-pointer transition-all ${
+              className={`btn text-xs px-6 py-2.5 flex items-center gap-2 ${
                 !isAnswered ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >

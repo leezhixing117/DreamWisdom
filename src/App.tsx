@@ -671,20 +671,10 @@ export default function App() {
       {currentView === 'pricing' && (
         <PricingView
           currentUser={currentUser}
-          dreams={history}
           onOpenEarnStars={() => setIsStarVideoOpen(true)}
           onOpenLogin={() => setIsLoginOpen(true)}
           onUpgradeToPaid={handleUpgradeToPaid}
           onGoToApp={(tab) => handleNavigate('app', tab || 'workspace')}
-          onGoToStars={() => handleNavigate('stars')}
-          onStartWithDream={handleStartWithDream}
-          onOpenReportDetail={() => handleNavigate('app', 'workspace')}
-          onNavigateToShop={(productId) => {
-            if (productId) {
-              setTargetProductId(productId);
-            }
-            handleNavigate('store');
-          }}
         />
       )}
 
@@ -714,7 +704,6 @@ export default function App() {
           onNavigateToWorkspace={() => handleNavigate('app', 'workspace')}
           onUpdateProducts={(updated) => setProducts(updated)}
           onNavigateToAdmin={() => handleNavigate('admin')}
-          onGoBackToAstrolabe={() => handleNavigate('pricing')}
         />
       )}
 
@@ -724,9 +713,6 @@ export default function App() {
           onOpenEarnStars={() => setIsStarVideoOpen(true)}
           onGoToWorkspace={() => handleNavigate('app', 'workspace')}
           onGoToPricing={() => handleNavigate('pricing')}
-          onUpgradeToPaid={handleUpgradeToPaid}
-          onOpenLogin={() => setIsLoginOpen(true)}
-          onGoToApp={(tab) => handleNavigate('app', tab || 'workspace')}
         />
       )}
 

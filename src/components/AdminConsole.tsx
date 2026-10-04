@@ -1034,22 +1034,22 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({
       )}
 
       {/* Role permission status banner */}
-      <div className={`p-4 rounded-2xl border-2 flex flex-wrap items-center justify-between gap-3 shadow-xs ${
+      <div className={`p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-3 ${
         isSuperAdmin 
-          ? 'bg-purple-50 border-purple-300 text-purple-950'
-          : 'bg-blue-50 border-blue-300 text-blue-950'
+          ? 'bg-[#aa9cff]/10 border-[#aa9cff]/30 text-[#c3b9ff]'
+          : 'bg-[#71d9ff]/10 border-[#71d9ff]/30 text-[#71d9ff]'
       }`}>
         <div className="flex items-center gap-2.5">
           {isSuperAdmin ? (
-            <ShieldCheck className="w-5 h-5 text-purple-700" />
+            <ShieldCheck className="w-5 h-5 text-[#aa9cff]" />
           ) : (
-            <Settings className="w-5 h-5 text-blue-700" />
+            <Settings className="w-5 h-5 text-[#71d9ff]" />
           )}
           <div>
-            <div className="text-xs font-black uppercase tracking-wide text-slate-900">
+            <div className="text-xs font-bold uppercase tracking-wide">
               {isSuperAdmin ? '🛡️ 高級管理員模式 (SUPER ADMIN)' : '⚙️ 內容管理員模式 (ADMIN)'}
             </div>
-            <p className="text-xs font-medium text-slate-700 mt-0.5">
+            <p className="text-xs opacity-90 mt-0.5">
               {isSuperAdmin
                 ? '您擁有最高權限：可管理廣告賺星影片庫、更改所有會員等級與星星配置、調整 AI 語氣模型參數，以及管理選物店與諮詢師。'
                 : '您擁有內容管理權限：可管理廣告賺星影片庫、選物店產品、療癒諮詢師團隊，以及調整 AI 引擎參數。（更改會員等級需高級管理員權限）'}
@@ -1057,34 +1057,32 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({
           </div>
         </div>
 
-        <span className={`text-xs px-3 py-1 rounded-full font-mono font-bold border-2 ${
+        <span className={`text-xs px-2.5 py-1 rounded-full font-mono border ${
           isSuperAdmin 
-            ? 'bg-purple-100 text-purple-900 border-purple-400' 
-            : 'bg-blue-100 text-blue-900 border-blue-400'
+            ? 'bg-[#aa9cff]/20 text-[#aa9cff] border-[#aa9cff]/40' 
+            : 'bg-[#71d9ff]/20 text-[#71d9ff] border-[#71d9ff]/40'
         }`}>
           {isSuperAdmin ? '最高權限' : '內容管理權限'}
         </span>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex flex-wrap gap-2 border-b-2 border-slate-200 pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-white/10 pb-3">
 
         <button
           type="button"
           onClick={() => setActiveTab('audit')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
             activeTab === 'audit'
-              ? 'bg-purple-700 text-white border-2 border-purple-800 shadow-md shadow-purple-700/20'
-              : 'text-slate-700 hover:text-purple-900 bg-white hover:bg-purple-50 border-2 border-slate-300 hover:border-purple-300 shadow-2xs'
+              ? 'bg-purple-500/25 text-purple-200 border border-purple-400/50 shadow-sm shadow-purple-500/20'
+              : 'text-[#aab3d2] hover:text-white bg-white/5 border border-transparent'
           }`}
           id="admin-audit-tab-btn"
         >
-          <Activity className="w-4 h-4 text-purple-300" />
+          <Activity className="w-4 h-4 text-purple-400" />
           <span>📊 營運審計中心 ({loginRecords.length + adWatchRecords.length + shopVisitRecords.length})</span>
           {isSuperAdmin && (
-            <span className={`px-1.5 py-0.2 rounded-full font-bold text-[9px] border ${
-              activeTab === 'audit' ? 'bg-purple-800 text-purple-200 border-purple-600' : 'bg-purple-100 text-purple-800 border-purple-300'
-            }`}>
+            <span className="px-1.5 py-0.2 rounded-full bg-purple-500/30 text-purple-300 font-bold text-[9px] border border-purple-400/30">
               高級專用
             </span>
           )}
@@ -1093,69 +1091,69 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({
         <button
           type="button"
           onClick={() => setActiveTab('products')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
             activeTab === 'products'
-              ? 'bg-emerald-700 text-white border-2 border-emerald-800 shadow-md shadow-emerald-700/20'
-              : 'text-slate-700 hover:text-emerald-900 bg-white hover:bg-emerald-50 border-2 border-slate-300 hover:border-emerald-300 shadow-2xs'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+              : 'text-[#aab3d2] hover:text-white bg-white/5 border border-transparent'
           }`}
         >
-          <Package className="w-4 h-4 text-emerald-500" />
+          <Package className="w-4 h-4 text-emerald-400" />
           <span>🌿 解夢選物產品庫 ({products.length})</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('therapists')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
             activeTab === 'therapists'
-              ? 'bg-teal-700 text-white border-2 border-teal-800 shadow-md shadow-teal-700/20'
-              : 'text-slate-700 hover:text-teal-900 bg-white hover:bg-teal-50 border-2 border-slate-300 hover:border-teal-300 shadow-2xs'
+              ? 'bg-[#78e1b5]/20 text-[#78e1b5] border border-[#78e1b5]/40 shadow-sm'
+              : 'text-[#aab3d2] hover:text-white bg-white/5 border border-transparent'
           }`}
           id="admin-therapists-tab-btn"
         >
-          <Heart className="w-4 h-4 text-rose-500" />
+          <Heart className="w-4 h-4 text-[#78e1b5]" />
           <span>🧘 治療師資料庫 ({therapists.length})</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('advideos')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
             activeTab === 'advideos'
-              ? 'bg-amber-600 text-white border-2 border-amber-700 shadow-md shadow-amber-600/20'
-              : 'text-slate-700 hover:text-amber-900 bg-white hover:bg-amber-50 border-2 border-slate-300 hover:border-amber-300 shadow-2xs'
+              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
+              : 'text-[#aab3d2] hover:text-white bg-white/5 border border-transparent'
           }`}
         >
-          <Tv className="w-4 h-4 text-amber-500" />
+          <Tv className="w-4 h-4 text-amber-400" />
           <span>📺 賺星廣告影片庫 ({adVideos.length})</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('engine')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
             activeTab === 'engine'
-              ? 'bg-blue-700 text-white border-2 border-blue-800 shadow-md shadow-blue-700/20'
-              : 'text-slate-700 hover:text-blue-900 bg-white hover:bg-blue-50 border-2 border-slate-300 hover:border-blue-300 shadow-2xs'
+              ? 'bg-[#ffd27a]/20 text-white border border-[#ffd27a]/40 shadow-sm'
+              : 'text-[#aab3d2] hover:text-white bg-white/5 border border-transparent'
           }`}
         >
-          <Sliders className="w-4 h-4 text-blue-500" />
+          <Sliders className="w-4 h-4 text-[#ffd27a]" />
           <span>🎛️ AI 引擎個性參數</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('users')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
             activeTab === 'users'
-              ? 'bg-indigo-700 text-white border-2 border-indigo-800 shadow-md shadow-indigo-700/20'
-              : 'text-slate-700 hover:text-indigo-900 bg-white hover:bg-indigo-50 border-2 border-slate-300 hover:border-indigo-300 shadow-2xs'
+              ? 'bg-[#aa9cff]/20 text-white border border-[#aa9cff]/40 shadow-sm'
+              : 'text-[#aab3d2] hover:text-white bg-white/5 border border-transparent'
           }`}
         >
-          <Users className="w-4 h-4 text-indigo-500" />
+          <Users className="w-4 h-4 text-[#aa9cff]" />
           <span>👥 會員等級管理 ({users.length})</span>
           {isSuperAdmin && (
-            <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
+            <span className="w-2 h-2 rounded-full bg-[#aa9cff] animate-ping" />
           )}
         </button>
       </div>
