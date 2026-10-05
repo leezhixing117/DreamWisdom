@@ -674,7 +674,12 @@ export default function App() {
           onOpenEarnStars={() => setIsStarVideoOpen(true)}
           onOpenLogin={() => setIsLoginOpen(true)}
           onUpgradeToPaid={handleUpgradeToPaid}
-          onGoToApp={(tab) => handleNavigate('app', tab || 'workspace')}
+          onGoToApp={(tab, prefill) => {
+            if (prefill) {
+              setPrefilledDream((prev) => (prev ? `${prev}\n${prefill}` : prefill));
+            }
+            handleNavigate('app', tab || 'workspace');
+          }}
           onGoToStars={() => handleNavigate('stars')}
         />
       )}

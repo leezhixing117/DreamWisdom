@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import { TherapeuticSupportModal } from './TherapeuticSupportModal';
 import { SampleReportPreviewModal } from './SampleReportPreviewModal';
-import { CelestialRotatingAstrolabe } from './CelestialRotatingAstrolabe';
 import { TherapistItem, User, normalizeRole } from '../types';
 import {
   StepNotepadIcon,
@@ -66,8 +65,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
   // 7. 香港心理支援熱線可折疊模塊，預設收起，點擊直接展開熱線號碼
   const [isHotlinesOpen, setIsHotlinesOpen] = useState(false);
 
-  // 8. FAQ手風琴：理論基礎與隱私兩條預設展開 (Set 包含 'theory' 與 'privacy')
-  const [openFaqKeys, setOpenFaqKeys] = useState<Set<string>>(new Set(['theory', 'privacy']));
+  // 8. FAQ手風琴：L3 次要卡片預設折疊，降低視覺重量
+  const [openFaqKeys, setOpenFaqKeys] = useState<Set<string>>(new Set());
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -293,8 +292,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           DreamWisdom 唔係憑空估，而係從榮格原型心理學找出相應理論，結合你過往夢境，整理可能值得留意嘅潛意識訊息。
         </p>
 
-        {/* 產品邊界聲明 */}
-        <div className="card-secondary-warm inline-flex items-center justify-center gap-2 px-4 py-2.5 text-[var(--text-heading)] text-xs sm:text-sm font-medium mb-3 max-w-3xl mx-auto text-left sm:text-center shadow-2xs">
+        {/* 產品邊界聲明 (L3 免責聲明：--accent-warm-light底色，移除陰影，降低視覺重量) */}
+        <div className="card-l3-secondary inline-flex items-center justify-center gap-2 px-4 py-2.5 text-[var(--text-heading)] text-xs sm:text-sm font-medium mb-3 max-w-3xl mx-auto text-left sm:text-center">
           <span>⚠️ 產品邊界：本平台不是心理治療、不是精神科服務；只做基於心理學的自我反思工具，不做吉凶預測。</span>
         </div>
 
@@ -312,14 +311,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         {/* ============================================================ */}
-        {/* 🌟 2. VERSION B 雙欄互動巨幕 (記夢輸入卡片 + 潛意識天體星盤) 🌟 */}
+        {/* 🌟 2. 記夢輸入核心卡片 (L1 最高優先，全頁唯一 L1 卡片) 🌟 */}
         {/* ============================================================ */}
         <div id="recorddream" className="scroll-mt-28" />
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start text-left mt-4" id="hero-interactive-deck">
+        <div className="max-w-4xl mx-auto my-8 sm:my-12 text-left" id="hero-interactive-deck">
           
-          {/* 左欄 (7 Cols)：記夢輸入核心卡片 */}
+          {/* L1【記夢輸入卡片｜最高優先】全頁唯一L1卡片 */}
           <div
-            className="card-featured-dream lg:col-span-7 relative z-10 w-full p-5 sm:p-7 flex flex-col justify-between"
+            className="card-l1-dream relative z-10 w-full p-6 sm:p-8 md:p-10 flex flex-col justify-between"
             id="hero-dreambox"
           >
             <div>
@@ -453,7 +452,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       key={tag.label}
                       type="button"
                       onClick={() => handleApplyQuickTag(tag.label)}
-                      className="tag-chip-warm px-3 py-1.5 font-medium transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
+                      className="tag-chip-l4"
                     >
                       <span className="text-[var(--primary-600)] font-bold text-sm">+</span>
                       <span>{tag.icon}</span>
@@ -488,13 +487,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <span>{isListening ? '聆聽中…' : '語音記夢'}</span>
                 </button>
 
-                {/* 2. 次要按鈕：觀看示範報告（線框風格，在新分頁開啟，不覆蓋首頁） */}
+                {/* B2次要按鈕【觀看示範報告】：線框樣式，尺寸小於主按鈕；hover只加極淺底色，禁止變實心 */}
                 <a
                   href="/report?demo=1"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={handleOpenSampleNewTab}
-                  className="btn-secondary-outline px-5 py-2.5 shadow-2xs"
+                  className="btn-b2-secondary px-5 py-2.5"
                   title="在新分頁開啟示範報告預覽，不影響當前首頁"
                 >
                   <Eye className="w-4 h-4 text-[var(--primary-600)]" />
@@ -502,11 +501,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <ExternalLink className="w-3.5 h-3.5 text-[var(--text-sub)]" />
                 </a>
 
-                {/* 1. 主CTA：記錄夢境開始分析（天體藍漸變，白色文字，高度≥48px） */}
+                {/* B1主CTA【記錄夢境開始分析】：灰藍漸變、白色粗字；尺寸最大；緊貼輸入框下方；hover柔和加深；active scale(0.98)；空白輸入時設置禁用狀態 */}
                 <button
                   type="button"
+                  disabled={!draftDream.trim()}
                   onClick={handleStartAnalysis}
-                  className="btn-primary-cta px-7 py-3 flex-1 sm:flex-initial"
+                  className="btn-b1-primary px-7 py-3.5 flex-1 sm:flex-initial"
                   id="hero-cta-record-btn"
                 >
                   <span>記錄夢境開始分析</span>
@@ -515,53 +515,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </div>
             </div>
           </div>
-
-          {/* 右欄 (5 Cols)：天體旋轉星盤（Version B 首頁天幕互動核心） */}
-          <div
-            className="card-featured-dream lg:col-span-5 relative z-10 w-full p-5 sm:p-6 flex flex-col justify-between"
-            id="hero-astrolabe-deck"
-          >
-            <div>
-              {/* 星盤頂部標題 */}
-              <div className="flex items-center justify-between gap-2 mb-2 pb-2.5 border-b border-slate-100">
-                <div className="flex items-center gap-2">
-                  <Compass className="w-4 h-4 text-[var(--primary-600)]" />
-                  <span className="font-bold text-sm sm:text-base text-[var(--text-heading)]">天體星盤 · 隨機撥動</span>
-                </div>
-                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-[var(--primary-700)] border border-blue-200/80">
-                  12 宿心理原型
-                </span>
-              </div>
-
-              <p className="text-xs text-[var(--text-sub)] leading-relaxed mb-3">
-                輕按撥動探索天體軌道，感應今日心靈原型，點選直接將代碼帶入左側日記。
-              </p>
-
-              {/* 嵌入天體旋轉星盤 */}
-              <div className="py-1">
-                <CelestialRotatingAstrolabe
-                  hideHeader={true}
-                  compact={true}
-                  isPaidMember={isPaidMember}
-                  onRequirePaid={onGoToPricing}
-                  onSelectArchetype={(archetype) => {
-                    const symbolTag = `【今日潛意識原型：${archetype.label} · ${archetype.symbol}】`;
-                    setDraftDream((prev) => (prev ? `${prev}\n${symbolTag}` : symbolTag));
-                    if (textareaRef.current) {
-                      textareaRef.current.focus();
-                      textareaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-[var(--text-sub)]">
-              <span>天體共時性感應</span>
-              <span className="font-medium text-[var(--primary-600)]">滑動探索 / 點擊連動</span>
-            </div>
-          </div>
-
         </div>
       </section>
 
@@ -582,8 +535,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {/* Card 1: DREAM DNA */}
-          <div className="card p-6 rounded-3xl bg-white/90 backdrop-blur-md border border-slate-200/80 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-all">
+          {/* Card 1: DREAM DNA (L2 中等層次) */}
+          <div className="card-l2-standard flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-1.5 text-xs font-bold text-[#4A47A3] mb-2">
                 <Dna className="w-4 h-4 text-[#4A47A3]" />
@@ -599,11 +552,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 解析夢境中的象徵代號，繪製情緒頻譜與原型雷達圖，揭示真實性格與深層需求。
               </p>
             </div>
-            <div className="pt-4 mt-3 border-t border-slate-200/80">
+            <div className="pt-4 mt-3 border-t border-slate-200/60">
               <button
                 type="button"
                 onClick={() => onGoToApp('dna')}
-                className="min-h-[48px] w-full text-xs sm:text-sm font-bold text-[#4A47A3] hover:text-[#3B3888] flex items-center justify-between cursor-pointer transition-colors"
+                className="btn-b3-link w-full justify-between"
               >
                 <span>探索你的夢境 DNA</span>
                 <span className="text-base">→</span>
@@ -611,8 +564,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
           </div>
 
-          {/* Card 2: 星圖解析 */}
-          <div className="card p-6 rounded-3xl bg-white/90 backdrop-blur-md border border-slate-200/80 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-all">
+          {/* Card 2: 星圖解析 (L2 中等層次) */}
+          <div className="card-l2-standard flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-1.5 text-xs font-bold text-[#4A47A3] mb-2">
                 <Compass className="w-4 h-4 text-[#4A47A3]" />
@@ -628,11 +581,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 結合天體二十八宿運行輪盤與榮格共時性理論，解讀夢中象徵的宇宙共振。
               </p>
             </div>
-            <div className="pt-4 mt-3 border-t border-slate-200/80">
+            <div className="pt-4 mt-3 border-t border-slate-200/60">
               <button
                 type="button"
                 onClick={() => onGoToApp('constellation')}
-                className="min-h-[48px] w-full text-xs sm:text-sm font-bold text-[#4A47A3] hover:text-[#3B3888] flex items-center justify-between cursor-pointer transition-colors"
+                className="btn-b3-link w-full justify-between"
               >
                 <span>查看尊享星圖報告</span>
                 <span className="text-base">→</span>
@@ -640,8 +593,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
           </div>
 
-          {/* Card 3: 30 晚潛意識檔案 (11. 標註即將推出或進階體驗，避免死鏈) */}
-          <div className="card p-6 rounded-3xl bg-white/90 backdrop-blur-md border border-slate-200/80 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-all">
+          {/* Card 3: 30 晚潛意識檔案 (L2 中等層次) */}
+          <div className="card-l2-standard flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-[#D97706]">
@@ -662,11 +615,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 連續 30 晚的夢境記錄沉澱，建立專屬你的心靈成長檔案，見證內在轉化。
               </p>
             </div>
-            <div className="pt-4 mt-3 border-t border-slate-200/80">
+            <div className="pt-4 mt-3 border-t border-slate-200/60">
               <button
                 type="button"
                 onClick={() => onGoToApp('mystery')}
-                className="min-h-[48px] w-full text-xs sm:text-sm font-bold text-[#D97706] hover:text-amber-800 flex items-center justify-between cursor-pointer transition-colors"
+                className="btn-b3-link w-full justify-between"
               >
                 <span>探索你的 30 晚檔案</span>
                 <span className="text-base">→</span>
@@ -693,8 +646,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-center gap-4 lg:gap-6 max-w-5xl mx-auto">
-          {/* Step 1: 普通內容卡片 */}
-          <div className="card-standard w-full md:w-1/3 p-6 sm:p-7 relative flex flex-col items-center text-center">
+          {/* Step 1: L2 中等內容卡片 */}
+          <div className="card-l2-standard w-full md:w-1/3 p-6 sm:p-7 relative flex flex-col items-center text-center">
             <div className="relative mb-3">
               <StepNotepadIcon className="w-20 h-20" />
               <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-[var(--primary-600)] text-white text-[11px] font-mono font-bold shadow-xs">
@@ -713,8 +666,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             ›
           </div>
 
-          {/* Step 2: 普通內容卡片 */}
-          <div className="card-standard w-full md:w-1/3 p-6 sm:p-7 relative flex flex-col items-center text-center">
+          {/* Step 2: L2 中等內容卡片 */}
+          <div className="card-l2-standard w-full md:w-1/3 p-6 sm:p-7 relative flex flex-col items-center text-center">
             <div className="relative mb-3">
               <StepAiBrainIcon className="w-20 h-20" />
               <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-[var(--primary-600)] text-white text-[11px] font-mono font-bold shadow-xs">
@@ -733,8 +686,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             ›
           </div>
 
-          {/* Step 3: 普通內容卡片 */}
-          <div className="card-standard w-full md:w-1/3 p-6 sm:p-7 relative flex flex-col items-center text-center">
+          {/* Step 3: L2 中等內容卡片 */}
+          <div className="card-l2-standard w-full md:w-1/3 p-6 sm:p-7 relative flex flex-col items-center text-center">
             <div className="relative mb-3">
               <StepInsightIcon className="w-20 h-20" />
               <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-[var(--primary-600)] text-white text-[11px] font-mono font-bold shadow-xs">
@@ -755,11 +708,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* 🌟 5. 香港本地心理支援熱線（7. 可折疊模塊，點擊直接顯示熱線） 🌟 */}
       {/* ============================================================ */}
       <section className="shell py-6 max-w-4xl mx-auto" id="hotlines-section">
-        <div className="bg-amber-50/90 border border-amber-200/90 rounded-3xl p-5 sm:p-7 text-slate-800 shadow-xs">
+        {/* L3【心理熱線｜次要】：--accent-warm-light底色，移除陰影，預設折疊，降低視覺重量 */}
+        <div className="card-l3-secondary p-5 sm:p-7 text-slate-800">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <div className="flex items-center gap-2 text-amber-900 font-bold text-base sm:text-lg">
-                <PhoneCall className="w-5 h-5 text-amber-700 shrink-0" />
+              <div className="flex items-center gap-2 text-slate-900 font-bold text-base sm:text-lg">
+                <PhoneCall className="w-5 h-5 text-[var(--primary-600)] shrink-0" />
                 <h2>香港本地心理健康及情緒支援熱線清單</h2>
               </div>
               <p className="text-xs text-slate-600 mt-1">
@@ -770,7 +724,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <button
               type="button"
               onClick={() => setIsHotlinesOpen(!isHotlinesOpen)}
-              className="min-h-[44px] px-4 py-2 rounded-xl bg-white border border-amber-300 hover:bg-amber-100/50 text-amber-900 font-bold text-xs sm:text-sm inline-flex items-center justify-center gap-1.5 transition-all self-start sm:self-auto cursor-pointer"
+              className="btn-b2-secondary min-h-[44px] px-4 py-2 text-xs sm:text-sm inline-flex items-center justify-center gap-1.5 self-start sm:self-auto cursor-pointer"
             >
               <span>{isHotlinesOpen ? '收起支援熱線' : '展開熱線電話'}</span>
               {isHotlinesOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -834,26 +788,26 @@ export const HomeView: React.FC<HomeViewProps> = ({
             return (
               <div
                 key={item.id}
-                className="rounded-2xl border border-slate-200/90 bg-white/90 backdrop-blur-md overflow-hidden transition-all shadow-xs"
+                className="card-l3-secondary overflow-hidden transition-all"
               >
                 <button
                   type="button"
                   onClick={() => toggleFaq(item.id)}
-                  className="w-full min-h-[48px] px-5 py-3.5 text-left flex items-center justify-between text-sm sm:text-base font-bold text-slate-900 hover:text-[#4A47A3] cursor-pointer"
+                  className="w-full min-h-[48px] px-5 py-3.5 text-left flex items-center justify-between text-sm sm:text-base font-bold text-slate-900 hover:text-[var(--accent-warm-hover)] cursor-pointer transition-colors"
                 >
                   <span className="flex items-center gap-2">
-                    {item.id === 'theory' && <span className="text-xs bg-[#4A47A3]/10 text-[#4A47A3] px-2 py-0.5 rounded font-semibold">理論基礎</span>}
+                    {item.id === 'theory' && <span className="text-xs bg-slate-200/70 text-slate-800 px-2 py-0.5 rounded font-semibold">理論基礎</span>}
                     {item.id === 'privacy' && <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">隱私保證</span>}
                     <span>{item.q}</span>
                   </span>
                   {isOpen ? (
-                    <ChevronUp className="w-4 h-4 text-[#4A47A3] shrink-0" />
+                    <ChevronUp className="w-4 h-4 text-[var(--primary-600)] shrink-0" />
                   ) : (
                     <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
                   )}
                 </button>
                 {isOpen && (
-                  <div className="px-5 pb-4 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                  <div className="px-5 pb-4 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-stone-200/60 pt-3">
                     {item.a}
                   </div>
                 )}

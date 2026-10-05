@@ -1,31 +1,120 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Compass, RotateCw, Sparkles, Orbit, Info, ArrowUpRight, Crown, Lock, CheckCircle2, X } from 'lucide-react';
+import { Compass, RotateCw, Sparkles, Orbit, Info, ArrowUpRight, ArrowRight, Crown, Lock, CheckCircle2, X } from 'lucide-react';
 
-interface Archetype {
+export interface Archetype {
   deg: number;
   label: string;
   symbol: string;
   element: string;
   insight: string;
+  dailyTip: string;
 }
 
 const ARCHETYPES: Archetype[] = [
-  { deg: 0, label: '月牙安眠', symbol: '🌙', element: '水象·潛意識', insight: '接納內心溫柔的防衛，今晚是自我療癒的最佳時刻。' },
-  { deg: 30, label: '靈光星辰', symbol: '⭐', element: '風象·直覺', insight: '白日未解的難題，夢中正以靈光一閃的形式顯現。' },
-  { deg: 60, label: '守護銀羽', symbol: '🪶', element: '乙太·庇護', insight: '卸下白日的戒備，你的心靈正受到溫柔的宇宙守護。' },
-  { deg: 90, label: '深海巨浪', symbol: '🌊', element: '水象·情緒', insight: '洶湧的情緒並非敵人，而是潛意識渴望被看見的呼喚。' },
-  { deg: 120, label: '古樹之根', symbol: '🌳', element: '土象·基石', insight: '向下扎根才能向上生長，在混亂中找回平靜的重心。' },
-  { deg: 150, label: '神秘鑰匙', symbol: '🗝️', element: '心智·解鎖', insight: '心中封鎖已久的答案，其實鑰匙一直在你自己的手中。' },
-  { deg: 180, label: '天穹之眼', symbol: '👁️', element: '靈性·洞察', insight: '超越表面的幻象，以更高的全知視角俯瞰人生的轉折。' },
-  { deg: 210, label: '飛翔之翼', symbol: '🕊️', element: '火象·解脫', insight: '渴望掙脫常規束縛，潛意識邀請你勇敢展翅體驗自由。' },
-  { deg: 240, label: '記憶迴廊', symbol: '🏛️', element: '時空·回溯', insight: '遇見舊人舊事，是為了與過去那個未被撫慰的自己和解。' },
-  { deg: 270, label: '水晶明鏡', symbol: '🪞', element: '陰影·映照', insight: '夢中的他人皆是自我的投影，凝視它，整合破碎的自我。' },
-  { deg: 300, label: '迷宮引路', symbol: '🧭', element: '探索·方向', insight: '迷茫只是尋路的過程，每一個轉角都在為你累積智慧。' },
-  { deg: 330, label: '拂曉晨光', symbol: '☀️', element: '轉化·新生', insight: '最深沉的黑夜之後必有晨曦，一個全新的轉機正在孕育。' },
+  {
+    deg: 0,
+    label: '月牙安眠',
+    symbol: '🌙',
+    element: '水象·潛意識',
+    insight: '接納內心溫柔的防衛，今晚是自我療癒的最佳時刻。',
+    dailyTip: '睡前半小時遠離電子螢幕，點一盞溫暖微光或飲杯熱洋甘菊茶；允許自己今天不追求完美，給疲憊的心靈一段無條件放空的安眠時光。',
+  },
+  {
+    deg: 30,
+    label: '靈光星辰',
+    symbol: '⭐',
+    element: '風象·直覺',
+    insight: '白日未解的難題，夢中正以靈光一閃的形式顯現。',
+    dailyTip: '隨身準備便條紙或錄音工具，當靈光一閃時不要用理性過度審查，立即隨手記下；今日適合跨領域探索或嘗試一條全新的通勤小徑。',
+  },
+  {
+    deg: 60,
+    label: '守護銀羽',
+    symbol: '🪶',
+    element: '乙太·庇護',
+    insight: '卸下白日的戒備，你的心靈正受到溫柔的宇宙守護。',
+    dailyTip: '面對外界壓力時，輕閉雙眼做 3 次慢速深呼吸，想像身邊有一道溫柔光盾；今天不必急著討好所有人，先照顧好自己的心理界線。',
+  },
+  {
+    deg: 90,
+    label: '深海巨浪',
+    symbol: '🌊',
+    element: '水象·情緒',
+    insight: '洶湧的情緒並非敵人，而是潛意識渴望被看見的呼喚。',
+    dailyTip: '當焦慮或委屈浮現時，不要強行壓抑；試著在紙上自由書寫 5 分鐘，溫柔對自己說：「我看見你了，謝謝你提醒我需要停下來休息」。',
+  },
+  {
+    deg: 120,
+    label: '古樹之根',
+    symbol: '🌳',
+    element: '土象·基石',
+    insight: '向下扎根才能向上生長，在混亂中找回平靜的重心。',
+    dailyTip: '到戶外踩踩草地、散散步，或是吃一頓熱騰騰的營養原型食物；在做重大決定前，先專注感受雙腳穩踏地面的扎實感。',
+  },
+  {
+    deg: 150,
+    label: '神秘鑰匙',
+    symbol: '🗝️',
+    element: '心智·解鎖',
+    insight: '心中封鎖已久的答案，其實鑰匙一直在你自己的手中。',
+    dailyTip: '換個視角看當前卡關的事情；主動收拾一個凌亂的抽屜或書桌，外在環境的理清常會帶動內在思維的豁然開朗。',
+  },
+  {
+    deg: 180,
+    label: '天穹之眼',
+    symbol: '👁️',
+    element: '靈性·洞察',
+    insight: '超越表面的幻象，以更高的全知視角俯瞰人生的轉折。',
+    dailyTip: '今天遇到摩擦或不順時，抽離 10 秒鐘把自己當作電影旁白：「這段情節正在教會主角什麼？」站得更高，痛苦就會變小。',
+  },
+  {
+    deg: 210,
+    label: '飛翔之翼',
+    symbol: '🕊️',
+    element: '火象·解脫',
+    insight: '渴望掙脫常規束縛，潛意識邀請你勇敢展翅體驗自由。',
+    dailyTip: '打破一個慣性日常（例如聽一張從未聽過的音樂專輯，或拒絕一個不情願的聚會）；給自己安排一小時完全屬於自己的「無計劃時光」。',
+  },
+  {
+    deg: 240,
+    label: '記憶迴廊',
+    symbol: '🏛️',
+    element: '時空·回溯',
+    insight: '遇見舊人舊事，是為了與過去那個未被撫慰的自己和解。',
+    dailyTip: '如果突然想起過去的某件遺憾，對記憶中那個脆弱的自己說一句：「當時你已經盡力了，現在我們很安全，謝謝你帶我走到今天。」',
+  },
+  {
+    deg: 270,
+    label: '水晶明鏡',
+    symbol: '🪞',
+    element: '陰影·映照',
+    insight: '夢中的他人皆是自我的投影，凝視它，整合破碎的自我。',
+    dailyTip: '注意今天身邊讓你特別反感或特別崇拜的人，問問自己：「他身上的哪種特質，其實也是我壓抑或渴望擁有的部分？」',
+  },
+  {
+    deg: 300,
+    label: '迷宮引路',
+    symbol: '🧭',
+    element: '探索·方向',
+    insight: '迷茫只是尋路的過程，每一個轉角都在為你累積智慧。',
+    dailyTip: '不需要今天就看清未來十年的路，只要看清眼前下一步即可；把龐大目標拆成今天只要花 15 分鐘就能完成的最小微行動。',
+  },
+  {
+    deg: 330,
+    label: '拂曉晨光',
+    symbol: '☀️',
+    element: '轉化·新生',
+    insight: '最深沉的黑夜之後必有晨曦，一個全新的轉機正在孕育。',
+    dailyTip: '清晨拉開窗簾深呼吸沐浴陽光；今天適合主動開啟一項微小的新嘗試，或對鏡子裡的自己展露一個溫柔的微笑，迎接新的生命循環。',
+  },
 ];
 
-interface CelestialRotatingAstrolabeProps {
+export interface CelestialRotatingAstrolabeProps {
   onSelectArchetype?: (archetype: Archetype) => void;
+  onAddToDream?: (archetype: Archetype) => void;
+  onRemoveFromDream?: (archetype: Archetype) => void;
+  onNavigateToWorkspace?: () => void;
+  isAddedToDream?: boolean;
   className?: string;
   isPaidMember?: boolean;
   onRequirePaid?: () => void;
@@ -43,6 +132,10 @@ interface CelestialRotatingAstrolabeProps {
  */
 export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProps> = ({
   onSelectArchetype,
+  onAddToDream,
+  onRemoveFromDream,
+  onNavigateToWorkspace,
+  isAddedToDream,
   className = '',
   isPaidMember = false,
   onRequirePaid,
@@ -55,6 +148,9 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
   const [isAligning, setIsAligning] = useState<boolean>(false);
   const [showVipModal, setShowVipModal] = useState<boolean>(false);
 
+  const [localAddedSet, setLocalAddedSet] = useState<Set<string>>(new Set());
+  const [contemplationNote, setContemplationNote] = useState<string | null>(null);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const lastAngleRef = useRef<number>(0);
   const autoSpinAnimRef = useRef<number | null>(null);
@@ -65,6 +161,34 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
     const index = Math.round(normalized / 30) % 12;
     return ARCHETYPES[index];
   }, [rotation]);
+
+  const isCurrentAdded = isAddedToDream !== undefined ? isAddedToDream : localAddedSet.has(activeArchetype.label);
+
+  const handleToggleAdd = (archetype: Archetype, shouldAdd: boolean) => {
+    if (shouldAdd) {
+      setLocalAddedSet((prev) => new Set([...prev, archetype.label]));
+      setContemplationNote(null);
+      if (onAddToDream) onAddToDream(archetype);
+      if (onSelectArchetype) onSelectArchetype(archetype);
+    } else {
+      setLocalAddedSet((prev) => {
+        const next = new Set(prev);
+        next.delete(archetype.label);
+        return next;
+      });
+      if (onRemoveFromDream) onRemoveFromDream(archetype);
+    }
+  };
+
+  const handleContemplateOnly = (archetype: Archetype) => {
+    setContemplationNote(archetype.label);
+    setLocalAddedSet((prev) => {
+      const next = new Set(prev);
+      next.delete(archetype.label);
+      return next;
+    });
+    if (onRemoveFromDream) onRemoveFromDream(archetype);
+  };
 
   // Continuous gentle ambient spin when auto-spinning is on and not dragging
   useEffect(() => {
@@ -366,7 +490,96 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
             <p className="text-xs text-slate-600 leading-relaxed mt-2 pt-2 border-t border-slate-100">
               {activeArchetype.insight}
             </p>
+
+            {/* 今日生活小貼士 (Daily Life Practical Tip) */}
+            <div className="mt-2.5 p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/80 text-xs text-amber-950 flex items-start gap-2 shadow-2xs">
+              <span className="shrink-0 text-sm mt-0.5">💡</span>
+              <div className="space-y-0.5">
+                <span className="font-bold text-[11px] text-amber-900 tracking-wider">今日生活小貼士</span>
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
+                  {activeArchetype.dailyTip}
+                </p>
+              </div>
+            </div>
           </div>
+
+          {/* 付費會員專屬特權：自由選擇是否加入夢境作深入分析 */}
+          {isPaidMember && (
+            <div className="card p-3.5 rounded-2xl bg-gradient-to-br from-slate-50 to-blue-50/70 border border-slate-200/90 shadow-2xs space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-bold">
+                <span className="flex items-center gap-1.5 text-slate-800">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <span>星象入夢選擇（自由決定）</span>
+                </span>
+                {isCurrentAdded ? (
+                  <span className="text-emerald-700 bg-emerald-100/90 border border-emerald-300 px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 shadow-2xs">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    <span>已加入夢境</span>
+                  </span>
+                ) : (
+                  <span className="text-slate-500 font-normal text-[10px]">
+                    未加入夢境
+                  </span>
+                )}
+              </div>
+
+              <p className="text-[11px] text-slate-600 leading-normal">
+                您可以自由選擇是否將當前「<strong>{activeArchetype.label}</strong>」意象帶入夢境，與榮格深度心理模型進行共振分析：
+              </p>
+
+              <div className="flex flex-col gap-1.5 pt-0.5">
+                {isCurrentAdded ? (
+                  <div className="flex items-center gap-2">
+                    {onNavigateToWorkspace && (
+                      <button
+                        type="button"
+                        onClick={onNavigateToWorkspace}
+                        className="flex-1 py-2 px-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                      >
+                        <span>前往工作台深入分析</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleAdd(activeArchetype, false)}
+                      className="py-2 px-3 rounded-xl bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 text-xs font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                      title="從夢境中移除此原型"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      <span>從夢境移除</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleAdd(activeArchetype, true)}
+                      className="py-2 px-2.5 rounded-xl bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-xs transition-all cursor-pointer active:scale-98"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                      <span>加入夢境深入分析</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleContemplateOnly(activeArchetype)}
+                      className="py-2 px-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                    >
+                      <span>✨ 純粹感應不加入</span>
+                    </button>
+                  </div>
+                )}
+
+                {contemplationNote === activeArchetype.label && !isCurrentAdded && (
+                  <div className="text-[11px] text-amber-800 bg-amber-50 border border-amber-200/80 rounded-lg p-2 leading-relaxed flex items-start gap-1.5 mt-1">
+                    <span className="shrink-0">🕊️</span>
+                    <span>已保留為今日心靈冥想感應，不會修改或注入你的夢境日記。</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* 互動按鈕群 (Interactive Actions) */}
           <div className="space-y-2.5">
@@ -461,7 +674,7 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
                 }}
                 className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-700 to-sky-600 hover:from-blue-800 hover:to-sky-700 text-white font-bold text-sm shadow-md shadow-blue-700/20 flex items-center justify-center gap-2 cursor-pointer transition-all"
               >
-                <span>前往升級付費會員 (HK$ 38 / 月起)</span>
+                <span>前往升級付費會員 (HK$ 89 / 月起)</span>
                 <ArrowUpRight className="w-4 h-4" />
               </button>
               <button

@@ -8,13 +8,13 @@ import {
   Coins,
 } from 'lucide-react';
 import { User, normalizeRole } from '../types';
-import { CelestialRotatingAstrolabe } from './CelestialRotatingAstrolabe';
+import { CelestialRotatingAstrolabe, Archetype } from './CelestialRotatingAstrolabe';
 
 interface PricingViewProps {
   currentUser?: User | null;
   onOpenEarnStars: () => void;
   onUpgradeToPaid: () => void;
-  onGoToApp: (tab?: 'workspace' | 'dna' | 'constellation' | 'mystery') => void;
+  onGoToApp: (tab?: 'workspace' | 'dna' | 'constellation' | 'mystery', prefill?: string) => void;
   onOpenLogin?: () => void;
   onGoToStars?: () => void;
 }
@@ -26,6 +26,9 @@ export const PricingView: React.FC<PricingViewProps> = ({
   onGoToApp,
   onGoToStars,
 }) => {
+  const [selectedArchetype, setSelectedArchetype] = React.useState<Archetype | null>(null);
+  const [isAddedToDream, setIsAddedToDream] = React.useState<boolean>(false);
+
   const normRole = currentUser ? normalizeRole(currentUser.role) : 'free';
   const isPaid = normRole === 'paid' || normRole === 'admin' || normRole === 'super_admin';
 
@@ -67,7 +70,7 @@ export const PricingView: React.FC<PricingViewProps> = ({
               className="px-3.5 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-xs shadow-xs flex items-center gap-1 cursor-pointer transition-all active:scale-95"
             >
               <Crown className="w-3.5 h-3.5" />
-              <span>立即開通付費會員（HK$9/月起）</span>
+              <span>立即開通付費會員（HK$89/月起）</span>
             </button>
           )}
         </div>
@@ -106,29 +109,56 @@ export const PricingView: React.FC<PricingViewProps> = ({
           </div>
         </div>
 
-        {/* 嵌入天體星盤組件 */}
+        {/* 嵌入天體星盤組件（付費會員可自由選擇是否加入夢境作深入分析） */}
         <CelestialRotatingAstrolabe
           hideHeader={true}
           isPaidMember={isPaid}
           onRequirePaid={onUpgradeToPaid}
+          isAddedToDream={isAddedToDream}
           onSelectArchetype={(arch) => {
-            onGoToApp('workspace');
+            setSelectedArchetype(arch);
+          }}
+          onAddToDream={(arch) => {
+            setSelectedArchetype(arch);
+            setIsAddedToDream(true);
+          }}
+          onRemoveFromDream={() => {
+            setIsAddedToDream(false);
+          }}
+          onNavigateToWorkspace={() => {
+            if (isAddedToDream && selectedArchetype) {
+              const tag = `【今日潛意識共振】：${selectedArchetype.symbol} ${selectedArchetype.label}（${selectedArchetype.insight}）\n💡 今日生活小貼士：${selectedArchetype.dailyTip}`;
+              onGoToApp('workspace', tag);
+            } else {
+              onGoToApp('workspace');
+            }
           }}
         />
 
-        {/* 星盤連動說明 */}
+        {/* 星盤連動與自由選擇說明 */}
         <div className="mt-6 pt-4 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-500" />
-            <span>感應原型後，點選即可直接帶入解夢工作台進行榮格心理深度解析</span>
+            <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+            <span>
+              {isAddedToDream && selectedArchetype
+                ? `已選取「${selectedArchetype.label}」並預備帶入夢境，前往工作台即可展開榮格深度分析。`
+                : '付費會員可自由選擇將天體原型加入夢境作深入分析，亦可留在星盤純粹感應冥想。'}
+            </span>
           </div>
 
           <button
             type="button"
-            onClick={() => onGoToApp('workspace')}
-            className="text-[var(--primary-700)] hover:text-[var(--primary-800)] font-bold inline-flex items-center gap-1 cursor-pointer transition-colors"
+            onClick={() => {
+              if (isAddedToDream && selectedArchetype) {
+                const tag = `【今日潛意識共振】：${selectedArchetype.symbol} ${selectedArchetype.label}（${selectedArchetype.insight}）\n💡 今日生活小貼士：${selectedArchetype.dailyTip}`;
+                onGoToApp('workspace', tag);
+              } else {
+                onGoToApp('workspace');
+              }
+            }}
+            className="text-[var(--primary-700)] hover:text-[var(--primary-800)] font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shrink-0"
           >
-            <span>前往解夢工作台</span>
+            <span>{isAddedToDream ? '帶入原型並前往解夢工作台' : '前往解夢工作台'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>

@@ -419,7 +419,7 @@ export const StarCoinsView: React.FC<StarCoinsViewProps> = ({
                 >
                   <span>年費方案</span>
                   <span className="ml-1 text-[10px] px-1 py-0.2 rounded bg-amber-400 text-black font-extrabold">
-                    慳35%
+                    慳49%
                   </span>
                 </button>
                 <button
@@ -438,22 +438,22 @@ export const StarCoinsView: React.FC<StarCoinsViewProps> = ({
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-3xl sm:text-4xl font-extrabold text-white font-mono">
                     {billingCycle === 'yearly'
-                      ? 'HK$298'
+                      ? 'HK$549'
                       : billingCycle === 'monthly'
-                      ? 'HK$38'
-                      : 'HK$588'}
+                      ? 'HK$89'
+                      : 'HK$919'}
                   </span>
                   <span className="text-xs text-[#aab3d2]">
                     {billingCycle === 'yearly'
-                      ? '/ 年（約 HK$24.8/月）'
+                      ? '/ 年（約 HK$45.8/月）'
                       : billingCycle === 'monthly'
                       ? '/ 月'
-                      : '/ 終生買斷'}
+                      : '/ 終身買斷'}
                   </span>
                 </div>
                 <p className="text-[11px] text-[#78e1b5] mt-1 font-mono">
                   {billingCycle === 'yearly'
-                    ? '比月費慳超過 35% · 尊享 365 日無間斷解密'
+                    ? '比月費慳近 49% · 尊享 365 日無間斷解密'
                     : billingCycle === 'monthly'
                     ? '隨時可取消 · 無綁約彈性暢玩'
                     : '一次付清 · 永久尊享所有最新解夢模組更新'}
@@ -524,7 +524,7 @@ export const StarCoinsView: React.FC<StarCoinsViewProps> = ({
                   id="pricing-upgrade-btn"
                 >
                   <Crown className="w-4 h-4 text-black" />
-                  <span>立即升級 VIP（HK$9/月起）</span>
+                  <span>立即升級 VIP（HK$89/月起）</span>
                 </button>
               )}
 

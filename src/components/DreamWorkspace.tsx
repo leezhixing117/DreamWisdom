@@ -2463,13 +2463,21 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
           <CelestialRotatingAstrolabe
             isPaidMember={isPaidUser}
             onRequirePaid={onGoToPricing}
-            onSelectArchetype={(arch) => {
+            onAddToDream={(arch) => {
               setDream((prev) => {
-                const tag = `【今日潛意識共振】：${arch.symbol} ${arch.label}（${arch.insight}）`;
+                const tag = `【今日潛意識共振】：${arch.symbol} ${arch.label}（${arch.insight}）\n💡 今日生活小貼士：${arch.dailyTip}`;
                 if (prev.includes(arch.label)) return prev;
                 const trimmed = prev.trim();
                 return trimmed ? `${trimmed}\n${tag}` : tag;
               });
+            }}
+            onRemoveFromDream={(arch) => {
+              setDream((prev) => {
+                const lines = prev.split('\n').filter((line) => !line.includes(arch.label));
+                return lines.join('\n');
+              });
+            }}
+            onNavigateToWorkspace={() => {
               setActiveTab('workspace');
             }}
           />

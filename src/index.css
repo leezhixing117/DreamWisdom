@@ -1,15 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  /* Version B 經典天體深藍與銀白高對比星空主題 */
+  /* 【方案A 柔和大地療癒配色】核心變數 */
   --bg-base: #F8FAFC;
   --bg-gradient-1: #F8FAFC;
-  --bg-gradient-2: #F0F7FF;
-  --primary-400: #38BDF8;
-  --primary-600: #2563EB;
-  --primary-700: #1D4ED8;
-  --primary-800: #1E40AF;
+  --bg-gradient-2: #F1F5F9;
+  --primary-400: #64748B;
+  --primary-600: #475569;
+  --primary-700: #334155;
+  --primary-800: #1E293B;
   --primary-900: #0F172A;
+  
+  /* 柔和大地療癒關鍵變數 */
+  --accent-warm: #A8A29E;        /* 大地暖灰褐細邊 */
+  --accent-warm-light: #F5F5F4;  /* L3 次要卡片柔和大地淺底色 (Stone-100) */
+  --accent-warm-hover: #78716C;  /* 暖灰褐加深 hover */
   --accent-sky: #0284C7;
   --accent-sky-light: #E0F2FE;
   --accent-amber: #D97706;
@@ -19,13 +24,16 @@
   --text-sub: #475569;
   --text-muted: #64748B;
   --text-white: #FFFFFF;
-  --shadow-light: rgba(15, 23, 42, 0.06);
-  --shadow-medium: rgba(37, 99, 235, 0.12);
+  
+  /* 方案A 陰影系統 */
+  --shadow-light: 0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 2px 4px -1px rgba(15, 23, 42, 0.03);
+  --shadow-medium: 0 10px 30px -4px rgba(30, 41, 59, 0.09), 0 4px 8px -2px rgba(30, 41, 59, 0.04);
+  --shadow-medium-hover: 0 18px 44px -4px rgba(30, 41, 59, 0.14), 0 6px 14px -2px rgba(30, 41, 59, 0.06);
 
   /* 基礎通用變數映射 */
   --bg: #F8FAFC;
-  --bg2: #F0F7FF;
-  --bg-gradient: linear-gradient(135deg, #F8FAFC 0%, #EEF6FF 50%, #F8FAFC 100%);
+  --bg2: #F1F5F9;
+  --bg-gradient: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #F8FAFC 100%);
   --card: #FFFFFF;
   --card2: #F8FAFC;
   --line: #E2E8F0;
@@ -36,11 +44,10 @@
   --accent: var(--primary-700);
   --accent-hover: var(--primary-800);
   --accent2: var(--primary-400);
-  --accent-cyan: var(--accent-sky);
   --good: #059669;
   --warn: #D97706;
   --danger: #DC2626;
-  --shadow: 0 4px 16px -2px var(--shadow-light);
+  --shadow: var(--shadow-light);
   --r: 24px;
 
   /* 經典字型體系 */
@@ -60,7 +67,7 @@ html {
 body {
   margin: 0;
   background-color: var(--bg-base);
-  background: linear-gradient(135deg, #F8FAFC 0%, #EEF6FF 45%, #F8FAFC 100%);
+  background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #F8FAFC 100%);
   background-attachment: fixed;
   color: var(--text-body);
   font-family: var(--font-sans);
@@ -87,128 +94,167 @@ p, .text-body {
   color: var(--text-muted);
 }
 
-/* 4 種層次區分卡片體系 */
-/* 1. 普通內容卡片 (三步驟、功能介紹)：白色毛玻璃底色，精緻輕陰影，微邊框 */
-.card-standard, .card-content {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 8px 24px var(--shadow-light);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  border-radius: 24px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-.card-standard:hover, .card-content:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.1);
-  border-color: rgba(147, 197, 253, 0.5);
-}
+/* ============================================================ */
+/* 🌟 卡片 4 級 UX 層次體系 (以使用者體驗為優先，同級樣式完全統一) 🌟 */
+/* ============================================================ */
 
-/* 2. 記夢輸入重點卡片：高雅純白微藍漸變，天體天藍細邊框，--shadow-medium陰影，視覺突出 */
-.card-featured-dream {
-  background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFF 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(191, 219, 254, 0.9);
-  box-shadow: 0 12px 32px var(--shadow-medium);
+/* L1【記夢輸入卡片｜最高優先】：全頁唯一 L1 卡片
+   淺藍灰漸變底、--accent-warm細邊、--shadow-medium陰影；上下外留白顯著加大；hover陰影柔和放大 */
+.card-l1-dream, .card-featured-dream {
+  background: linear-gradient(180deg, #F8FAFC 0%, #EFF4F8 100%);
+  border: 1px solid var(--accent-warm);
+  box-shadow: var(--shadow-medium);
   border-radius: 28px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.card-l1-dream:hover, .card-featured-dream:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium-hover);
+  border-color: var(--accent-warm-hover);
+}
+
+/* L2【三步驟/功能介紹｜中等】：rgba(255,255,255,0.65)底、--shadow-light、無邊框，標準留白，統一樣式 */
+.card-l2-standard, .card-standard, .card-content {
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-light) !important;
+  border: none !important;
+  border-radius: 24px;
+  padding: 24px;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.card-featured-dream:hover {
+.card-l2-standard:hover, .card-standard:hover, .card-content:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 40px rgba(37, 99, 235, 0.16);
-  border-color: rgba(96, 165, 250, 0.9);
+  box-shadow: 0 10px 24px -2px rgba(15, 23, 42, 0.08) !important;
 }
 
-/* 3. FAQ、免責、心理支援次要卡片：淡天藍或琥珀底色 */
-.card-secondary-warm {
-  background: #F0F9FF;
-  border: 1px solid rgba(186, 230, 253, 0.8);
-  box-shadow: 0 4px 14px var(--shadow-light);
-  border-radius: 24px;
+/* L3【FAQ/免責/心理熱線｜次要】：--accent-warm-light底色，移除陰影，預設折疊，降低視覺重量 */
+.card-l3-secondary, .card-secondary-warm {
+  background: var(--accent-warm-light) !important;
+  border: 1px solid rgba(168, 162, 158, 0.35) !important;
+  box-shadow: none !important;
+  border-radius: 20px;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
-/* 4. 意象標籤：晶片質感，天藍底色，hover加深 */
-.tag-chip-warm {
+/* L4【意象標籤｜微型元件】：小尺寸，淺底，hover變色；確保點擊區足夠（≥38px） */
+.tag-chip-l4, .tag-chip-warm {
   background: #F1F5F9;
-  color: #1E293B;
-  border: 1px solid rgba(203, 213, 225, 0.8);
+  color: var(--text-body);
+  border: 1px solid #E2E8F0;
   border-radius: 12px;
-  transition: all 0.2s ease;
+  min-height: 38px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.25s ease;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+  user-select: none;
 }
-.tag-chip-warm:hover {
-  background: #E0F2FE;
-  border-color: #38BDF8;
-  color: #0369A1;
-  transform: scale(1.02);
+.tag-chip-l4:hover, .tag-chip-warm:hover {
+  background: #E2E8F0;
+  border-color: var(--accent-warm);
+  color: var(--text-heading);
+  transform: translateY(-1px);
+}
+.tag-chip-l4:active, .tag-chip-warm:active {
+  transform: scale(0.98);
 }
 
-/* 按鈕三級樣式 */
-/* 1. 主CTA按鈕 (記錄夢境開始分析)：經典天體深藍漸變，白色文字，高權重 */
-.btn-primary-cta {
-  background: linear-gradient(135deg, #1D4ED8 0%, #0284C7 100%);
+/* ============================================================ */
+/* 🌟 按鈕 3 級 UX 層次體系 (遵守觸控規範 ≥48px) 🌟 */
+/* ============================================================ */
+
+/* B1主CTA【記錄夢境開始分析】：灰藍漸變、白色粗字；尺寸最大；緊貼輸入框下方；
+   hover柔和加深；active scale(0.98)；空白輸入時設置禁用狀態 */
+.btn-b1-primary, .btn-primary-cta {
+  background: linear-gradient(135deg, #334155 0%, #1E293B 100%) !important;
   color: #FFFFFF !important;
-  min-height: 48px;
-  border-radius: 16px;
+  min-height: 52px;
+  padding: 12px 28px;
+  font-size: 15px;
   font-weight: 700;
-  box-shadow: 0 6px 20px rgba(29, 78, 216, 0.25);
-  transition: all 0.2s ease;
+  border-radius: 16px;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(30, 41, 59, 0.2);
+  transition: all 0.25s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  gap: 8px;
   cursor: pointer;
+  user-select: none;
 }
-.btn-primary-cta:hover {
-  background: linear-gradient(135deg, #1E40AF 0%, #0369A1 100%);
-  box-shadow: 0 8px 24px rgba(29, 78, 216, 0.35);
+.btn-b1-primary:hover:not(:disabled), .btn-primary-cta:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%) !important;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.3);
   transform: translateY(-1px);
 }
-.btn-primary-cta:active {
-  transform: translateY(0);
+.btn-b1-primary:active:not(:disabled), .btn-primary-cta:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.btn-b1-primary:disabled, .btn-primary-cta:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
-/* 2. 次要按鈕 (觀看示範報告)：經典天藍線框風格，清晰高對比 */
-.btn-secondary-outline {
-  background: #FFFFFF;
-  border: 1.5px solid #2563EB;
-  color: #1D4ED8 !important;
+/* B2次要按鈕【觀看示範報告】：線框樣式，尺寸小於主按鈕；hover只加極淺底色，禁止變實心 */
+.btn-b2-secondary, .btn-secondary-outline {
+  background: transparent !important;
+  border: 1.5px solid #CBD5E1 !important;
+  color: #334155 !important;
   min-height: 48px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
   border-radius: 16px;
-  font-weight: 700;
-  transition: all 0.2s ease;
+  box-shadow: none !important;
+  transition: all 0.25s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+  user-select: none;
 }
-.btn-secondary-outline:hover {
-  background: #EFF6FF;
-  border-color: #1D4ED8;
-  color: #1E40AF !important;
+.btn-b2-secondary:hover, .btn-secondary-outline:hover {
+  background: rgba(241, 245, 249, 0.65) !important;
+  border-color: #94A3B8 !important;
+  color: #1E293B !important;
   transform: translateY(-1px);
 }
+.btn-b2-secondary:active, .btn-secondary-outline:active {
+  transform: scale(0.98);
+}
 
-/* 3. 文字連結按鈕 */
-.btn-link-text {
-  background: none;
-  border: none;
-  color: #2563EB !important;
+/* B3文字連結【查看更多】：無背景無邊框；hover文字轉--accent-warm；所有可點擊元件觸控區≥48px */
+.btn-b3-link, .btn-link-text {
+  background: none !important;
+  border: none !important;
+  color: var(--primary-700, #334155) !important;
   font-weight: 700;
-  cursor: pointer;
-  transition: color 0.2s ease;
-  padding: 0;
+  min-height: 48px;
+  padding: 0 4px;
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+  cursor: pointer;
   text-decoration: none;
+  transition: color 0.25s ease;
+  user-select: none;
 }
-.btn-link-text:hover {
-  color: #1D4ED8 !important;
+.btn-b3-link:hover, .btn-link-text:hover {
+  color: var(--accent-warm-hover, #78716C) !important;
   text-decoration: underline;
+}
+.btn-b3-link:active, .btn-link-text:active {
+  transform: scale(0.98);
 }
 
 /* 經典襯線標題字型 (Brand & Calligraphic Serif) */
