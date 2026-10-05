@@ -56,9 +56,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const [isSamplePreviewOpen, setIsSamplePreviewOpen] = useState(false);
   const [sampleInitialTab, setSampleInitialTab] = useState<'dna' | 'constellation' | 'mystery'>('dna');
   
-  // 3. 記夢引導改為可折疊模塊，預設收起 (false)
-  const [isGuideOpen, setIsGuideOpen] = useState(false);
-
   // 5. 空內容提交友善校驗提示
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -170,26 +167,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
     }
   };
 
-  // 記夢引導結構快速插入
-  const handleAddGuidePrompt = (type: 'characters' | 'scene' | 'emotion' | 'objects') => {
-    const prompts = {
-      characters: '【人物】：',
-      scene: '【場景】：',
-      emotion: '【主要情緒】：',
-      objects: '【關鍵物件】：',
-    };
-    const prefix = prompts[type];
-    setDraftDream((prev) => {
-      const trimmed = prev.trim();
-      if (!trimmed) return prefix;
-      if (trimmed.includes(prefix)) return trimmed;
-      return `${trimmed}\n${prefix}`;
-    });
-    if (validationError) setValidationError(null);
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  };
 
   // FAQ 展開/收起切換
   const toggleFaq = (key: string) => {
@@ -333,70 +310,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </span>
               </div>
 
-              {/* 3. 記夢引導改為可折疊模塊，預設收起 (預設 isGuideOpen = false) */}
-              <div className="rounded-2xl bg-white/80 border border-slate-200/90 mb-3.5 overflow-hidden transition-all shadow-xs">
-                <button
-                  type="button"
-                  onClick={() => setIsGuideOpen(!isGuideOpen)}
-                  className="w-full px-4 py-3 flex items-center justify-between text-xs sm:text-sm font-bold text-[var(--primary-700)] hover:bg-blue-50/50 transition-colors select-none"
-                >
-                  <span className="flex items-center gap-2">
-                    <span>💡 記夢引導（點擊帶入回憶結構小貼士）</span>
-                  </span>
-                  <span className="flex items-center gap-1 text-xs text-[var(--text-sub)]">
-                    <span>{isGuideOpen ? '收起引導' : '展開引導'}</span>
-                    {isGuideOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </span>
-                </button>
-
-                {isGuideOpen && (
-                  <div className="p-4 pt-1 border-t border-slate-100 space-y-3">
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleAddGuidePrompt('characters')}
-                        className="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-[var(--primary-600)] text-xs text-[var(--text-body)] hover:text-[var(--primary-700)] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                        title="點擊帶入【人物】提示"
-                      >
-                        <span>👥</span>
-                        <span>有邊啲人物？</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleAddGuidePrompt('scene')}
-                        className="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-[var(--primary-600)] text-xs text-[var(--text-body)] hover:text-[var(--primary-700)] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                        title="點擊帶入【場景】提示"
-                      >
-                        <span>📍</span>
-                        <span>場景係邊度？</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleAddGuidePrompt('emotion')}
-                        className="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-[var(--primary-600)] text-xs text-[var(--text-body)] hover:text-[var(--primary-700)] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                        title="點擊帶入【感覺】提示"
-                      >
-                        <span>💭</span>
-                        <span>感覺驚／不安？</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleAddGuidePrompt('objects')}
-                        className="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-[var(--primary-600)] text-xs text-[var(--text-body)] hover:text-[var(--primary-700)] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                        title="點擊帶入【物件】提示"
-                      >
-                        <span>🚪</span>
-                        <span>有冇特定物件？</span>
-                      </button>
-                    </div>
-                    <p className="text-[11px] text-[var(--text-sub)] leading-relaxed">
-                      提示：醒來第一時間哪怕只記低一個感覺或單字，點擊標籤即可快速建立結構，由潛意識自主延伸。
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* 6. 隱私承諾使用淺底色小卡片強化識別 (WCAG AA 高對比深文字) */}
+              {/* 隱私承諾使用淺底色小卡片強化識別 (WCAG AA 高對比深文字) */}
               <div className="card-secondary-warm p-3 mb-3.5 flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-heading)] font-medium">
                 <div className="flex items-center gap-2 font-semibold">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -408,13 +322,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </div>
               </div>
 
-              {/* 5 & 12. 主要夢境文字輸入框（實時字數顯示、防虛擬鍵盤遮擋） */}
+              {/* 主要夢境文字輸入框（實時字數顯示、防虛擬鍵盤遮擋） */}
               <div className="relative mb-3">
                 <textarea
                   ref={textareaRef}
                   value={draftDream}
                   onChange={handleDreamChange}
-                  placeholder="寫低你記得嘅夢境……醒來時有甚麼畫面？你當時感覺點？（可點擊右側星盤感應原型，或點擊下方意象標籤快速填寫）"
+                  placeholder="寫低你記得嘅夢境……醒來時有甚麼畫面？你當時感覺點？（廣東話口語輸入即可，或點擊下方意象標籤快速填寫）"
                   id="hero-dream-textarea"
                   rows={5}
                   className={`w-full bg-white/95 focus:bg-white border ${

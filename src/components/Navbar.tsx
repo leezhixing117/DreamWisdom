@@ -151,18 +151,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>私隱</span>
           </button>
 
-          {/* 新手引導 (Onboarding Tour Modal) */}
-          {onOpenOnboarding && (
-            <button
-              type="button"
-              onClick={onOpenOnboarding}
-              className="bg-transparent border-0 text-[13px] text-blue-700 hover:text-blue-800 cursor-pointer flex items-center gap-1 font-bold"
-              id="nav-link-onboarding"
-              title="查看新手引導教學"
-            >
-              <span>✨ 引導</span>
-            </button>
-          )}
 
           {/* 7. 控制室 (嚴格限定管理員及高級管理員可見，其餘會員與非管理員完全不顯示) */}
           {isManagement && (
