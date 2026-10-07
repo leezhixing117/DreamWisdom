@@ -19,12 +19,14 @@ import {
   ChevronRight,
   Smile,
   AlertCircle,
+  Trash2,
 } from 'lucide-react';
 
 interface DreamJournalManagerProps {
   history: DreamEntry[];
   onSelectEntry: (entry: DreamEntry) => void;
   onUpdateEntryTags: (id: string, newTags: string[]) => void;
+  onDeleteEntry?: (id: string) => void;
 }
 
 const PRESET_TAGS = ['噩夢', '重複夢', '預知感', '清醒夢', '情緒發洩', '自我整合'];
@@ -34,6 +36,7 @@ export const DreamJournalManager: React.FC<DreamJournalManagerProps> = ({
   history,
   onSelectEntry,
   onUpdateEntryTags,
+  onDeleteEntry,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string>('全部');
@@ -416,9 +419,24 @@ export const DreamJournalManager: React.FC<DreamJournalManagerProps> = ({
                       </h4>
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500 group-hover:text-white transition-colors shrink-0">
-                      <span>查看 4 層報告</span>
-                      <ChevronRight className="w-4 h-4" />
+                    <div className="flex items-center gap-2 text-xs text-slate-500 shrink-0">
+                      <span className="group-hover:text-blue-700 transition-colors">查看報告</span>
+                      <ChevronRight className="w-4 h-4 group-hover:text-blue-700" />
+                      {onDeleteEntry && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.confirm('確定要刪除這條夢境記錄嗎？刪除後無法復原。')) {
+                              onDeleteEntry(entry.id);
+                            }
+                          }}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors ml-1 cursor-pointer"
+                          title="刪除此條夢境紀錄"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
 

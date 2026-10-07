@@ -342,7 +342,7 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
       {/* ============================================================ */}
       {/* 核心天體轉動圖案區域 (Multi-Ring Interactive Astrolabe) */}
       {/* ============================================================ */}
-      <div className="relative w-full flex flex-col md:flex-row items-center justify-center gap-8 py-4">
+      <div className={`relative w-full flex ${compact ? 'flex-col items-center gap-6' : 'flex-col md:flex-row items-center justify-center gap-8'} py-4`}>
         {/* 左側 / 中央：多層立體同心轉盤 */}
         <div
           ref={containerRef}
@@ -350,7 +350,11 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          className="relative w-[320px] h-[320px] sm:w-[380px] sm:h-[380px] md:w-[420px] md:h-[420px] rounded-full select-none cursor-grab active:cursor-grabbing flex items-center justify-center touch-none transition-shadow"
+          className={`relative ${
+            compact
+              ? 'w-[260px] h-[260px] sm:w-[290px] sm:h-[290px]'
+              : 'w-[320px] h-[320px] sm:w-[380px] sm:h-[380px] md:w-[420px] md:h-[420px]'
+          } rounded-full select-none cursor-grab active:cursor-grabbing flex items-center justify-center touch-none transition-shadow shrink-0`}
           style={{
             background: 'radial-gradient(circle at 50% 50%, #FFFFFF 0%, #F8FAFC 60%, #F1F5F9 100%)',
             boxShadow: isDragging
@@ -466,7 +470,7 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
         {/* ============================================================ */}
         {/* 右側：當前旋轉對齊的潛意識感應報告 (Real-time Aligned Insight) */}
         {/* ============================================================ */}
-        <div className="w-full md:w-80 flex flex-col justify-between space-y-4 text-left">
+        <div className={`w-full ${compact ? 'max-w-md' : 'md:w-80'} flex flex-col justify-between space-y-4 text-left`}>
           {/* 當前對齊卡片 */}
           <div className="card p-5 rounded-2xl bg-white border border-slate-200 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 px-3 py-1 bg-blue-50 text-blue-700 border-b border-l border-blue-200 rounded-bl-xl text-[11px] font-mono font-bold">
@@ -503,8 +507,8 @@ export const CelestialRotatingAstrolabe: React.FC<CelestialRotatingAstrolabeProp
             </div>
           </div>
 
-          {/* 付費會員專屬特權：自由選擇是否加入夢境作深入分析 */}
-          {isPaidMember && (
+          {/* 星象入夢選擇（自由決定）：付費會員或提供 onAddToDream 時開放 */}
+          {(isPaidMember || !!onAddToDream) && (
             <div className="card p-3.5 rounded-2xl bg-gradient-to-br from-slate-50 to-blue-50/70 border border-slate-200/90 shadow-2xs space-y-2">
               <div className="flex items-center justify-between text-[11px] font-bold">
                 <span className="flex items-center gap-1.5 text-slate-800">

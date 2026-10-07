@@ -117,38 +117,68 @@ export const Footer: React.FC<FooterProps> = ({
             </ul>
           </div>
 
-          {/* Security & Legal */}
+          {/* Security & Legal & FAQ (Rule 13) */}
           <div>
             <h4 className="text-slate-900 font-bold mb-3 text-xs tracking-wider uppercase flex items-center gap-1">
               <Lock className="w-3.5 h-3.5 text-blue-600" />
-              <span>安全與法律</span>
+              <span>條款與支援</span>
             </h4>
             <ul className="space-y-2 text-[13px]">
               <li>
                 <button
                   type="button"
                   onClick={() => onNavigate('privacy')}
-                  className="text-slate-700 hover:text-blue-700 font-medium transition-colors cursor-pointer"
+                  className="text-slate-700 hover:text-blue-700 font-semibold transition-colors cursor-pointer"
                 >
-                  私隱承諾與數據保護
+                  私隱政策 (Privacy Policy)
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onNavigate('home');
+                    setTimeout(() => {
+                      document.getElementById('faq-accordion-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  }}
+                  className="text-slate-700 hover:text-blue-700 font-semibold transition-colors cursor-pointer"
+                >
+                  常見問題 FAQ
                 </button>
               </li>
               <li>
                 <span className="text-slate-600">嚴格香港私隱條例 (PDPO) 遵循</span>
               </li>
               <li>
-                <span className="text-slate-600">香港本地專屬心理危機干預機制</span>
+                <span className="text-slate-600">絕不將夢境數據用於 AI 訓練</span>
               </li>
             </ul>
           </div>
         </div>
 
+        {/* 心理安全提醒全域可見 (Rule 15) */}
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300/80 text-amber-950 text-xs mb-6 leading-relaxed">
+          <p className="font-bold text-amber-900 flex items-center gap-1.5 mb-1">
+            <span>⚠️ 重要提醒：</span>
+          </p>
+          <p className="text-slate-700">
+            本平台只提供心理學角度自我反思，並非心理治療、精神科醫療服務。如果長期被夢魘、情緒困擾，請尋求香港註冊心理學家或精神科醫生協助。
+          </p>
+          <div className="mt-2 pt-2 border-t border-amber-200/80 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-amber-900 font-medium">
+            <span>香港情緒支援熱線：</span>
+            <span>📞 利民會即時通：3512 2626</span>
+            <span>📞 香港撒瑪利亞防止自殺會：2389 2222</span>
+            <span>📞 醫院管理局精神健康專線 (24小時)：2466 7350</span>
+          </div>
+        </div>
+
         <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-[11px]">
-          <p>© {new Date().getFullYear()} DreamWisdom. 版權所有。專為繁體中文與香港廣東話原創打造。</p>
+          <p>© {new Date().getFullYear()} DreamWisdom｜廣東話記夢，透過榮格心理學解讀你嘅潛意識。版權所有。</p>
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1 text-emerald-800 font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              隱私沙盒防護中
+              隱私沙盒防護中 · 數據本地隨時可刪
             </span>
           </div>
         </div>

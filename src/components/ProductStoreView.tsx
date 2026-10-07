@@ -809,6 +809,11 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                   </p>
                 </div>
 
+                {/* Mandatory Disclaimer for each product (Rule 4) */}
+                <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-200 leading-relaxed font-medium">
+                  ⚠️ 強制免責聲明：產品只係生活儀式輔助，唔等同心理治療，不能醫治失眠或情緒病。
+                </div>
+
                 {/* Pricing & Actions */}
                 <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2">
                   <div>
@@ -1342,6 +1347,11 @@ export const ProductStoreView: React.FC<ProductStoreViewProps> = ({
                             <span className="leading-relaxed">【狀態標示】{modalStatus}</span>
                           </div>
                         )}
+                      </div>
+
+                      {/* Mandatory Disclaimer in modal (Rule 4) */}
+                      <div className="p-3 rounded-2xl bg-amber-500/15 border border-amber-500/35 text-amber-200 text-xs leading-relaxed font-medium">
+                        ⚠️ 強制免責聲明：產品只係生活儀式輔助，唔等同心理治療，不能醫治失眠或情緒病。
                       </div>
 
                       {isModalAvailable ? (

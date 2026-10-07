@@ -16,43 +16,47 @@ import {
 } from 'lucide-react';
 
 interface DreamConstellationViewProps {
-  nodes: ConstellationNode[];
-  links: ConstellationLink[];
-  dreams: DreamEntry[];
-  onOpenReportDetail: (entry: DreamEntry) => void;
+  nodes?: ConstellationNode[];
+  links?: ConstellationLink[];
+  dreams?: DreamEntry[];
+  onOpenReportDetail?: (entry: DreamEntry) => void;
+  onSelectDream?: (id: string) => void;
   onRecordNewDream?: () => void;
   focusedSymbol?: string;
   onAddCustomLink?: (link: ConstellationLink) => void;
+  onExportConstellation?: () => void;
 }
 
 export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
-  nodes: initialNodes,
-  links: initialLinks,
-  dreams,
+  nodes: initialNodes = [],
+  links: initialLinks = [],
+  dreams = [],
   onOpenReportDetail,
+  onSelectDream,
   onRecordNewDream,
   focusedSymbol,
   onAddCustomLink,
+  onExportConstellation,
 }) => {
-  const [nodes, setNodes] = useState<ConstellationNode[]>(initialNodes);
-  const [links, setLinks] = useState<ConstellationLink[]>(initialLinks);
+  const [nodes, setNodes] = useState<ConstellationNode[]>(initialNodes || []);
+  const [links, setLinks] = useState<ConstellationLink[]>(initialLinks || []);
 
   // Sync if props change
   React.useEffect(() => {
     if (initialNodes) {
-      setNodes((prev) => (prev === initialNodes ? prev : initialNodes));
+      setNodes(initialNodes);
     }
   }, [initialNodes]);
 
   React.useEffect(() => {
     if (initialLinks) {
-      setLinks((prev) => (prev === initialLinks ? prev : initialLinks));
+      setLinks(initialLinks);
     }
   }, [initialLinks]);
 
   // Selected star state
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => {
-    if (initialNodes.length > 0) return initialNodes[0].id;
+    if (initialNodes && initialNodes.length > 0) return initialNodes[0].id;
     return null;
   });
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
@@ -72,18 +76,21 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
   // Extracted unique symbols for filter pills
   const availableSymbols = useMemo(() => {
     const set = new Set<string>();
-    nodes.forEach((n) => {
+    (nodes || []).forEach((n) => {
       const sym = n.primarySymbol.split('/')[0].trim().replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '');
       if (sym) set.add(sym);
     });
     return Array.from(set).slice(0, 6);
   }, [nodes]);
 
-  // Find active node & corresponding dream
-  const activeNode = nodes.find((n) => n.id === selectedNodeId) || nodes[0];
-  const activeDream = dreams.find(
-    (d) => d.id === activeNode?.dreamId || (activeNode && activeNode.id.includes(d.id))
-  );
+  // Find active node & corresponding dream safely
+  const safeDreams = dreams || [];
+  const activeNode = nodes && nodes.length > 0 ? (nodes.find((n) => n.id === selectedNodeId) || nodes[0]) : null;
+  const activeDream = activeNode
+    ? safeDreams.find(
+        (d) => d && (d.id === activeNode.dreamId || activeNode.id.includes(d.id))
+      )
+    : null;
 
   // Filter links related to selected or hovered node
   const activeLinks = useMemo(() => {
@@ -772,7 +779,10 @@ export const DreamConstellationView: React.FC<DreamConstellationViewProps> = ({
               {activeDream ? (
                 <button
                   type="button"
-                  onClick={() => onOpenReportDetail(activeDream)}
+                  onClick={() => {
+                    if (onOpenReportDetail) onOpenReportDetail(activeDream);
+                    if (onSelectDream) onSelectDream(activeDream.id);
+                  }}
                   className="btn w-full text-xs py-2.5 flex items-center justify-center gap-1.5 mt-2 cursor-pointer shadow-md"
                 >
                   <span>查看這場夢的 4 層完整報告</span>

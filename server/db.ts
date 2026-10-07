@@ -87,12 +87,14 @@ async function initPostgresTables() {
         title VARCHAR(255) NOT NULL,
         dream_text TEXT NOT NULL,
         raw_cantonese TEXT,
+        category VARCHAR(64) DEFAULT '普通夢',
         tags JSONB DEFAULT '[]'::jsonb,
         emotion VARCHAR(64) DEFAULT '焦慮',
         symbols JSONB DEFAULT '[]'::jsonb,
         report_json JSONB NOT NULL,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
+      ALTER TABLE dw_dreams ADD COLUMN IF NOT EXISTS category VARCHAR(64) DEFAULT '普通夢';
 
       CREATE TABLE IF NOT EXISTS dw_dna_stats (
         user_id VARCHAR(64) PRIMARY KEY,
@@ -331,6 +333,7 @@ export async function getDreams(userId?: string) {
         id: r.id,
         title: r.title,
         dream_text: r.dream_text,
+        category: r.category || (r.report_json?.category) || '普通夢',
         rawCantoneseTranscription: r.raw_cantonese,
         tags: r.tags || [],
         report_json: r.report_json,
@@ -348,20 +351,23 @@ export async function saveDream(dream: {
   user_id?: string;
   title: string;
   dream_text: string;
+  category?: string;
   rawCantoneseTranscription?: string;
   tags?: string[];
   report_json: any;
   created_at?: string;
 }) {
   const createdAt = dream.created_at || new Date().toISOString();
+  const category = dream.category || '普通夢';
   if (pool && isPostgresReady) {
     try {
       await pool.query(
-        `INSERT INTO dw_dreams (id, user_id, title, dream_text, raw_cantonese, tags, report_json, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `INSERT INTO dw_dreams (id, user_id, title, dream_text, category, raw_cantonese, tags, report_json, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          ON CONFLICT (id) DO UPDATE
          SET title = EXCLUDED.title,
              dream_text = EXCLUDED.dream_text,
+             category = EXCLUDED.category,
              report_json = EXCLUDED.report_json,
              tags = EXCLUDED.tags`,
         [
@@ -369,6 +375,7 @@ export async function saveDream(dream: {
           dream.user_id || 'user_mystic',
           dream.title,
           dream.dream_text,
+          category,
           dream.rawCantoneseTranscription || '',
           JSON.stringify(dream.tags || []),
           JSON.stringify(dream.report_json),
@@ -385,6 +392,7 @@ export async function saveDream(dream: {
     id: dream.id,
     title: dream.title,
     dream_text: dream.dream_text,
+    category,
     rawCantoneseTranscription: dream.rawCantoneseTranscription,
     tags: dream.tags || ['一般夢境'],
     report_json: dream.report_json,

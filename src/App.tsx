@@ -19,7 +19,6 @@ import { PrivacyView } from './components/PrivacyView';
 import { ProductStoreView } from './components/ProductStoreView';
 import { StarCoinsView } from './components/StarCoinsView';
 import { Footer } from './components/Footer';
-import { OnboardingModal } from './components/OnboardingModal';
 import { INITIAL_PRODUCTS } from './data/products';
 import { Sparkles, ShieldAlert, BookOpen, Star, Package, Tv } from 'lucide-react';
 import { DreamAtmosphereController } from './components/DreamAtmosphereController';
@@ -31,7 +30,6 @@ export default function App() {
   const [activeSection, setActiveSection] = useState<'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns' | 'astrolabe'>('workspace');
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isStarVideoOpen, setIsStarVideoOpen] = useState(false);
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [prefilledDream, setPrefilledDream] = useState('');
   const [targetProductId, setTargetProductId] = useState<string | undefined>(undefined);
 
@@ -414,7 +412,16 @@ export default function App() {
   };
 
   const handleDreamAdded = async (entry: DreamEntry) => {
-    setHistory((prev) => [entry, ...prev]);
+    setHistory((prev) => {
+      const updated = [entry, ...prev];
+      try {
+        localStorage.setItem('dreamwisdom_history', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Failed to persist dream to localStorage', e);
+      }
+      return updated;
+    });
+
     try {
       await fetch('/api/dreams', {
         method: 'POST',
@@ -423,9 +430,11 @@ export default function App() {
           id: entry.id,
           title: entry.title,
           dream_text: entry.dream_text,
+          category: entry.category,
           report_json: entry.report_json,
           tags: entry.tags || [],
           rawCantoneseTranscription: entry.rawCantoneseTranscription,
+          created_at: entry.created_at,
         }),
       });
     } catch (e) {
@@ -646,8 +655,6 @@ export default function App() {
         currentUser={currentUser}
         onOpenLogin={() => setIsLoginOpen(true)}
         onLogout={handleLogout}
-        onOpenEarnStars={() => setIsStarVideoOpen(true)}
-        onOpenOnboarding={() => setIsOnboardingOpen(true)}
         activeSection={activeSection}
         onNavigateSection={(sec) => handleNavigate('app', sec)}
         savedDreamCount={history.length}
@@ -657,12 +664,14 @@ export default function App() {
       {/* Main View Switcher */}
       {currentView === 'home' && (
         <HomeView
+          currentUser={currentUser}
           onStartWithDream={handleStartWithDream}
           onGoToApp={(tab) => {
             if (tab) setActiveSection(tab);
             setCurrentView('app');
           }}
           onGoToPricing={() => handleNavigate('pricing')}
+          onOpenLogin={() => setIsLoginOpen(true)}
           onGoToPrivacy={() => handleNavigate('privacy')}
           therapists={therapists}
         />
@@ -864,27 +873,7 @@ export default function App() {
         adVideos={adVideos}
       />
 
-      {/* Onboarding Beginner Tour Modal */}
-      <OnboardingModal
-        isOpen={isOnboardingOpen}
-        onClose={() => setIsOnboardingOpen(false)}
-        onStartWriting={() => {
-          setCurrentView('app');
-          setActiveSection('workspace');
-          setTimeout(() => {
-            const el = document.getElementById('recorddream') || document.getElementById('dream-input-section');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }, 80);
-        }}
-        onOpenSamplePreview={() => {
-          setIsOnboardingOpen(false);
-          setCurrentView('home');
-          setTimeout(() => {
-            const el = document.getElementById('three-pillars-section');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }, 80);
-        }}
-      />
+
 
       {/* Floating Atmosphere Customizer Widget */}
       <DreamAtmosphereController

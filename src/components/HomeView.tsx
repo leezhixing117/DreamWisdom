@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import {
-  Send,
   Sparkles,
   ArrowRight,
   ShieldCheck,
@@ -11,15 +10,19 @@ import {
   ChevronUp,
   Dna,
   Heart,
-  Mic,
   Lock,
   Eye,
   AlertCircle,
-  ExternalLink,
   PhoneCall,
+  UserCheck,
+  CheckCircle2,
+  HelpCircle,
+  Tag,
+  RotateCcw,
 } from 'lucide-react';
 import { TherapeuticSupportModal } from './TherapeuticSupportModal';
 import { SampleReportPreviewModal } from './SampleReportPreviewModal';
+import { CelestialRotatingAstrolabe, Archetype } from './CelestialRotatingAstrolabe';
 import { TherapistItem, User, normalizeRole } from '../types';
 import {
   StepNotepadIcon,
@@ -32,141 +35,251 @@ import {
 
 interface HomeViewProps {
   currentUser?: User | null;
-  onStartWithDream: (dreamText: string) => void;
-  onGoToApp: (tab?: 'workspace' | 'dna' | 'constellation' | 'mystery') => void;
+  onStartWithDream: (dreamText: string, includeStarChart?: boolean) => void;
+  onGoToApp: (tab?: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'astrolabe') => void;
   onGoToPricing?: () => void;
   onOpenLogin?: () => void;
   onGoToPrivacy?: () => void;
   therapists?: TherapistItem[];
 }
 
+// 夢境類型選項
+const DREAM_CATEGORIES = [
+  { id: 'ordinary', label: '普通夢境' },
+  { id: 'nightmare', label: '惡夢 (Nightmare)' },
+  { id: 'recurrent', label: '重複夢 (Recurrent Dream)' },
+  { id: 'lucid', label: '清醒夢 (Lucid Dream)' },
+  { id: 'wish', label: '願望滿足夢 (Wish Fulfillment)' },
+];
+
+// 常用快速意象晶片
+const QUICK_DREAM_TAGS = [
+  { label: '海洋水流', icon: '🌊' },
+  { label: '赤腳無鞋', icon: '👣' },
+  { label: '被人追趕', icon: '🏃' },
+  { label: '舊居屋邨', icon: '🏚️' },
+  { label: '家宅神枱', icon: '🕯️' },
+  { label: '課室考試', icon: '🏫' },
+  { label: '緊閉門鎖', icon: '🚪' },
+  { label: '高處墜落', icon: '🕳️' },
+  { label: '脫落牙齒', icon: '🦷' },
+  { label: '神秘鑰匙', icon: '🗝️' },
+  { label: '飛翔羽翼', icon: '🕊️' },
+  { label: '迷宮走廊', icon: '🧭' },
+];
+
+// 四類結構意象標籤：人物、場景、情緒、物件
+const TAG_CATEGORIES = [
+  {
+    category: '人物',
+    tags: ['故人親人', '陌生人', '老細上司', '伴侶前度', '童年玩伴', '追趕者'],
+  },
+  {
+    category: '場景',
+    tags: ['舊居屋邨', '深海大水', '高樓天台', '狹窄電梯', '荒廢學校', '迷宮走廊'],
+  },
+  {
+    category: '情緒',
+    tags: ['驚慌逃跑', '赤腳羞愧', '平靜釋懷', '孤立無援', '壓抑窒息', '飛翔自由'],
+  },
+  {
+    category: '物件',
+    tags: ['生鏽門鎖', '脫落牙齒', '過期時鐘', '破爛鏡子', '無字信件', '神秘鑰匙'],
+  },
+];
+
 export const HomeView: React.FC<HomeViewProps> = ({
   currentUser,
   onStartWithDream,
   onGoToApp,
   onGoToPricing,
+  onOpenLogin,
   therapists,
 }) => {
   const normRole = currentUser ? normalizeRole(currentUser.role) : null;
   const isPaidMember = normRole === 'paid' || normRole === 'admin' || normRole === 'super_admin';
 
-  const [draftDream, setDraftDream] = useState('');
-  const [isListening, setIsListening] = useState(false);
+  // 本地 LocalStorage 草稿儲存與即時恢復
+  const [draftDream, setDraftDream] = useState<string>(() => {
+    try {
+      return localStorage.getItem('dreamwisdom_draft_dream') || '';
+    } catch {
+      return '';
+    }
+  });
+
+  // 夢境類型選取狀態
+  const [selectedCategory, setSelectedCategory] = useState<string>('ordinary');
+
+  // 星圖解析為可選附加功能，預設關閉
+  const [includeStarChart, setIncludeStarChart] = useState<boolean>(false);
+
+  // 意象標籤選取狀態（高亮與可移除）
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  // 是否展開詳細四類意象標籤面板
+  const [showDetailedTags, setShowDetailedTags] = useState(false);
+
+  // 驗證失敗文字框晃動動畫視覺回饋（少於 30 字點擊時觸發）
+  const [isShaking, setIsShaking] = useState(false);
+
   const [isTherapeuticOpen, setIsTherapeuticOpen] = useState(false);
   const [isSamplePreviewOpen, setIsSamplePreviewOpen] = useState(false);
   const [sampleInitialTab, setSampleInitialTab] = useState<'dna' | 'constellation' | 'mystery'>('dna');
-  
-  // 5. 空內容提交友善校驗提示
-  const [validationError, setValidationError] = useState<string | null>(null);
 
-  // 7. 香港心理支援熱線可折疊模塊，預設收起，點擊直接展開熱線號碼
+  // 香港心理支援熱線可折疊模塊，預設收起
   const [isHotlinesOpen, setIsHotlinesOpen] = useState(false);
 
-  // 8. FAQ手風琴：L3 次要卡片預設折疊，降低視覺重量
-  const [openFaqKeys, setOpenFaqKeys] = useState<Set<string>>(new Set());
+  // FAQ 折疊面板
+  const [openFaqKeys, setOpenFaqKeys] = useState<Set<string>>(new Set(['theory', 'privacy']));
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const recognitionRef = useRef<any>(null);
 
-  // 輸入框即時處理與自動高度調整
+  // 實時儲存至 LocalStorage
   const handleDreamChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setDraftDream(e.target.value);
-    if (validationError && e.target.value.trim().length > 0) {
-      setValidationError(null);
-    }
+    const val = e.target.value;
+    if (val.length > 200) return;
+    setDraftDream(val);
+    try {
+      localStorage.setItem('dreamwisdom_draft_dream', val);
+    } catch {}
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${Math.max(120, textareaRef.current.scrollHeight)}px`;
+      textareaRef.current.style.height = `${Math.max(130, textareaRef.current.scrollHeight)}px`;
     }
   };
 
-  // 語音輸入辨識（支援廣東話及普通話）
-  const handleToggleVoice = () => {
-    if (isListening) {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-      setIsListening(false);
-      return;
-    }
-
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert('您的瀏覽器暫未支援語音辨識，請使用文字輸入夢境內容。');
-      return;
-    }
-
-    try {
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'zh-HK';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-
-      recognition.onstart = () => {
-        setIsListening(true);
-      };
-
-      recognition.onresult = (event: any) => {
-        const transcript = event.results?.[0]?.[0]?.transcript;
-        if (transcript) {
-          setDraftDream((prev) => (prev ? `${prev}，${transcript}` : transcript));
-          if (validationError) setValidationError(null);
+  // 記夢引導結構提示（點擊帶入回憶結構）
+  const handleAddGuidePrompt = (type: 'characters' | 'scene' | 'emotion' | 'objects') => {
+    const prompts = {
+      characters: '【人物】：',
+      scene: '【場景】：',
+      emotion: '【主要情緒】：',
+      objects: '【關鍵物件】：',
+    };
+    const prefix = prompts[type];
+    const trimmed = draftDream.trim();
+    if (trimmed.includes(prefix)) return;
+    const combined = trimmed ? `${trimmed}\n${prefix}` : prefix;
+    if (combined.length <= 200) {
+      setDraftDream(combined);
+      try {
+        localStorage.setItem('dreamwisdom_draft_dream', combined);
+      } catch {}
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          const len = combined.length;
+          textareaRef.current.setSelectionRange(len, len);
         }
-      };
-
-      recognition.onerror = () => {
-        setIsListening(false);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      recognitionRef.current = recognition;
-      recognition.start();
-    } catch (err) {
-      console.error('Speech recognition error:', err);
-      setIsListening(false);
+      }, 30);
     }
   };
 
-  // 2 & 5. 點擊記錄夢境開始分析（高權重主CTA，空內容友善校驗提示）
+  // 點擊標籤文字自動插入游標位置，已選標籤視覺高亮，可點擊移除
+  const handleToggleTag = (tagLabel: string) => {
+    const tagText = `【${tagLabel}】`;
+    const textarea = textareaRef.current;
+
+    if (selectedTags.includes(tagLabel)) {
+      setSelectedTags((prev) => prev.filter((t) => t !== tagLabel));
+      const nextText = draftDream.replace(tagText, '').replace(/\s+/g, ' ').trim();
+      setDraftDream(nextText);
+      try {
+        localStorage.setItem('dreamwisdom_draft_dream', nextText);
+      } catch {}
+      return;
+    }
+
+    if (draftDream.length + tagText.length > 200) {
+      return;
+    }
+
+    setSelectedTags((prev) => [...prev, tagLabel]);
+
+    if (!textarea) {
+      const nextText = draftDream ? `${draftDream} ${tagText}` : tagText;
+      setDraftDream(nextText);
+      try {
+        localStorage.setItem('dreamwisdom_draft_dream', nextText);
+      } catch {}
+      return;
+    }
+
+    const startPos = textarea.selectionStart ?? draftDream.length;
+    const endPos = textarea.selectionEnd ?? draftDream.length;
+    const textBefore = draftDream.substring(0, startPos);
+    const textAfter = draftDream.substring(endPos);
+    const combined = textBefore + tagText + textAfter;
+
+    if (combined.length <= 200) {
+      setDraftDream(combined);
+      try {
+        localStorage.setItem('dreamwisdom_draft_dream', combined);
+      } catch {}
+      setTimeout(() => {
+        textarea.focus();
+        const cursor = startPos + tagText.length;
+        textarea.setSelectionRange(cursor, cursor);
+      }, 20);
+    }
+  };
+
+  // 星盤連動：將右側星盤原型加入左側夢境
+  const handleAstrolabeAddToDream = (arch: Archetype) => {
+    const tag = `【今日星象共振】：${arch.symbol} ${arch.label}（${arch.insight}）`;
+    setIncludeStarChart(true);
+    if (draftDream.includes(tag)) return;
+    const combined = draftDream ? `${draftDream.trim()}\n${tag}` : tag;
+    if (combined.length <= 200) {
+      setDraftDream(combined);
+      try {
+        localStorage.setItem('dreamwisdom_draft_dream', combined);
+      } catch {}
+    } else {
+      const shortTag = `【${arch.symbol}${arch.label}】`;
+      if (!draftDream.includes(shortTag) && draftDream.length + shortTag.length <= 200) {
+        const next = `${draftDream.trim()} ${shortTag}`;
+        setDraftDream(next);
+        try {
+          localStorage.setItem('dreamwisdom_draft_dream', next);
+        } catch {}
+      }
+    }
+  };
+
+  const handleAstrolabeRemoveFromDream = (arch: Archetype) => {
+    const tag = `【今日星象共振】：${arch.symbol} ${arch.label}（${arch.insight}）`;
+    const shortTag = `【${arch.symbol}${arch.label}】`;
+    const next = draftDream.replace(tag, '').replace(shortTag, '').replace(/\n\n+/g, '\n').trim();
+    setDraftDream(next);
+    try {
+      localStorage.setItem('dreamwisdom_draft_dream', next);
+    } catch {}
+  };
+
+  // 提交解夢（不足30字時觸發 shake 動畫及焦點提示）
   const handleStartAnalysis = () => {
     const trimmed = draftDream.trim();
-    if (!trimmed) {
-      setValidationError('請先寫低幾句醒來記得嘅夢境片段或意象，哪怕只有零碎幾個字都可以～');
+    if (trimmed.length < 30) {
+      setIsShaking(true);
       if (textareaRef.current) {
         textareaRef.current.focus();
-        textareaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
+      setTimeout(() => setIsShaking(false), 500);
       return;
     }
-    setValidationError(null);
-    onStartWithDream(trimmed);
-  };
-
-  // 2. 觀看示範報告：使用線框樣式，開新分頁打開，絕不覆蓋首頁
-  const handleOpenSampleNewTab = (e: React.MouseEvent) => {
-    e.preventDefault();
-    // 優先在新分頁打開獨立示範報告頁面，不覆蓋當前首頁狀態
-    window.open('/report?demo=1', '_blank', 'noopener,noreferrer');
-  };
-
-  // 4. 補充意象詞全部實作為可點擊標籤，點擊文字自動插入輸入框
-  const handleApplyQuickTag = (tagLabel: string) => {
-    setDraftDream((prev) => {
-      const trimmed = prev.trim();
-      const insertText = `【${tagLabel}】`;
-      if (!trimmed) return insertText;
-      if (trimmed.includes(insertText)) return trimmed;
-      return `${trimmed}、${insertText}`;
-    });
-    if (validationError) setValidationError(null);
-    if (textareaRef.current) {
-      textareaRef.current.focus();
+    if (trimmed.length > 200) {
+      return;
     }
+    onStartWithDream(trimmed, includeStarChart);
   };
 
+  // 打開示範報告彈窗（不跳轉新頁）
+  const handleOpenSampleModal = () => {
+    setSampleInitialTab('dna');
+    setIsSamplePreviewOpen(true);
+  };
 
   // FAQ 展開/收起切換
   const toggleFaq = (key: string) => {
@@ -181,362 +294,510 @@ export const HomeView: React.FC<HomeViewProps> = ({
     });
   };
 
-  // 4. 意象詞清單
-  const dreamTags = [
-    { label: '海洋水流', icon: '🌊' },
-    { label: '赤腳無鞋', icon: '👣' },
-    { label: '被人追趕', icon: '🏃' },
-    { label: '舊居祖屋', icon: '🏚️' },
-    { label: '家宅神枱', icon: '🕯️' },
-    { label: '課室考試', icon: '🏫' },
-    { label: '緊閉門鎖', icon: '🚪' },
-    { label: '高處墜落', icon: '🕳️' },
-    { label: '牙齒脫落', icon: '🦷' },
-    { label: '自由飛翔', icon: '🕊️' },
-    { label: '趕車遲到', icon: '⏰' },
-    { label: '電梯失控', icon: '🛗' },
-  ];
-
-  // 8. FAQ 清單（theory 與 privacy 預設展開）
   const faqItems = [
     {
       id: 'theory',
       q: 'DreamWisdom 解夢是基於甚麼理論？',
-      a: 'DreamWisdom 嚴格立足於瑞士深度心理學家榮格（Carl Jung）的原型（Archetypes）與集體潛意識理論、佛洛伊德的夢境防衛機轉，並融入當代認知情緒心理學。我們將夢境視為「清醒自我的心理代償」，絕非算命占卜，為你的夢境提供多維度的理性自我反思與情緒覺察。',
+      a: 'DreamWisdom 嚴格立足於瑞士心理學泰斗卡爾·榮格（Carl Jung）的原型（Archetypes）與集體潛意識理論、心理投射與補償機轉。我哋將夢境視為「清醒自我的鏡像反思」，只做心理層面的自我反思，絕不涉及任何玄學吉凶、發達算命預測。',
     },
     {
       id: 'privacy',
-      q: '我的夢境記錄會被其他人或 AI 訓練公開嗎？',
-      a: '絕對不會。我們採用個人私隱沙盒端對端隔離機制，所有夢境內容絕不用作公開大模型訓練，亦絕不會轉交或出售予第三方，保證你內心最私密的潛意識記錄百分之百安全。',
+      q: '我嘅夢境資料會唔會被公開或者用作 AI 訓練？',
+      a: '絕絕對對唔會！你輸入嘅夢境內容享有最高等級端對端個人私隱保護，絕不用於任何公開或商業 AI 大模型訓練，亦唔會交畀任何第三方。你可以隨時喺「我的夢庫」中刪除單條或全部記錄。',
     },
     {
-      id: 'cantonese',
-      q: '廣東話語音輸入能準確辨識嗎？',
-      a: '完全支援！我們針對香港本地粵語語境與口語詞彙（如「跌落樓梯」、「被追住走」、「好心慌」、「被老細照肺」）進行了深度情境優化，AI 能夠精確理解廣東話背後的情緒張力。',
+      id: 'length',
+      q: '點解夢境輸入限制喺 30 至 200 字？',
+      a: '心理學研究顯示，少於 30 字往往缺乏具體的情緒、人際或環境細節，容易產生空泛解讀；而 200 字以內的精煉文字，能幫助你喺醒來第一時間捕捉最核心嘅潛意識意象與主觀張力，令 AI 榮格分析更精確貼近你當下嘅心理狀態。',
     },
     {
-      id: 'report',
-      q: '解夢報告中的星圖與象徵解析有何特別之處？',
-      a: '每份報告均生成專屬的 DREAM DNA™ 象徵密碼，並結合夢境星圖 CONSTELLATION™，將你多個夢境中的象徵與情緒連線，揭示潛意識在時間軸上的長期成長軌跡。',
+      id: 'star',
+      q: '星圖解析係點樣運作？需要額外收費嗎？',
+      a: '星圖解析為可選附加功能，預設關閉。勾選後，AI 會結合天體宿位與榮格「共時性（Synchronicity）」視角解構夢境。付費會員更可使用旋轉星盤獲取今日生活小貼士，並自由選擇是否納入夢境作深入分析。',
+    },
+    {
+      id: 'sample',
+      q: '我想先睇下解夢報告嘅格式，有冇示範？',
+      a: '有的！你可以隨時點擊下方「查看示範報告」按鈕，立即彈窗預覽包含【潛意識訊息】、【情緒反思建議】的標準報告範本。',
+      isSampleAction: true,
     },
   ];
 
+  const currentLength = draftDream.length;
+  const isTooShort = currentLength < 30;
+  const isAtLimit = currentLength >= 200;
+
   return (
-    <main id="home-view-main" className="overflow-hidden bg-transparent pb-16">
-      {/* 快速錨點導航條 (僅保留導航列，無首頁商品陳列) */}
-      <div className="w-full bg-white/90 border-b border-slate-200/80 backdrop-blur-md sticky top-16 z-30 py-2.5 px-4 shadow-xs">
-        <div className="shell flex items-center justify-between text-xs text-[var(--text-sub)] overflow-x-auto gap-3 scrollbar-none">
-          <div className="flex items-center gap-1 shrink-0 font-bold text-[var(--primary-700)]">
-            <span>快速導航：</span>
-          </div>
-          <div className="flex items-center gap-4 shrink-0 font-medium">
-            <a href="#recorddream" className="hover:text-[var(--primary-800)] transition-colors">✍️ 記夢輸入</a>
-            <a href="#hero-astrolabe-deck" className="hover:text-[var(--primary-800)] transition-colors">🪐 天體星盤</a>
-            <a href="#three-pillars-section" className="hover:text-[var(--primary-800)] transition-colors">🧬 潛意識模組</a>
-            <a href="#how" className="hover:text-[var(--primary-800)] transition-colors">☁️ 三步解讀</a>
-            <a href="#hotlines-section" className="hover:text-[var(--primary-800)] transition-colors">🩺 支援熱線</a>
-            <a href="#faq" className="hover:text-[var(--primary-800)] transition-colors">💬 常見疑問</a>
-          </div>
-        </div>
-      </div>
-
+    <main id="home-view-main" className="overflow-hidden bg-slate-50/50 pb-20 text-slate-800">
       {/* ============================================================ */}
-      {/* 🌟 1. HERO 頂部視覺（H1 嚴格首頁大標，無障礙與 SEO） 🌟 */}
+      {/* 🌟 1. HERO 頂部視覺：天體主標題與精簡副標題 🌟 */}
       {/* ============================================================ */}
-      <section className="shell relative pt-8 sm:pt-12 pb-6 text-center" id="hero-section">
-        
-        {/* 頂部徽章 */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-[var(--primary-800)] text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5 text-[var(--primary-600)]" />
-          <span>✦ DREAMWISDOM · 專為香港廣東話設計的夢境宇宙 ✦</span>
+      <section className="shell relative pt-8 sm:pt-12 pb-4 text-center px-4 max-w-5xl mx-auto" id="hero-section">
+        {/* 經典主標題：帶雙側銀藍四角星辰 */}
+        <div className="relative inline-block max-w-3xl mx-auto mb-3">
+          <span
+            className="absolute -left-6 sm:-left-10 top-1/3 text-sky-400 text-lg sm:text-2xl select-none animate-pulse"
+            aria-hidden="true"
+          >
+            ✦
+          </span>
+
+          <h1
+            id="hero-title"
+            className="font-celestial-serif font-serif font-black text-3xl sm:text-5xl md:text-6xl text-slate-900 tracking-tight leading-[1.22]"
+          >
+            每一個夢，都是潛意識留給<br className="hidden sm:inline" />你的信。
+          </h1>
+
+          <span
+            className="absolute -right-6 sm:-right-10 top-1/4 text-sky-400 text-lg sm:text-2xl select-none animate-pulse"
+            aria-hidden="true"
+          >
+            ✦
+          </span>
         </div>
 
-        {/* 9. 核心主標題 (H1 標籤，行高 1.2-1.3) */}
-        <h1
-          id="hero-title"
-          className="font-celestial-serif font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-[var(--text-heading)] tracking-wide leading-[1.2] mb-4 max-w-4xl mx-auto"
-        >
-          每一個夢，都是潛意識留給你的信。
-        </h1>
-
-        {/* 副標題 */}
-        <p className="font-sans font-bold text-lg sm:text-xl md:text-2xl text-[var(--primary-700)] tracking-wide mb-3">
+        {/* 副標題第一行：別人解讀你的夢。我們記得你的夢。 */}
+        <h2 className="font-sans font-bold text-lg sm:text-2xl text-slate-900 tracking-tight mt-3 mb-2">
           別人解讀你的夢。我們記得你的夢。
-        </p>
+        </h2>
 
-        {/* 心理學理論與產品介紹 */}
-        <p className="font-sans text-sm sm:text-base text-[var(--text-body)] max-w-2xl mx-auto leading-[1.65] mb-4">
+        {/* 副標題第二行：核心理念說明 */}
+        <p className="font-sans text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed mb-4">
           DreamWisdom 唔係憑空估，而係從榮格原型心理學找出相應理論，結合你過往夢境，整理可能值得留意嘅潛意識訊息。
         </p>
 
-        {/* 產品邊界聲明 (L3 免責聲明：--accent-warm-light底色，移除陰影，降低視覺重量) */}
-        <div className="card-l3-secondary inline-flex items-center justify-center gap-2 px-4 py-2.5 text-[var(--text-heading)] text-xs sm:text-sm font-medium mb-3 max-w-3xl mx-auto text-left sm:text-center">
-          <span>⚠️ 產品邊界：本平台不是心理治療、不是精神科服務；只做基於心理學的自我反思工具，不做吉凶預測。</span>
-        </div>
-
-        {/* 專業心理支援與熱線快速指引 */}
-        <div className="mb-6">
-          <a
-            href="#hotlines-section"
-            className="text-xs sm:text-sm text-[var(--text-sub)] hover:text-[var(--text-heading)] transition-colors inline-flex items-center gap-1.5 cursor-pointer underline decoration-slate-300 hover:decoration-[var(--primary-600)] underline-offset-4"
+        {/* ============================================================ */}
+        {/* ⚠️ 4. 重要提醒 合併到副標題下方，簡潔不顯眼（符合用戶要求：不用頁面太明顯） ⚠️ */}
+        {/* ============================================================ */}
+        <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[11px] sm:text-xs text-slate-500 max-w-2xl mx-auto mb-6 text-center px-2">
+          <span>⚠️ 溫馨提醒：本平台為榮格心理學自我反思工具，非醫療診斷。</span>
+          <button
+            type="button"
+            onClick={() => setIsTherapeuticOpen(true)}
+            className="text-slate-600 hover:text-sky-700 underline underline-offset-2 transition-colors cursor-pointer shrink-0 font-medium"
           >
-            <span>若重複夢魘持續帶來困擾，</span>
-            <span className="text-rose-700 font-medium flex items-center gap-1">
-              <Heart className="w-3.5 h-3.5 fill-rose-600 text-rose-600" /> 我們提供香港專業心理支援與熱線指引
-            </span>
-          </a>
+            若受夢魘困擾，可點此查看香港專業心理支援與熱線
+          </button>
         </div>
 
         {/* ============================================================ */}
-        {/* 🌟 2. 記夢輸入核心卡片 (L1 最高優先，全頁唯一 L1 卡片) 🌟 */}
+        {/* 🌟 3. 首頁黃金雙欄互動巨幕（左欄記夢輸入 + 右欄天體旋轉星盤） 🌟 */}
         {/* ============================================================ */}
-        <div id="recorddream" className="scroll-mt-28" />
-        <div className="max-w-4xl mx-auto my-8 sm:my-12 text-left" id="hero-interactive-deck">
-          
-          {/* L1【記夢輸入卡片｜最高優先】全頁唯一L1卡片 */}
-          <div
-            className="card-l1-dream relative z-10 w-full p-6 sm:p-8 md:p-10 flex flex-col justify-between"
-            id="hero-dreambox"
-          >
-            <div>
-              {/* 卡片頂部欄：記錄今晨夢境 + 建議字數 */}
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5">
-                <div className="flex items-center gap-2 text-[var(--text-heading)] font-bold text-base sm:text-lg">
-                  <Sparkles className="w-4 h-4 text-[var(--primary-600)]" />
-                  <span>記錄今晨夢境</span>
+        <div className="w-full text-left my-2">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* ------------------------------------------------------------ */}
+            {/* 【左欄】：記夢輸入卡片（記夢參考之前的入法） */}
+            {/* ------------------------------------------------------------ */}
+            <div className="lg:col-span-7 bg-white rounded-3xl border border-sky-100 shadow-md p-5 sm:p-6 transition-all" id="recorddream">
+              {/* 卡片標題 */}
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 pb-2.5">
+                <div className="flex items-center gap-2 text-slate-900 font-bold text-base sm:text-lg">
+                  <Sparkles className="w-4 h-4 text-sky-600" />
+                  <span>記錄今晨夢境片段</span>
                 </div>
-                <span className="text-xs text-[var(--text-sub)] font-medium">
-                  廣東話口語輸入即可 · 建議 15 字以上
-                </span>
-              </div>
-
-              {/* 隱私承諾使用淺底色小卡片強化識別 (WCAG AA 高對比深文字) */}
-              <div className="card-secondary-warm p-3 mb-3.5 flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-heading)] font-medium">
-                <div className="flex items-center gap-2 font-semibold">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>香港本地私隱承諾：夢境內容屬私密個人投射，絕不用於 AI 訓練</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-[var(--text-sub)]">
-                  <Lock className="w-3.5 h-3.5 text-[var(--primary-600)] shrink-0" />
-                  <span>沙盒專屬隔離 · 絕不轉交第三方</span>
+                <div className="text-xs text-sky-700 font-medium">
+                  以廣東話口語輸入即可 · 建議 30-200 字
                 </div>
               </div>
 
-              {/* 主要夢境文字輸入框（實時字數顯示、防虛擬鍵盤遮擋） */}
-              <div className="relative mb-3">
+              {/* 記夢引導（點擊帶入回憶結構） */}
+              <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/80 mb-3.5">
+                <div className="flex items-center justify-between gap-1 text-xs text-sky-800 font-bold mb-2">
+                  <span className="flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5 text-sky-600" />
+                    <span>記夢引導（點擊帶入提示詞）：</span>
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-normal">快速建立夢境骨架</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => handleAddGuidePrompt('characters')}
+                    className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-xs text-slate-800 hover:text-sky-700 font-medium transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                    title="點擊帶入【人物】提示"
+                  >
+                    <span>👥</span>
+                    <span>有邊啲人物？</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddGuidePrompt('scene')}
+                    className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-xs text-slate-800 hover:text-sky-700 font-medium transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                    title="點擊帶入【場景】提示"
+                  >
+                    <span>📍</span>
+                    <span>場景係邊度？</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddGuidePrompt('emotion')}
+                    className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-xs text-slate-800 hover:text-sky-700 font-medium transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                    title="點擊帶入【感覺】提示"
+                  >
+                    <span>💭</span>
+                    <span>感覺如何？</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddGuidePrompt('objects')}
+                    className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-xs text-slate-800 hover:text-sky-700 font-medium transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                    title="點擊帶入【物件】提示"
+                  >
+                    <span>🚪</span>
+                    <span>有特定物件？</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 夢境類型選單 */}
+              <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-sky-50/50 border border-sky-100 text-xs mb-3">
+                <div className="flex items-center gap-2">
+                  <Tag className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                  <label htmlFor="home-dream-category" className="font-semibold text-slate-700">
+                    夢境類型：
+                  </label>
+                  <select
+                    id="home-dream-category"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-slate-800 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-sky-500 cursor-pointer shadow-2xs"
+                  >
+                    {DREAM_CATEGORIES.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {draftDream.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('確定要清空當前輸入內容重寫嗎？')) {
+                        setDraftDream('');
+                        setSelectedTags([]);
+                        try {
+                          localStorage.removeItem('dreamwisdom_draft_dream');
+                        } catch {}
+                      }
+                    }}
+                    className="text-[11px] text-slate-500 hover:text-rose-600 transition-colors flex items-center gap-1 cursor-pointer"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>清空重寫</span>
+                  </button>
+                )}
+              </div>
+
+              {/* 夢境主要輸入框（30-200字約束 + shake 晃動視覺回饋） */}
+              <div className="relative mb-2">
                 <textarea
                   ref={textareaRef}
                   value={draftDream}
                   onChange={handleDreamChange}
-                  placeholder="寫低你記得嘅夢境……醒來時有甚麼畫面？你當時感覺點？（廣東話口語輸入即可，或點擊下方意象標籤快速填寫）"
+                  maxLength={200}
+                  placeholder="寫低你醒來記得嘅夢境片段……夢見邊個、喺邊度、當時心情如何？（字數限制：最少 30 字，最多 200 字；亦可點擊上方引導或下方意象詞直接插入）"
                   id="hero-dream-textarea"
-                  rows={5}
-                  className={`w-full bg-white/95 focus:bg-white border ${
-                    validationError ? 'border-rose-400 focus:border-rose-500' : 'border-slate-300 focus:border-[var(--primary-600)]'
-                  } rounded-2xl text-[var(--text-heading)] placeholder:text-[var(--text-muted)] text-sm sm:text-base p-4 focus:outline-none resize-none leading-[1.65] min-h-[130px] max-h-[380px] overflow-y-auto transition-all shadow-inner focus:ring-2 ${
-                    validationError ? 'focus:ring-rose-100' : 'focus:ring-blue-100'
+                  rows={4}
+                  className={`w-full bg-slate-50/70 focus:bg-white border rounded-2xl text-slate-900 placeholder:text-slate-400 text-sm sm:text-base p-4 focus:outline-none resize-none leading-relaxed transition-all shadow-inner ${
+                    isShaking
+                      ? 'animate-shake border-rose-500 ring-2 ring-rose-300 bg-rose-50/30'
+                      : 'border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-100'
                   }`}
                 />
-                
-                {/* 5. 輸入框實時顯示字數提示 */}
-                <div className="flex items-center justify-between text-xs text-[var(--text-sub)] mt-1.5 px-1">
-                  <span>醒來零碎記憶都可以隨手寫，字數不限</span>
-                  <span className="font-mono font-medium text-[var(--text-heading)] bg-slate-100 px-2 py-0.5 rounded-md">
-                    目前字數：{draftDream.length} 字 {draftDream.length >= 15 ? '✓ (良好長度)' : ''}
+
+                {/* 實時字數顯示 */}
+                <div className="flex flex-wrap items-center justify-between text-xs mt-1 px-1 gap-2">
+                  <span className="text-slate-500 text-[11px]">
+                    {isTooShort ? (
+                      <span className={`font-medium transition-colors ${isShaking ? 'text-rose-600 font-bold' : 'text-amber-800'}`}>
+                        ⚠️ 夢境需要30‑200字，寫多啲細節，AI分析更貼近你嘅狀況。
+                      </span>
+                    ) : (
+                      <span className="text-emerald-700 font-medium">
+                        ✓ 字數符合標準，可隨時點擊下方按鈕提交拆解
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    className={`font-mono font-bold px-2 py-0.5 rounded-md text-[11px] ${
+                      isShaking
+                        ? 'bg-rose-200 text-rose-900 animate-pulse'
+                        : isTooShort
+                        ? 'bg-amber-100 text-amber-900'
+                        : isAtLimit
+                        ? 'bg-rose-100 text-rose-800'
+                        : 'bg-sky-100 text-sky-900'
+                    }`}
+                  >
+                    已輸入：{currentLength} / 30‑200字
                   </span>
                 </div>
+              </div>
 
-                {/* 5. 友好校驗提示 */}
-                {validationError && (
-                  <div className="mt-2.5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2 animate-fadeIn">
-                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                    <span>{validationError}</span>
+              {/* 補充意象詞快速晶片（可點擊插入/移除） */}
+              <div className="mt-3 pt-2.5 border-t border-slate-100">
+                <div className="flex items-center justify-between text-xs text-slate-700 font-bold mb-1.5">
+                  <span className="flex items-center gap-1">
+                    <span>✦ 補充意象詞（點擊帶入，高亮可移除）：</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowDetailedTags(!showDetailedTags)}
+                    className="text-[11px] text-sky-700 hover:text-sky-900 cursor-pointer font-medium"
+                  >
+                    {showDetailedTags ? '收起四類標籤 ▲' : '展開四類分類標籤 ▼'}
+                  </button>
+                </div>
+
+                {/* 常用快速意象詞 */}
+                <div className="flex flex-wrap items-center gap-1.5 text-xs mb-2">
+                  {QUICK_DREAM_TAGS.map((tag) => {
+                    const isSelected = selectedTags.includes(tag.label) || draftDream.includes(`【${tag.label}】`);
+                    return (
+                      <button
+                        key={tag.label}
+                        type="button"
+                        onClick={() => handleToggleTag(tag.label)}
+                        className={`px-2 py-1 rounded-lg border text-xs font-medium cursor-pointer transition-all flex items-center gap-1 ${
+                          isSelected
+                            ? 'bg-sky-600 text-white border-sky-600 shadow-xs ring-1 ring-sky-200'
+                            : 'bg-slate-50 hover:bg-sky-50 text-slate-700 border-slate-200 hover:border-sky-300'
+                        }`}
+                        title={isSelected ? `點擊移除【${tag.label}】` : `點擊插入【${tag.label}】`}
+                      >
+                        <span className="text-xs">{tag.icon}</span>
+                        <span>{tag.label}</span>
+                        <span>{isSelected ? '✓' : '+'}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* 展開之四類分類結構 */}
+                {showDetailedTags && (
+                  <div className="space-y-2 pt-2 border-t border-dashed border-slate-200 animate-fadeIn">
+                    {TAG_CATEGORIES.map((cat) => (
+                      <div key={cat.category} className="flex flex-wrap items-center gap-1.5 text-xs">
+                        <span className="font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md shrink-0 text-[11px]">
+                          {cat.category}
+                        </span>
+                        {cat.tags.map((tag) => {
+                          const isSelected = selectedTags.includes(tag) || draftDream.includes(`【${tag}】`);
+                          return (
+                            <button
+                              key={tag}
+                              type="button"
+                              onClick={() => handleToggleTag(tag)}
+                              className={`px-2 py-0.5 rounded-md border text-[11px] font-medium cursor-pointer transition-all flex items-center gap-0.5 ${
+                                isSelected
+                                  ? 'bg-sky-600 text-white border-sky-600 shadow-2xs'
+                                  : 'bg-white hover:bg-sky-50 text-slate-600 border-slate-200'
+                              }`}
+                            >
+                              <span>{isSelected ? '✓' : '+'}</span>
+                              <span>{tag}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
 
-              {/* 4. 意象標籤：點擊自動填入輸入框 */}
-              <div className="mb-5 pt-1">
-                <div className="flex items-center gap-1.5 text-xs text-[var(--text-sub)] font-semibold mb-2">
-                  <span>✦ 點擊意象標籤，自動插入夢境內容：</span>
+              {/* 星圖解析手動勾選（預設關閉） */}
+              <div className="mt-3 pt-2.5 border-t border-slate-100">
+                <label className="flex items-start gap-2 p-2.5 rounded-xl bg-sky-50/60 border border-sky-100 cursor-pointer hover:bg-sky-50 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={includeStarChart}
+                    onChange={(e) => setIncludeStarChart(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 cursor-pointer"
+                  />
+                  <div className="text-xs">
+                    <div className="font-bold text-sky-950 flex items-center gap-1">
+                      <Compass className="w-3.5 h-3.5 text-sky-700" />
+                      <span>附加星圖解析（可選 · 預設關閉）</span>
+                    </div>
+                    <div className="text-slate-600 mt-0.5 leading-relaxed text-[11px]">
+                      結合右側天體輪盤宿位與榮格共時性視角。手動勾選或點擊右側星盤「加入夢境」後納入 AI 報告。
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              {/* 底部操作欄 */}
+              <div className="mt-4 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>絕不用於 AI 訓練 · 保證私隱安全</span>
                 </div>
-                <div className="flex flex-wrap gap-2 text-xs">
-                  {dreamTags.map((tag) => (
-                    <button
-                      key={tag.label}
-                      type="button"
-                      onClick={() => handleApplyQuickTag(tag.label)}
-                      className="tag-chip-l4"
-                    >
-                      <span className="text-[var(--primary-600)] font-bold text-sm">+</span>
-                      <span>{tag.icon}</span>
-                      <span>{tag.label}</span>
-                    </button>
-                  ))}
+
+                <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={handleOpenSampleModal}
+                    className="min-h-[44px] px-3.5 py-2 rounded-xl border border-sky-300 text-sky-800 hover:bg-sky-50 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer w-full sm:w-auto"
+                  >
+                    <Eye className="w-3.5 h-3.5 text-sky-700" />
+                    <span>觀看示範報告</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleStartAnalysis}
+                    className={`min-h-[44px] px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer w-full sm:w-auto ${
+                      isTooShort
+                        ? 'bg-slate-200 hover:bg-rose-50 text-slate-400 hover:text-rose-700 border border-slate-200 hover:border-rose-300'
+                        : 'bg-sky-600 hover:bg-sky-700 active:scale-98 text-white shadow-sm ring-2 ring-sky-200'
+                    }`}
+                    id="hero-cta-record-btn"
+                    title={isTooShort ? '未滿30字，點擊查看提示' : '開始AI榮格分析'}
+                  >
+                    <span>記錄夢境開始分析</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* 2 & 12. 底部操作欄（兩按鈕分開：主CTA天藍漸變、次要線框新分頁開，按鈕高度≥48px） */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-slate-200/80">
-              <div className="text-xs text-[var(--text-sub)] font-medium flex items-center gap-1.5">
-                <span>榮格深度心理學原型意象</span>
-                <span className="text-slate-300">·</span>
-                <span>專屬自我反思鏡像</span>
+            {/* ------------------------------------------------------------ */}
+            {/* 【右欄】：天體旋轉星盤（Version B 首頁設計回歸） */}
+            {/* ------------------------------------------------------------ */}
+            <div className="lg:col-span-5 bg-white rounded-3xl border border-sky-100 shadow-md p-4 sm:p-5 transition-all">
+              <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-1.5 text-slate-900 font-bold text-sm sm:text-base">
+                  <Compass className="w-4 h-4 text-sky-600" />
+                  <span>天體星盤 · 今日生活小貼士</span>
+                </div>
+                <span className="text-[11px] text-sky-700 font-medium">
+                  拖曳探索 12 原型
+                </span>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-                {/* 語音按鈕 */}
-                <button
-                  type="button"
-                  onClick={handleToggleVoice}
-                  className={`min-h-[48px] px-3.5 py-2.5 rounded-2xl border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all ${
-                    isListening
-                      ? 'bg-rose-50 border-rose-400 text-rose-700 animate-pulse'
-                      : 'bg-white hover:bg-slate-50 border-slate-300 text-[var(--text-body)]'
-                  }`}
-                  title="語音錄音（支援廣東話及普通話）"
-                >
-                  <Mic className={`w-4 h-4 ${isListening ? 'text-rose-600' : 'text-[var(--primary-600)]'}`} />
-                  <span>{isListening ? '聆聽中…' : '語音記夢'}</span>
-                </button>
-
-                {/* B2次要按鈕【觀看示範報告】：線框樣式，尺寸小於主按鈕；hover只加極淺底色，禁止變實心 */}
-                <a
-                  href="/report?demo=1"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={handleOpenSampleNewTab}
-                  className="btn-b2-secondary px-5 py-2.5"
-                  title="在新分頁開啟示範報告預覽，不影響當前首頁"
-                >
-                  <Eye className="w-4 h-4 text-[var(--primary-600)]" />
-                  <span>觀看示範報告</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-[var(--text-sub)]" />
-                </a>
-
-                {/* B1主CTA【記錄夢境開始分析】：灰藍漸變、白色粗字；尺寸最大；緊貼輸入框下方；hover柔和加深；active scale(0.98)；空白輸入時設置禁用狀態 */}
-                <button
-                  type="button"
-                  disabled={!draftDream.trim()}
-                  onClick={handleStartAnalysis}
-                  className="btn-b1-primary px-7 py-3.5 flex-1 sm:flex-initial"
-                  id="hero-cta-record-btn"
-                >
-                  <span>記錄夢境開始分析</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
+              {/* 嵌入天體星盤（compact 模式） */}
+              <CelestialRotatingAstrolabe
+                compact={true}
+                hideHeader={true}
+                isPaidMember={isPaidMember}
+                onRequirePaid={onGoToPricing}
+                onAddToDream={handleAstrolabeAddToDream}
+                onRemoveFromDream={handleAstrolabeRemoveFromDream}
+                onNavigateToWorkspace={handleStartAnalysis}
+              />
             </div>
           </div>
         </div>
       </section>
 
       {/* ============================================================ */}
-      {/* 🌟 3. 三大潛意識心靈解析模組 (Version B 深度體系) 🌟 */}
+      {/* 🌟 2. 三大潛意識自我反思模組 🌟 */}
       {/* ============================================================ */}
-      <section className="shell py-12 sm:py-16" id="three-pillars-section">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <p className="text-xs sm:text-sm font-serif text-[var(--primary-600)] font-semibold tracking-widest uppercase mb-1">
-            —— 深度沉澱體系 ——
+      <section className="shell py-10 px-4 max-w-5xl mx-auto" id="three-pillars-section">
+        <div className="text-center max-w-2xl mx-auto mb-8">
+          <p className="text-xs font-semibold text-sky-700 uppercase tracking-widest mb-1">
+            —— 心理學沉澱體系 ——
           </p>
-          <h2 className="font-celestial-serif font-black text-2xl sm:text-4xl text-slate-900 tracking-wide">
-            三大潛意識心靈解析模組
+          <h2 className="font-celestial-serif font-black text-2xl sm:text-3xl text-slate-900 tracking-wide">
+            三大潛意識自我反思模組
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 mt-2">
-            持續記錄你的夢境軌跡，構建專屬你的潛意識心靈資料庫。
+          <p className="text-xs sm:text-sm text-slate-600 mt-1.5">
+            持續記錄你的夢境軌跡，透過榮格心理學整理潛在的情緒投射與心靈成長。
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {/* Card 1: DREAM DNA (L2 中等層次) */}
-          <div className="card-l2-standard flex flex-col justify-between">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Card 1: DREAM DNA */}
+          <div className="bg-white rounded-2xl border border-sky-100 p-6 flex flex-col justify-between shadow-xs">
             <div>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-[#4A47A3] mb-2">
-                <Dna className="w-4 h-4 text-[#4A47A3]" />
+              <div className="flex items-center gap-1.5 text-xs font-bold text-sky-800 mb-2">
+                <Dna className="w-4 h-4 text-sky-600" />
                 <span>DREAM DNA</span>
               </div>
               <div className="my-2 flex justify-center">
-                <DreamDnaArtwork className="w-full h-36" />
+                <DreamDnaArtwork className="w-full h-32" />
               </div>
-              <h3 className="font-celestial-serif font-black text-2xl text-slate-900 tracking-tight mt-2 mb-1.5">
-                DREAM DNA 基因圖譜
+              <h3 className="font-celestial-serif font-black text-xl text-slate-900 mb-1.5">
+                DREAM DNA 心靈密碼
               </h3>
-              <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
-                解析夢境中的象徵代號，繪製情緒頻譜與原型雷達圖，揭示真實性格與深層需求。
+              <p className="text-xs text-slate-600 leading-relaxed">
+                累積多個夢境之後，歸納你重複出現嘅意象、內在性格與心理需求（非單次夢境報告）。
               </p>
             </div>
-            <div className="pt-4 mt-3 border-t border-slate-200/60">
+            <div className="pt-4 mt-3 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => onGoToApp('dna')}
-                className="btn-b3-link w-full justify-between"
+                className="min-h-[44px] w-full text-xs font-bold text-sky-700 hover:text-sky-900 flex items-center justify-between cursor-pointer"
               >
-                <span>探索你的夢境 DNA</span>
-                <span className="text-base">→</span>
+                <span>探索你的 DREAM DNA</span>
+                <span>→</span>
               </button>
             </div>
           </div>
 
-          {/* Card 2: 星圖解析 (L2 中等層次) */}
-          <div className="card-l2-standard flex flex-col justify-between">
+          {/* Card 2: 星圖解析 */}
+          <div className="bg-white rounded-2xl border border-sky-100 p-6 flex flex-col justify-between shadow-xs">
             <div>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-[#4A47A3] mb-2">
-                <Compass className="w-4 h-4 text-[#4A47A3]" />
+              <div className="flex items-center gap-1.5 text-xs font-bold text-sky-800 mb-2">
+                <Compass className="w-4 h-4 text-sky-600" />
                 <span>星圖解析</span>
               </div>
               <div className="my-2 flex justify-center">
-                <ConstellationAstrolabeArtwork className="w-full h-36" />
+                <ConstellationAstrolabeArtwork className="w-full h-32" />
               </div>
-              <h3 className="font-celestial-serif font-black text-2xl text-slate-900 tracking-tight mt-2 mb-1.5">
-                天體宿位與星圖解析
+              <h3 className="font-celestial-serif font-black text-xl text-slate-900 mb-1.5">
+                星圖與共時性解析
               </h3>
-              <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
-                結合天體二十八宿運行輪盤與榮格共時性理論，解讀夢中象徵的宇宙共振。
+              <p className="text-xs text-slate-600 leading-relaxed">
+                將多個夢境意象連成心靈星系，結合二十八宿天體輪盤，提供生活調適建議與靈感提示。
               </p>
             </div>
-            <div className="pt-4 mt-3 border-t border-slate-200/60">
+            <div className="pt-4 mt-3 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => onGoToApp('constellation')}
-                className="btn-b3-link w-full justify-between"
+                className="min-h-[44px] w-full text-xs font-bold text-sky-700 hover:text-sky-900 flex items-center justify-between cursor-pointer"
               >
-                <span>查看尊享星圖報告</span>
-                <span className="text-base">→</span>
+                <span>瀏覽夢境星圖</span>
+                <span>→</span>
               </button>
             </div>
           </div>
 
-          {/* Card 3: 30 晚潛意識檔案 (L2 中等層次) */}
-          <div className="card-l2-standard flex flex-col justify-between">
+          {/* Card 3: 30晚潛意識檔案 */}
+          <div className="bg-white rounded-2xl border border-sky-100 p-6 flex flex-col justify-between shadow-xs">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#D97706]">
-                  <Key className="w-4 h-4 text-[#D97706]" />
-                  <span>30 晚潛意識檔案</span>
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800">
+                  <Key className="w-4 h-4 text-amber-600" />
+                  <span>30晚潛意識檔案</span>
                 </div>
-                <span className="text-[10px] font-semibold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">
-                  持續記錄解鎖
+                <span className="text-[10px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">
+                  連續觀察
                 </span>
               </div>
               <div className="my-2 flex justify-center">
-                <OracleCardsArtwork className="w-full h-36" />
+                <OracleCardsArtwork className="w-full h-32" />
               </div>
-              <h3 className="font-celestial-serif font-black text-2xl text-slate-900 tracking-tight mt-2 mb-1.5">
+              <h3 className="font-celestial-serif font-black text-xl text-slate-900 mb-1.5">
                 30 晚潛意識檔案
               </h3>
-              <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
-                連續 30 晚的夢境記錄沉澱，建立專屬你的心靈成長檔案，見證內在轉化。
+              <p className="text-xs text-slate-600 leading-relaxed">
+                連續記錄夢境，觀察自己潛意識隨時間嘅變化趨勢，見證內在心理能量的流動。
               </p>
             </div>
-            <div className="pt-4 mt-3 border-t border-slate-200/60">
+            <div className="pt-4 mt-3 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => onGoToApp('mystery')}
-                className="btn-b3-link w-full justify-between"
+                className="min-h-[44px] w-full text-xs font-bold text-sky-700 hover:text-sky-900 flex items-center justify-between cursor-pointer"
               >
-                <span>探索你的 30 晚檔案</span>
-                <span className="text-base">→</span>
+                <span>解鎖 30 晚檔案</span>
+                <span>→</span>
               </button>
             </div>
           </div>
@@ -544,90 +805,63 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </section>
 
       {/* ============================================================ */}
-      {/* 🌟 4. 如何解讀你的夢（三步驟開啟心靈智慧） 🌟 */}
+      {/* 🌟 3. 三步心靈轉化流程 🌟 */}
       {/* ============================================================ */}
-      <section className="shell py-10 sm:py-16 text-center" id="how">
-        <div className="max-w-2xl mx-auto mb-12">
-          <p className="text-xs sm:text-sm font-serif text-[var(--primary-600)] font-semibold tracking-widest uppercase mb-1">
-            —— 理論轉化流程 ——
+      <section className="shell py-8 px-4 max-w-5xl mx-auto text-center" id="how">
+        <div className="max-w-2xl mx-auto mb-8">
+          <p className="text-xs font-semibold text-sky-700 uppercase tracking-widest mb-1">
+            —— 簡單三步 ——
           </p>
-          <h2 className="font-celestial-serif font-black text-2xl sm:text-4xl text-[var(--text-heading)] tracking-wide leading-[1.25]">
-            如何解讀你的夢：三步驟開啟心靈智慧
+          <h2 className="font-celestial-serif font-black text-2xl sm:text-3xl text-slate-900">
+            如何解讀你的夢境：三步驟展開自我反思
           </h2>
-          <p className="text-xs sm:text-sm text-[var(--text-sub)] mt-3 max-w-xl mx-auto leading-[1.65]">
-            DreamWisdom 透過榮格原型心理模型與你的潛意識對話，將夢境轉化為專屬於你的生活洞察。
-          </p>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 lg:gap-6 max-w-5xl mx-auto">
-          {/* Step 1: L2 中等內容卡片 */}
-          <div className="card-l2-standard w-full md:w-1/3 p-6 sm:p-7 relative flex flex-col items-center text-center">
-            <div className="relative mb-3">
-              <StepNotepadIcon className="w-20 h-20" />
-              <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-[var(--primary-600)] text-white text-[11px] font-mono font-bold shadow-xs">
-                01
-              </span>
-            </div>
-            <h3 className="font-celestial-serif font-bold text-lg sm:text-xl text-[var(--text-heading)] mb-2">
-              醒時速記夢境
-            </h3>
-            <p className="text-xs sm:text-sm text-[var(--text-body)] leading-[1.65]">
-              用最自然嘅香港廣東話口語低聲記錄。無須在乎文法，捕捉第一瞬間嘅感官與情緒。
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="bg-white rounded-2xl border border-sky-100 p-6 flex flex-col items-center text-center shadow-xs">
+            <StepNotepadIcon className="w-16 h-16 mb-2" />
+            <span className="text-[11px] font-bold font-mono px-2 py-0.5 rounded-full bg-sky-100 text-sky-900 mb-2">
+              STEP 01
+            </span>
+            <h3 className="font-bold text-base text-slate-900 mb-1">醒時速記夢境</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              以廣東話寫低醒來第一瞬間嘅場景、人物或情緒片段（30-200字）。
             </p>
           </div>
 
-          <div className="hidden md:flex text-slate-400 text-3xl font-light select-none">
-            ›
-          </div>
-
-          {/* Step 2: L2 中等內容卡片 */}
-          <div className="card-l2-standard w-full md:w-1/3 p-6 sm:p-7 relative flex flex-col items-center text-center">
-            <div className="relative mb-3">
-              <StepAiBrainIcon className="w-20 h-20" />
-              <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-[var(--primary-600)] text-white text-[11px] font-mono font-bold shadow-xs">
-                02
-              </span>
-            </div>
-            <h3 className="font-celestial-serif font-bold text-lg sm:text-xl text-[var(--text-heading)] mb-2">
-              榮格原型 AI 分析
-            </h3>
-            <p className="text-xs sm:text-sm text-[var(--text-body)] leading-[1.65]">
-              DreamWisdom 結合心理象徵、陰影整合與共時性理論，客觀拆解深層訊號。
+          <div className="bg-white rounded-2xl border border-sky-100 p-6 flex flex-col items-center text-center shadow-xs">
+            <StepAiBrainIcon className="w-16 h-16 mb-2" />
+            <span className="text-[11px] font-bold font-mono px-2 py-0.5 rounded-full bg-sky-100 text-sky-900 mb-2">
+              STEP 02
+            </span>
+            <h3 className="font-bold text-base text-slate-900 mb-1">榮格心理學拆解</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              AI 根據榮格原型心理學理論，客觀剖析夢境背後的心理補償與壓抑情緒。
             </p>
           </div>
 
-          <div className="hidden md:flex text-slate-400 text-3xl font-light select-none">
-            ›
-          </div>
-
-          {/* Step 3: L2 中等內容卡片 */}
-          <div className="card-l2-standard w-full md:w-1/3 p-6 sm:p-7 relative flex flex-col items-center text-center">
-            <div className="relative mb-3">
-              <StepInsightIcon className="w-20 h-20" />
-              <span className="absolute -bottom-1 -right-1 px-2.5 py-0.5 rounded-full bg-[var(--primary-600)] text-white text-[11px] font-mono font-bold shadow-xs">
-                03
-              </span>
-            </div>
-            <h3 className="font-celestial-serif font-bold text-lg sm:text-xl text-[var(--text-heading)] mb-2">
-              獲得心靈洞察
-            </h3>
-            <p className="text-xs sm:text-sm text-[var(--text-body)] leading-[1.65]">
-              獲得專屬於你的解析報告，包含潛意識投射、自我反思提問與情緒建議。
+          <div className="bg-white rounded-2xl border border-sky-100 p-6 flex flex-col items-center text-center shadow-xs">
+            <StepInsightIcon className="w-16 h-16 mb-2" />
+            <span className="text-[11px] font-bold font-mono px-2 py-0.5 rounded-full bg-sky-100 text-sky-900 mb-2">
+              STEP 03
+            </span>
+            <h3 className="font-bold text-base text-slate-900 mb-1">獲得心理反思建議</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              獲得【潛意識訊息】與【情緒反思建議】，作為當下生活覺察的溫柔鏡子。
             </p>
           </div>
         </div>
       </section>
 
       {/* ============================================================ */}
-      {/* 🌟 5. 香港本地心理支援熱線（7. 可折疊模塊，點擊直接顯示熱線） 🌟 */}
+      {/* 🌟 4. 香港本地心理健康熱線（可折疊模塊） 🌟 */}
       {/* ============================================================ */}
-      <section className="shell py-6 max-w-4xl mx-auto" id="hotlines-section">
-        {/* L3【心理熱線｜次要】：--accent-warm-light底色，移除陰影，預設折疊，降低視覺重量 */}
-        <div className="card-l3-secondary p-5 sm:p-7 text-slate-800">
+      <section className="shell py-6 px-4 max-w-4xl mx-auto" id="hotlines-section">
+        <div className="bg-amber-50/90 border border-amber-200 rounded-3xl p-5 sm:p-7 text-slate-800 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2 text-slate-900 font-bold text-base sm:text-lg">
-                <PhoneCall className="w-5 h-5 text-[var(--primary-600)] shrink-0" />
+                <PhoneCall className="w-5 h-5 text-amber-700 shrink-0" />
                 <h2>香港本地心理健康及情緒支援熱線清單</h2>
               </div>
               <p className="text-xs text-slate-600 mt-1">
@@ -638,44 +872,43 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <button
               type="button"
               onClick={() => setIsHotlinesOpen(!isHotlinesOpen)}
-              className="btn-b2-secondary min-h-[44px] px-4 py-2 text-xs sm:text-sm inline-flex items-center justify-center gap-1.5 self-start sm:self-auto cursor-pointer"
+              className="min-h-[44px] px-4 py-2 rounded-xl bg-white border border-amber-300 text-amber-900 hover:bg-amber-100 text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-1.5 self-start sm:self-auto cursor-pointer"
             >
               <span>{isHotlinesOpen ? '收起支援熱線' : '展開熱線電話'}</span>
               {isHotlinesOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
           </div>
 
-          {/* 展開之熱線電話清單 */}
           {isHotlinesOpen && (
-            <div className="mt-5 pt-4 border-t border-amber-200/80 grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs sm:text-sm animate-fadeIn">
-              <div className="bg-white/95 p-3.5 rounded-2xl border border-amber-100 shadow-2xs">
+            <div className="mt-5 pt-4 border-t border-amber-200 grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs sm:text-sm animate-fadeIn">
+              <div className="bg-white p-3.5 rounded-2xl border border-amber-100 shadow-2xs">
                 <div className="font-bold text-slate-900">香港撒瑪利亞防止自殺會</div>
-                <div className="text-[#4A47A3] font-bold text-lg mt-0.5">2389 2222</div>
+                <div className="text-sky-800 font-bold text-lg mt-0.5">2389 2222</div>
                 <div className="text-[11px] text-slate-500">24小時情緒疏導熱線 · 隨時傾訴</div>
               </div>
 
-              <div className="bg-white/95 p-3.5 rounded-2xl border border-amber-100 shadow-2xs">
+              <div className="bg-white p-3.5 rounded-2xl border border-amber-100 shadow-2xs">
                 <div className="font-bold text-slate-900">生命熱線 (Life Line)</div>
-                <div className="text-[#4A47A3] font-bold text-lg mt-0.5">2382 0000</div>
+                <div className="text-sky-800 font-bold text-lg mt-0.5">2382 0000</div>
                 <div className="text-[11px] text-slate-500">24小時預防自殺求助支援服務</div>
               </div>
 
-              <div className="bg-white/95 p-3.5 rounded-2xl border border-amber-100 shadow-2xs">
+              <div className="bg-white p-3.5 rounded-2xl border border-amber-100 shadow-2xs">
                 <div className="font-bold text-slate-900">醫院管理局 精神健康專線</div>
-                <div className="text-[#4A47A3] font-bold text-lg mt-0.5">2466 7350</div>
+                <div className="text-sky-800 font-bold text-lg mt-0.5">2466 7350</div>
                 <div className="text-[11px] text-slate-500">24小時專業精神科護士電話諮詢</div>
               </div>
 
-              <div className="bg-white/95 p-3.5 rounded-2xl border border-amber-100 shadow-2xs">
+              <div className="bg-white p-3.5 rounded-2xl border border-amber-100 shadow-2xs">
                 <div className="font-bold text-slate-900">利民會「即時通」情緒支援</div>
-                <div className="text-[#4A47A3] font-bold text-lg mt-0.5">3517 8966</div>
+                <div className="text-sky-800 font-bold text-lg mt-0.5">3517 8966</div>
                 <div className="text-[11px] text-slate-500">24小時社區情緒疏導與關懷網絡</div>
               </div>
 
-              <div className="bg-white/95 p-3.5 rounded-2xl border border-amber-100 shadow-2xs sm:col-span-2">
+              <div className="bg-white p-3.5 rounded-2xl border border-amber-100 shadow-2xs sm:col-span-2">
                 <div className="flex flex-wrap items-center justify-between gap-1">
                   <div className="font-bold text-slate-900">明愛向晴軒 危機支援專線</div>
-                  <div className="text-[#4A47A3] font-bold text-base">18288</div>
+                  <div className="text-sky-800 font-bold text-base">18288</div>
                 </div>
                 <div className="text-[11px] text-slate-500 mt-0.5">24小時家庭及個人危機即時介入支援</div>
               </div>
@@ -685,44 +918,50 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </section>
 
       {/* ============================================================ */}
-      {/* 🌟 6. 常見疑問 FAQ（8. 隱私同理論基礎兩條預設展開） 🌟 */}
+      {/* 🌟 5. 常見疑問 FAQ 🌟 */}
       {/* ============================================================ */}
-      <section className="shell py-12 max-w-3xl mx-auto" id="faq">
-        <div className="text-center mb-8">
-          <p className="text-xs font-serif text-[#4A47A3] font-semibold tracking-widest uppercase">FAQ</p>
+      <section className="shell py-10 px-4 max-w-3xl mx-auto" id="faq">
+        <div className="text-center mb-6">
+          <p className="text-xs font-semibold text-sky-700 uppercase tracking-widest">FAQ</p>
           <h2 className="font-celestial-serif font-black text-2xl sm:text-3xl text-slate-900 mt-1">
-            常見疑問解答
+            常見問題解答
           </h2>
           <p className="text-xs text-slate-500 mt-1">理論基礎與私隱承諾均公開透明</p>
         </div>
 
-        <div className="space-y-3.5">
+        <div className="space-y-3">
           {faqItems.map((item) => {
             const isOpen = openFaqKeys.has(item.id);
             return (
               <div
                 key={item.id}
-                className="card-l3-secondary overflow-hidden transition-all"
+                className="bg-white rounded-2xl border border-sky-100 overflow-hidden shadow-2xs transition-all"
               >
                 <button
                   type="button"
                   onClick={() => toggleFaq(item.id)}
-                  className="w-full min-h-[48px] px-5 py-3.5 text-left flex items-center justify-between text-sm sm:text-base font-bold text-slate-900 hover:text-[var(--accent-warm-hover)] cursor-pointer transition-colors"
+                  className="w-full min-h-[48px] px-5 py-3.5 text-left flex items-center justify-between text-sm sm:text-base font-bold text-slate-900 hover:text-sky-800 cursor-pointer transition-colors"
                 >
-                  <span className="flex items-center gap-2">
-                    {item.id === 'theory' && <span className="text-xs bg-slate-200/70 text-slate-800 px-2 py-0.5 rounded font-semibold">理論基礎</span>}
-                    {item.id === 'privacy' && <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">隱私保證</span>}
-                    <span>{item.q}</span>
-                  </span>
+                  <span>{item.q}</span>
                   {isOpen ? (
-                    <ChevronUp className="w-4 h-4 text-[var(--primary-600)] shrink-0" />
+                    <ChevronUp className="w-4 h-4 text-sky-600 shrink-0" />
                   ) : (
                     <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
                   )}
                 </button>
                 {isOpen && (
-                  <div className="px-5 pb-4 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-stone-200/60 pt-3">
-                    {item.a}
+                  <div className="px-5 pb-4 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                    <p>{item.a}</p>
+                    {item.isSampleAction && (
+                      <button
+                        type="button"
+                        onClick={handleOpenSampleModal}
+                        className="mt-3 min-h-[44px] px-4 py-2 rounded-xl bg-sky-600 text-white font-bold text-xs inline-flex items-center gap-1.5 hover:bg-sky-700 cursor-pointer"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>立即彈窗預覽示範報告</span>
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -731,28 +970,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </section>
 
-      {/* ============================================================ */}
-      {/* 🌟 7. 底部感性寄語（9. H2 語義標籤） 🌟 */}
-      {/* ============================================================ */}
-      <section className="shell py-12 sm:py-16 text-center">
-        <p className="text-xs sm:text-sm font-serif text-[#4A47A3] font-semibold tracking-widest uppercase mb-1">
-          —— 溫柔傾聽潛意識 ——
-        </p>
-        <h2 className="font-celestial-serif font-black text-3xl sm:text-4xl md:text-5xl text-slate-900 tracking-wide">
-          ✦ 每一個夢，都是你內心的智慧 ✦
-        </h2>
-        <p className="text-xs sm:text-sm text-slate-600 mt-2 max-w-md mx-auto">
-          DreamWisdom 與你一起，探索夢境、遇見真實的自己。
-        </p>
-      </section>
-
-      {/* 隱藏彈窗元件 */}
-      <TherapeuticSupportModal
-        isOpen={isTherapeuticOpen}
-        onClose={() => setIsTherapeuticOpen(false)}
-        therapists={therapists}
-      />
-
+      {/* 示範報告彈窗（不跳轉新頁） */}
       <SampleReportPreviewModal
         isOpen={isSamplePreviewOpen}
         onClose={() => setIsSamplePreviewOpen(false)}
@@ -762,6 +980,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
           setIsSamplePreviewOpen(false);
           onGoToApp('workspace');
         }}
+      />
+
+      {/* 心理支援引導 Modal */}
+      <TherapeuticSupportModal
+        isOpen={isTherapeuticOpen}
+        onClose={() => setIsTherapeuticOpen(false)}
+        therapists={therapists}
       />
     </main>
   );

@@ -1,23 +1,30 @@
 import React, { useState } from 'react';
 import { ThirtyNightsJourney, ThirtyNightsClue } from '../types';
+import { initialThirtyNightsJourney } from '../data';
 import { Key, Lock, Unlock, Sparkles, Award, Compass, FileText, Share2, Check, Gift, ShieldCheck, Download, ChevronRight, Eye } from 'lucide-react';
 
 interface ThirtyNightsMysteryViewProps {
-  journey: ThirtyNightsJourney;
+  journey?: ThirtyNightsJourney;
   onRecordNewNight?: () => void;
+  onUnlockNightClue?: (night: number) => void;
+  onStartDreamTonight?: () => void;
 }
 
 export const ThirtyNightsMysteryView: React.FC<ThirtyNightsMysteryViewProps> = ({
-  journey,
+  journey = initialThirtyNightsJourney,
   onRecordNewNight,
+  onUnlockNightClue,
+  onStartDreamTonight,
 }) => {
-  const [selectedClue, setSelectedClue] = useState<ThirtyNightsClue | null>(journey.clues[0] || null);
+  const safeJourney = journey || initialThirtyNightsJourney;
+  const clues = safeJourney?.clues || [];
+  const [selectedClue, setSelectedClue] = useState<ThirtyNightsClue | null>(clues[0] || null);
   const [selectedMilestone, setSelectedMilestone] = useState<number>(7);
   const [copied, setCopied] = useState(false);
   const [showHolographicModal, setShowHolographicModal] = useState(false);
 
   // Cumulative calculation (no reset on interruption)
-  const completedCount = journey.completedNights || 7;
+  const completedCount = safeJourney?.completedNights || 7;
   const targetCount = 30;
   const percentage = Math.min(100, Math.round((completedCount / targetCount) * 100));
 
