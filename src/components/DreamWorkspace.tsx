@@ -19,6 +19,8 @@ import {
   getRoleDisplayName,
   DreamMasterAnalysisResult,
   ProductItem,
+  DreamDNA,
+  DreamDnaSymbol,
 } from '../types';
 import {
   initialDreamDNA,
@@ -32,7 +34,6 @@ import { DreamDnaCard } from './DreamDnaCard';
 import { DreamConstellationView } from './DreamConstellationView';
 import { ThirtyNightsMysteryView } from './ThirtyNightsMysteryView';
 import { DreamJournalManager } from './DreamJournalManager';
-import { SampleReportPreviewModal } from './SampleReportPreviewModal';
 import { NightmareCareModal } from './NightmareCareModal';
 import { AnonymizedShareModal } from './AnonymizedShareModal';
 import { CelestialRotatingAstrolabe } from './CelestialRotatingAstrolabe';
@@ -64,27 +65,7 @@ import {
   Share2,
 } from 'lucide-react';
 
-/* =========================================================================
-   模塊 1：常數與意象庫標籤定義 (4大類別：人物、場景、情緒、物件)
-   ========================================================================= */
-const TAG_CATEGORIES = [
-  {
-    category: '人物',
-    tags: ['故人親友', '陌生黑衣人', '老細上司', '伴侶前度', '童年玩伴', '追趕者'],
-  },
-  {
-    category: '場景',
-    tags: ['老家舊居', '深海大水', '高樓天台', '學校課室', '狹窄電梯', '迷宮森林'],
-  },
-  {
-    category: '情緒',
-    tags: ['焦慮慌張', '恐懼窒息', '平靜釋懷', '孤立迷茫', '壓抑無助', '期待雀躍'],
-  },
-  {
-    category: '物件',
-    tags: ['緊閉門鎖', '生銹鑰匙', '破碎鏡子', '赤腳沒鞋', '過期時鐘', '神秘羽毛'],
-  },
-];
+
 
 const DREAM_CATEGORIES = [
   { id: '惡夢', label: '惡夢 (Nightmare)' },
@@ -94,12 +75,18 @@ const DREAM_CATEGORIES = [
   { id: '普通夢', label: '普通夢 (Normal)' },
 ];
 
+// 自訂心境 (Mood) 標籤預設候選詞
+const PRESET_MOOD_TAGS = ['平靜', '焦慮', '驚恐', '釋懷', '悲傷', '愉悅', '困惑', '壓抑', '自由', '期待', '孤獨', '懷念'];
+
+// 自訂象徵 (Symbol) 標籤預設候選詞
+const PRESET_SYMBOL_TAGS = ['海洋/水', '鑰匙', '門鎖', '飛翔', '迷宮', '舊屋', '故人', '追逐', '鏡子', '牙齒', '電梯', '森林'];
+
 interface DreamWorkspaceProps {
   initialHistory: DreamEntry[];
   settings: EngineSettings;
   demo?: boolean;
   prefilledDream?: string;
-  initialTab?: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'astrolabe';
+  initialTab?: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history';
   currentUser?: User | null;
   onDreamAdded?: (entry: DreamEntry) => void;
   onUpdateUserStars?: (newStars: number) => void;
@@ -126,10 +113,12 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
   /* =========================================================================
      模塊 2：分頁與導航狀態管理
      ========================================================================= */
-  const [activeTab, setActiveTab] = useState<'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'astrolabe'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'workspace' | 'dna' | 'constellation' | 'mystery' | 'history'>(
+    initialTab === ('astrolabe' as any) ? 'workspace' : initialTab
+  );
 
   useEffect(() => {
-    if (initialTab) {
+    if (initialTab && (initialTab as string) !== 'astrolabe') {
       setActiveTab(initialTab);
     }
   }, [initialTab]);
@@ -149,11 +138,45 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
   // 夢境類別選擇器 (惡夢 / 重複夢 / 清醒夢 / 願望滿足 / 普通夢)
   const [selectedCategory, setSelectedCategory] = useState<string>('普通夢');
 
+  // 手動自訂心境 (Mood) 與象徵 (Symbol) 標籤（強化 DREAM DNA 長期分析）
+  const [customMoodTags, setCustomMoodTags] = useState<string[]>([]);
+  const [customSymbolTags, setCustomSymbolTags] = useState<string[]>([]);
+  const [newMoodInput, setNewMoodInput] = useState<string>('');
+  const [newSymbolInput, setNewSymbolInput] = useState<string>('');
+
+  const handleToggleMoodTag = (tag: string) => {
+    setCustomMoodTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const handleAddCustomMoodTag = () => {
+    const trimmed = newMoodInput.trim();
+    if (!trimmed) return;
+    if (!customMoodTags.includes(trimmed)) {
+      setCustomMoodTags((prev) => [...prev, trimmed]);
+    }
+    setNewMoodInput('');
+  };
+
+  const handleToggleSymbolTag = (tag: string) => {
+    setCustomSymbolTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const handleAddCustomSymbolTag = () => {
+    const trimmed = newSymbolInput.trim();
+    if (!trimmed) return;
+    if (!customSymbolTags.includes(trimmed)) {
+      setCustomSymbolTags((prev) => [...prev, trimmed]);
+    }
+    setNewSymbolInput('');
+  };
+
   // 可選附加天體星圖分析 (預設關閉)
   const [includeAstrolabe, setIncludeAstrolabe] = useState<boolean>(false);
 
-  // 已選取意象標籤 (視覺高亮與點擊移除)
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   // 驗證失敗文字框晃動動畫視覺反饋 (<30字時觸發)
   const [isShaking, setIsShaking] = useState(false);
@@ -181,7 +204,6 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
   const [copiedNotice, setCopiedNotice] = useState(false);
 
   // 模態框彈窗
-  const [isSamplePreviewOpen, setIsSamplePreviewOpen] = useState(false);
   const [isNightmareCareOpen, setIsNightmareCareOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareData, setShareData] = useState<any>(null);
@@ -220,39 +242,7 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
     setDream(val);
   };
 
-  /* =========================================================================
-     模塊 5：意象標籤游標插入與反選移除
-     ========================================================================= */
-  const handleTagClick = (tagWord: string) => {
-    if (selectedTags.includes(tagWord)) {
-      // 點擊已選標籤：移除高亮並從輸入框中刪除相應文字
-      setSelectedTags((prev) => prev.filter((t) => t !== tagWord));
-      setDream((prev) => {
-        const regex = new RegExp(`[，、\\s]?${tagWord}`, 'g');
-        return prev.replace(regex, '').trim().slice(0, 200);
-      });
-      return;
-    }
 
-    // 點擊新標籤：在游標位置插入文字，並高亮視覺
-    setSelectedTags((prev) => [...prev, tagWord]);
-    const textarea = textareaRef.current;
-    if (textarea) {
-      const start = textarea.selectionStart ?? dream.length;
-      const end = textarea.selectionEnd ?? dream.length;
-      const insertText = dream.length === 0 ? tagWord : `，${tagWord}`;
-      const newText = (dream.substring(0, start) + insertText + dream.substring(end)).slice(0, 200);
-      setDream(newText);
-      setTimeout(() => {
-        textarea.focus();
-        const nextPos = Math.min(200, start + insertText.length);
-        textarea.setSelectionRange(nextPos, nextPos);
-      }, 10);
-    } else {
-      const insertText = dream.length === 0 ? tagWord : `，${tagWord}`;
-      setDream((prev) => (prev + insertText).slice(0, 200));
-    }
-  };
 
   /* =========================================================================
      模塊 6：AI 解夢提交流程 (嚴格符合廣東話錯誤與結構化報告)
@@ -278,7 +268,9 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
           include_astrolabe: includeAstrolabe,
           category: selectedCategory,
           user_context: {
-            tags: selectedTags,
+            tags: [...customSymbolTags, ...customMoodTags],
+            moodTags: customMoodTags,
+            symbolTags: customSymbolTags,
             category: selectedCategory,
           },
         }),
@@ -322,18 +314,28 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
         astrolabeSection: astrolabeText,
       });
 
-      // 建立夢境歷史條目
+      // 建立夢境歷史條目（包含自訂心境與象徵標籤）
+      const combinedTags = [
+        ...customSymbolTags,
+        ...customMoodTags.map((m) => `心境:${m}`),
+      ];
+
       const newEntry: DreamEntry = {
         id: 'dream_' + Date.now(),
         title: data.cleaned_dream ? data.cleaned_dream.slice(0, 16) + '…' : dream.slice(0, 16) + '…',
         dream_text: dream.trim(),
         created_at: new Date().toISOString(),
         category: selectedCategory,
-        tags: selectedTags,
+        tags: combinedTags,
+        moodTags: customMoodTags,
+        symbolTags: customSymbolTags,
         report_json: {
           title: data.cleaned_dream ? data.cleaned_dream.slice(0, 16) + '…' : '榮格心理學解夢報告',
           summary: subconscious.slice(0, 120) + '…',
-          symbols: selectedTags.map((s) => ({ symbol: s, meaning: '核心心理象徵' })),
+          symbols: (customSymbolTags.length > 0 ? customSymbolTags : ['核心意象']).map((s) => ({
+            symbol: s,
+            meaning: '自訂核心心理象徵',
+          })),
           perspectives: [
             { name: '榮格原型分析', text: subconscious },
             { name: '自我整合反思', text: emotionalAdvice },
@@ -347,6 +349,10 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
       if (onDreamAdded) {
         onDreamAdded(newEntry);
       }
+
+      // 提交完成後重設自訂標籤與草稿
+      setCustomMoodTags([]);
+      setCustomSymbolTags([]);
 
       // 提交完成後清空本地草稿
       try {
@@ -436,6 +442,143 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
       { name: '願望滿足', count: counts['願望滿足'], fill: categoryColors['願望滿足'] },
       { name: '普通夢', count: counts['普通夢'], fill: categoryColors['普通夢'] },
     ];
+  }, [history]);
+
+  /* =========================================================================
+     模塊 8B：動態整合自訂心境與象徵標籤至 DREAM DNA 長期分析
+     ========================================================================= */
+  const dynamicDreamDNA: DreamDNA = useMemo(() => {
+    if (!history || history.length === 0) {
+      return initialDreamDNA;
+    }
+
+    // 1. 統計所有自訂意象與報告象徵
+    const symbolCounts: Record<string, { count: number; evolution: Array<{ dreamId: string; dreamTitle: string; date: string; state: string }> }> = {};
+
+    history.forEach((d, idx) => {
+      const dateStr = d.created_at ? new Date(d.created_at).toLocaleDateString('zh-HK', { month: '2-digit', day: '2-digit' }) : `D${idx + 1}`;
+      const title = d.title || '夢境記錄';
+
+      const symbolsInThisDream = new Set<string>();
+      (d.symbolTags || []).forEach((st) => symbolsInThisDream.add(st));
+      (d.tags || []).filter((t) => !t.startsWith('心境:')).forEach((t) => symbolsInThisDream.add(t));
+      (d.report_json?.symbols || []).forEach((s) => symbolsInThisDream.add(s.symbol));
+
+      symbolsInThisDream.forEach((sym) => {
+        if (!symbolCounts[sym]) {
+          symbolCounts[sym] = { count: 0, evolution: [] };
+        }
+        symbolCounts[sym].count += 1;
+        symbolCounts[sym].evolution.push({
+          dreamId: d.id,
+          dreamTitle: title,
+          date: dateStr,
+          state: `第 ${symbolCounts[sym].count} 次：${d.category || '出現'}`,
+        });
+      });
+    });
+
+    const sortedSymbols: DreamDnaSymbol[] = Object.entries(symbolCounts)
+      .map(([name, data]) => {
+        let cat: 'element' | 'place' | 'character' | 'action' = 'element';
+        if (['屋', '學校', '走廊', '電梯', '海', '天台', '森林'].some((k) => name.includes(k))) cat = 'place';
+        else if (['人', '阿媽', '老細', '伴侶', '上司', '黑影'].some((k) => name.includes(k))) cat = 'character';
+        else if (['跑', '追', '飛', '掉', '逃', '墜落'].some((k) => name.includes(k))) cat = 'action';
+        return {
+          name,
+          count: data.count,
+          category: cat,
+          evolution: data.evolution.slice(-4),
+        };
+      })
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8);
+
+    // 2. 統計自訂心境情緒標籤
+    const moodCounts: Record<string, number> = {
+      '焦慮': 0,
+      '平靜': 0,
+      '驚恐': 0,
+      '釋懷': 0,
+      '困惑': 0,
+      '壓抑': 0,
+    };
+
+    let totalMoodTally = 0;
+    history.forEach((d) => {
+      const moodsInDream = new Set<string>();
+      (d.moodTags || []).forEach((m) => moodsInDream.add(m));
+      (d.tags || []).filter((t) => t.startsWith('心境:')).forEach((t) => moodsInDream.add(t.replace('心境:', '')));
+
+      if (d.category === '惡夢') moodsInDream.add('驚恐');
+      if (d.category === '願望滿足') moodsInDream.add('釋懷');
+
+      moodsInDream.forEach((m) => {
+        moodCounts[m] = (moodCounts[m] || 0) + 1;
+        totalMoodTally += 1;
+      });
+    });
+
+    const moodColorMap: Record<string, string> = {
+      '焦慮': '#F59E0B',
+      '平靜': '#0284C7',
+      '驚恐': '#E11D48',
+      '釋懷': '#10B981',
+      '困惑': '#8B5CF6',
+      '壓抑': '#64748B',
+      '悲傷': '#475569',
+      '愉悅': '#38BDF8',
+      '自由': '#06B6D4',
+      '期待': '#EC4899',
+    };
+
+    const emotionRatios = Object.entries(moodCounts)
+      .filter(([_, count]) => count > 0)
+      .map(([emotion, count]) => ({
+        emotion,
+        percentage: totalMoodTally > 0 ? Math.round((count / totalMoodTally) * 100) : 20,
+        color: moodColorMap[emotion] || '#3B82F6',
+      }))
+      .sort((a, b) => b.percentage - a.percentage);
+
+    if (emotionRatios.length === 0) {
+      emotionRatios.push(
+        { emotion: '平靜', percentage: 55, color: '#0284C7' },
+        { emotion: '焦慮', percentage: 35, color: '#F59E0B' },
+        { emotion: '釋懷', percentage: 10, color: '#10B981' }
+      );
+    }
+
+    // 3. 重複主題與長程指紋
+    const topSymbol = sortedSymbols[0]?.name || '水 / 門鎖';
+    const topMood = emotionRatios[0]?.emotion || '平靜自我調節';
+
+    const recurringThemes = [
+      {
+        theme: `自訂【${topSymbol}】與【${topMood}】心靈共振`,
+        count: sortedSymbols[0]?.count || history.length,
+        description: `根據你手動標記的意象「${topSymbol}」與「${topMood}」心境，榮格模型分析顯示你正主動整合內在深層情結，為清醒人格建立堅韌防護。`,
+      },
+    ];
+
+    if (sortedSymbols.length > 1) {
+      recurringThemes.push({
+        theme: `次要意象【${sortedSymbols[1].name}】的週期顯現`,
+        count: sortedSymbols[1].count,
+        description: `自訂意象「${sortedSymbols[1].name}」多次伴隨夢境情境浮現，反映潛意識對當前生活節奏的調適提醒。`,
+      });
+    }
+
+    const narrativeFingerprint = `你共記錄了 ${history.length} 個夢境片段，自訂累積 ${Object.keys(symbolCounts).length} 個意象與 ${Object.keys(moodCounts).filter((k) => moodCounts[k] > 0).length} 類心境標籤。最主要心境傾向為「${topMood}」，核心原型由「${topSymbol}」主導；自訂標籤深度強化了長程潛意識指紋的榮格自我整合分析。`;
+
+    return {
+      totalDreams: history.length,
+      symbols: sortedSymbols.length > 0 ? sortedSymbols : initialDreamDNA.symbols,
+      emotionRatios,
+      recurringThemes,
+      narrativeFingerprint,
+      updatedAt: new Date().toISOString(),
+    };
   }, [history]);
 
   /* =========================================================================
@@ -545,19 +688,6 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
           <span>星圖連線</span>
         </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab('astrolabe')}
-          className={`py-2 px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-            activeTab === 'astrolabe'
-              ? 'bg-blue-700 text-white shadow-xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-          }`}
-          id="workspace-tab-astrolabe"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-          <span>天體星盤 · 今日生活小貼士</span>
-        </button>
       </nav>
 
       {/* =========================================================================
@@ -587,15 +717,6 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setIsSamplePreviewOpen(true)}
-                  className="text-xs px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1 transition-colors cursor-pointer"
-                >
-                  <Eye className="w-3.5 h-3.5 text-sky-600" />
-                  <span>示範報告</span>
-                </button>
-
-                <button
-                  type="button"
                   onClick={() => setIsNightmareCareOpen(true)}
                   className="text-xs px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 flex items-center gap-1 transition-colors cursor-pointer"
                 >
@@ -609,7 +730,8 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
                     onClick={() => {
                       if (window.confirm('確定要清空當前輸入內容嗎？')) {
                         setDream('');
-                        setSelectedTags([]);
+                        setCustomMoodTags([]);
+                        setCustomSymbolTags([]);
                         try {
                           localStorage.removeItem('dreamwisdom_dream_draft');
                         } catch {}
@@ -660,43 +782,200 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
               </label>
             </div>
 
-            {/* 意象標籤四類區塊 (人物、場景、情緒、物件 · 游標位置插入 + 高亮 + 移除) */}
-            <div className="space-y-2 p-3.5 rounded-2xl bg-sky-50/50 border border-sky-100 text-xs">
-              <div className="flex items-center justify-between text-slate-600 font-medium">
-                <span className="flex items-center gap-1.5 text-sky-700 font-bold">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>意象標籤（點擊自動插入游標位置，高亮顯示，再點可移除）：</span>
-                </span>
-                <span className="text-[11px] text-slate-400">已選 {selectedTags.length} 個標籤</span>
+            {/* =========================================================================
+               手動標記心境 (Mood) 與象徵 (Symbol) 標籤（沉澱 DREAM DNA 長期分析）
+               ========================================================================= */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-sky-50/40 border border-slate-200/90 space-y-3.5">
+              <div className="flex flex-wrap items-center justify-between gap-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                  <Tag className="w-4 h-4 text-sky-600" />
+                  <span>自訂夢境標籤（心境 Mood 與象徵 Symbol · 沉澱 DREAM DNA 長期分析）</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    已選：{customMoodTags.length} 心境 · {customSymbolTags.length} 象徵
+                  </span>
+                  {(customMoodTags.length > 0 || customSymbolTags.length > 0) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const tagsToInsert = [...customSymbolTags, ...customMoodTags];
+                        const text = tagsToInsert.map((t) => `【${t}】`).join(' ');
+                        setDream((prev) => {
+                          const combined = prev ? `${prev} ${text}` : text;
+                          return combined.slice(0, 200);
+                        });
+                      }}
+                      className="text-[11px] text-sky-700 hover:text-sky-900 font-medium cursor-pointer underline"
+                      title="將已選標籤文字填入輸入框"
+                    >
+                      帶入文字框
+                    </button>
+                  )}
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 pt-1">
-                {TAG_CATEGORIES.map((cat) => (
-                  <div key={cat.category} className="space-y-1.5 p-2 rounded-xl bg-white border border-slate-200">
-                    <span className="text-[11px] font-bold text-slate-700 block">
-                      【{cat.category}】
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                {/* 1. 心境 / 情緒標籤 (Mood Tags) */}
+                <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-amber-900 flex items-center gap-1">
+                      <span>💭</span>
+                      <span>心境標籤 (Mood Tags)</span>
                     </span>
-                    <div className="flex flex-wrap gap-1">
-                      {cat.tags.map((tag) => {
-                        const isSelected = selectedTags.includes(tag);
-                        return (
-                          <button
-                            key={tag}
-                            type="button"
-                            onClick={() => handleTagClick(tag)}
-                            className={`px-2 py-0.5 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
-                              isSelected
-                                ? 'bg-blue-600 text-white shadow-2xs'
-                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-                            }`}
-                          >
-                            {isSelected ? `✓ ${tag}` : `+ ${tag}`}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <span className="text-[10px] text-slate-400">點擊選取或輸入新增</span>
                   </div>
-                ))}
+
+                  {/* 常用預設情緒 */}
+                  <div className="flex flex-wrap gap-1">
+                    {PRESET_MOOD_TAGS.map((tag) => {
+                      const isSelected = customMoodTags.includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => handleToggleMoodTag(tag)}
+                          className={`px-2 py-0.5 rounded-lg text-xs font-medium cursor-pointer transition-all ${
+                            isSelected
+                              ? 'bg-amber-500 text-white shadow-2xs ring-1 ring-amber-300'
+                              : 'bg-amber-50/70 hover:bg-amber-100/70 text-amber-900 border border-amber-200/70'
+                          }`}
+                        >
+                          {isSelected ? `✓ ${tag}` : `+ ${tag}`}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* 自訂情緒輸入框 */}
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <input
+                      type="text"
+                      value={newMoodInput}
+                      onChange={(e) => setNewMoodInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddCustomMoodTag();
+                        }
+                      }}
+                      placeholder="新增自訂心境（如：壓抑、釋放）..."
+                      className="flex-1 px-2.5 py-1 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddCustomMoodTag}
+                      className="px-2.5 py-1 text-xs bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium cursor-pointer transition-colors"
+                    >
+                      新增
+                    </button>
+                  </div>
+
+                  {/* 已選心境展示 */}
+                  {customMoodTags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 pt-1 border-t border-slate-100">
+                      {customMoodTags.map((m) => (
+                        <span
+                          key={m}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-900 border border-amber-300"
+                        >
+                          <span>💭 {m}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleMoodTag(m)}
+                            className="hover:text-rose-600 cursor-pointer ml-0.5 font-bold"
+                            title="移除心境標籤"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. 象徵 / 意象標籤 (Symbol Tags) */}
+                <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-sky-900 flex items-center gap-1">
+                      <span>🗝️</span>
+                      <span>象徵標籤 (Symbol Tags)</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400">點擊選取或輸入新增</span>
+                  </div>
+
+                  {/* 常用預設意象 */}
+                  <div className="flex flex-wrap gap-1">
+                    {PRESET_SYMBOL_TAGS.map((tag) => {
+                      const isSelected = customSymbolTags.includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => handleToggleSymbolTag(tag)}
+                          className={`px-2 py-0.5 rounded-lg text-xs font-medium cursor-pointer transition-all ${
+                            isSelected
+                              ? 'bg-sky-600 text-white shadow-2xs ring-1 ring-sky-300'
+                              : 'bg-sky-50/70 hover:bg-sky-100/70 text-sky-900 border border-sky-200/70'
+                          }`}
+                        >
+                          {isSelected ? `✓ ${tag}` : `+ ${tag}`}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* 自訂象徵輸入框 */}
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <input
+                      type="text"
+                      value={newSymbolInput}
+                      onChange={(e) => setNewSymbolInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddCustomSymbolTag();
+                        }
+                      }}
+                      placeholder="新增自訂象徵（如：白貓、時鐘）..."
+                      className="flex-1 px-2.5 py-1 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddCustomSymbolTag}
+                      className="px-2.5 py-1 text-xs bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium cursor-pointer transition-colors"
+                    >
+                      新增
+                    </button>
+                  </div>
+
+                  {/* 已選象徵展示 */}
+                  {customSymbolTags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 pt-1 border-t border-slate-100">
+                      {customSymbolTags.map((s) => (
+                        <span
+                          key={s}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-sky-100 text-sky-900 border border-sky-300"
+                        >
+                          <span>🗝️ {s}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleSymbolTag(s)}
+                            className="hover:text-rose-600 cursor-pointer ml-0.5 font-bold"
+                            title="移除象徵標籤"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="text-[11px] text-slate-500 bg-sky-50/80 p-2 rounded-xl border border-sky-100 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                <span>你自訂的心境與象徵標籤將在存檔後即時連動並精準塑造 DREAM DNA™️ 心靈密碼與情緒走向分析。</span>
               </div>
             </div>
 
@@ -1034,11 +1313,11 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
       {activeTab === 'dna' && (
         <div className="space-y-4">
           <div className="p-4 rounded-2xl bg-sky-50 border border-sky-100 text-xs text-sky-900 leading-relaxed">
-            <strong>DREAM DNA 說明：</strong>累積多個夢境之後，歸納你重複出現嘅意象、內在性格與心理需求（非單次夢境報告）。
+            <strong>DREAM DNA 說明：</strong>累積多個夢境之後，歸納你重複出現嘅意象、內在性格與心理需求（非單次夢境報告）。你手動標記的心境 (Mood) 與象徵 (Symbol) 標籤已實時融入下方的長期心理分析。
           </div>
           <DreamDnaCard
-            dna={initialDreamDNA}
-            dreamDNA={initialDreamDNA}
+            dna={dynamicDreamDNA}
+            dreamDNA={dynamicDreamDNA}
             onOpenShare={(dna) => {
               setShareData(dna);
               setIsShareModalOpen(true);
@@ -1082,21 +1361,9 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
         </div>
       )}
 
-      {/* =========================================================================
-         TAB 6：天體星盤 · 今日生活小貼士
-         ========================================================================= */}
-      {activeTab === 'astrolabe' && (
-        <div className="space-y-4">
-          <CelestialRotatingAstrolabe
-            isPaidMember={currentUser ? normalizeRole(currentUser.role) !== 'free' : false}
-            onRequirePaid={onGoToPricing}
-            onNavigateToWorkspace={() => setActiveTab('workspace')}
-          />
-        </div>
-      )}
 
       {/* =========================================================================
-         彈窗組：報告詳情、示範預覽、噩夢自救與分享
+         彈窗組：報告詳情、噩夢自救與分享
          ========================================================================= */}
       {selectedEntry && (
         <ReportDetailModal
@@ -1105,12 +1372,6 @@ export const DreamWorkspace: React.FC<DreamWorkspaceProps> = ({
           onOpenTherapeuticSupport={() => {}}
         />
       )}
-
-      <SampleReportPreviewModal
-        isOpen={isSamplePreviewOpen}
-        onClose={() => setIsSamplePreviewOpen(false)}
-        initialTab="dna"
-      />
 
       <NightmareCareModal
         isOpen={isNightmareCareOpen}

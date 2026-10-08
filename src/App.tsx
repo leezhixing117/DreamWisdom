@@ -27,7 +27,7 @@ import { trackLoginEvent } from './utils/auditLogger';
 export default function App() {
   // Load or initialize state from localStorage
   const [currentView, setCurrentView] = useState<'home' | 'app' | 'pricing' | 'privacy' | 'store' | 'admin' | 'stars'>('home');
-  const [activeSection, setActiveSection] = useState<'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns' | 'astrolabe'>('workspace');
+  const [activeSection, setActiveSection] = useState<'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns'>('workspace');
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isStarVideoOpen, setIsStarVideoOpen] = useState(false);
   const [prefilledDream, setPrefilledDream] = useState('');
@@ -351,6 +351,11 @@ export default function App() {
     view: 'home' | 'app' | 'pricing' | 'privacy' | 'store' | 'admin' | 'stars',
     section?: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns' | 'astrolabe'
   ) => {
+    if ((section as string) === 'astrolabe') {
+      setCurrentView('pricing');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     if (view === 'admin' && !isManagement) {
       setCurrentView('home');
       return;

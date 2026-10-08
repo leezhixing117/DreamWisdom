@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DreamDNA, DreamDnaSymbol } from '../types';
 import { initialDreamDNA } from '../data';
 import {
@@ -12,6 +12,7 @@ import {
   Eye,
   Cloud,
   Activity,
+  Tag,
 } from 'lucide-react';
 
 interface DreamDnaCardProps {
@@ -66,18 +67,31 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({
 
   const activeTimeData = timeRange === 'this_week' ? emotionTimeDataWeek : emotionTimeDataAll;
 
-  // Keyword tag cloud items with weights (藍色系無紫色)
-  const keywordCloud = [
-    { text: '水 / 海洋', count: 4, size: 'text-lg sm:text-xl', color: 'text-sky-700 bg-sky-50 border-sky-200' },
-    { text: '門 / 出口', count: 3, size: 'text-base sm:text-lg', color: 'text-amber-800 bg-amber-50 border-amber-200' },
-    { text: '被追逐 / 逃跑', count: 3, size: 'text-base sm:text-lg', color: 'text-rose-700 bg-rose-50 border-rose-200' },
-    { text: '舊居屋邨', count: 2, size: 'text-sm sm:text-base', color: 'text-blue-700 bg-blue-50 border-blue-200' },
-    { text: '走廊', count: 3, size: 'text-sm sm:text-base', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
-    { text: '考場公開試', count: 2, size: 'text-sm', color: 'text-amber-700 bg-amber-50 border-amber-200' },
-    { text: '赤腳奔走', count: 2, size: 'text-sm', color: 'text-slate-700 bg-slate-100 border-slate-200' },
-    { text: '母親 / 神枱', count: 2, size: 'text-sm sm:text-base', color: 'text-cyan-800 bg-cyan-50 border-cyan-200' },
-    { text: '黑影 (Shadow)', count: 2, size: 'text-sm', color: 'text-slate-800 bg-slate-100 border-slate-300' },
-  ];
+  // 動態整合用戶自訂意象標籤之關鍵詞雲
+  const dynamicKeywordCloud = useMemo(() => {
+    if (!symbols || symbols.length === 0) {
+      return [
+        { text: '水 / 海洋', count: 4, size: 'text-lg sm:text-xl', color: 'text-sky-700 bg-sky-50 border-sky-200' },
+        { text: '門 / 出口', count: 3, size: 'text-base sm:text-lg', color: 'text-amber-800 bg-amber-50 border-amber-200' },
+        { text: '被追逐 / 逃跑', count: 3, size: 'text-base sm:text-lg', color: 'text-rose-700 bg-rose-50 border-rose-200' },
+        { text: '舊居屋邨', count: 2, size: 'text-sm sm:text-base', color: 'text-blue-700 bg-blue-50 border-blue-200' },
+      ];
+    }
+    const colors = [
+      'text-sky-700 bg-sky-50 border-sky-200',
+      'text-amber-800 bg-amber-50 border-amber-200',
+      'text-blue-700 bg-blue-50 border-blue-200',
+      'text-emerald-700 bg-emerald-50 border-emerald-200',
+      'text-rose-700 bg-rose-50 border-rose-200',
+      'text-cyan-800 bg-cyan-50 border-cyan-200',
+    ];
+    return symbols.map((s, idx) => ({
+      text: s.name,
+      count: s.count,
+      size: s.count >= 3 ? 'text-base sm:text-lg' : 'text-xs sm:text-sm',
+      color: colors[idx % colors.length],
+    }));
+  }, [symbols]);
 
   const handleShareDna = () => {
     if (onOpenShare) {
@@ -318,7 +332,7 @@ export const DreamDnaCard: React.FC<DreamDnaCardProps> = ({
         </div>
 
         <div className="flex flex-wrap gap-2.5 items-center py-2">
-          {keywordCloud.map((kw, idx) => (
+          {dynamicKeywordCloud.map((kw, idx) => (
             <button
               key={idx}
               type="button"

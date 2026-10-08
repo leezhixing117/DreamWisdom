@@ -4,10 +4,11 @@ import { Sparkles, Dna, Compass, Key, Clock, Brain, Settings, ArrowLeft, LogOut,
 
 interface SidebarProps {
   currentUser?: User | null;
-  activeSection?: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns' | 'astrolabe';
-  onNavigate: (view: 'home' | 'app' | 'pricing' | 'privacy' | 'store' | 'admin' | 'stars', section?: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns' | 'astrolabe') => void;
+  activeSection?: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns';
+  onNavigate: (view: 'home' | 'app' | 'pricing' | 'privacy' | 'store' | 'admin' | 'stars', section?: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns') => void;
   onLogout: () => void;
   onOpenEarnStars?: () => void;
+  onOpenLogin?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -16,6 +17,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNavigate,
   onLogout,
   onOpenEarnStars,
+  onOpenLogin,
 }) => {
   const normRole = currentUser ? normalizeRole(currentUser.role) : null;
   const isManagement = normRole === 'admin' || normRole === 'super_admin';
@@ -24,7 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="sidebar" id="app-sidebar">
       <div className="sidecard space-y-1 bg-white/85 border border-[#BAE6FD] shadow-[0_8px_24px_rgba(147,197,253,0.15)]">
         {/* User Tier Status Badge on top of sidebar */}
-        {currentUser && (
+        {currentUser ? (
           <div className="p-2.5 mb-2 rounded-xl bg-[#F0F7FF] border border-[#BAE6FD] text-xs">
             <div className="flex items-center justify-between gap-1 mb-1">
               <span className="font-bold text-[#102A4E] truncate max-w-[110px]">
@@ -51,22 +53,60 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
                   {currentUser.stars ?? 2} 顆星
                 </span>
-                {onOpenEarnStars && (
+                <div className="flex items-center gap-2">
+                  {onOpenEarnStars && (
+                    <button
+                      type="button"
+                      onClick={onOpenEarnStars}
+                      className="text-[10px] text-amber-700 hover:text-amber-900 hover:underline font-bold cursor-pointer"
+                    >
+                      睇片儲星 +
+                    </button>
+                  )}
+                  {onOpenLogin && (
+                    <button
+                      type="button"
+                      onClick={onOpenLogin}
+                      className="text-[10px] text-sky-700 hover:underline font-bold cursor-pointer"
+                      title="切換其他使用者"
+                    >
+                      ⇄ 切換
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="text-[10px] text-[#5C7A9E] pt-0.5 flex items-center justify-between">
+                <span>
+                  {normRole === 'paid' && '✨ 全功能直接解鎖免儲星'}
+                  {normRole === 'admin' && '⚙️ 全功能 + 內容管理'}
+                  {normRole === 'super_admin' && '🛡️ 全功能 + 更改會員等級'}
+                </span>
+                {onOpenLogin && (
                   <button
                     type="button"
-                    onClick={onOpenEarnStars}
-                    className="text-[10px] text-amber-700 hover:text-amber-900 hover:underline font-bold cursor-pointer"
+                    onClick={onOpenLogin}
+                    className="text-[10px] text-sky-700 hover:underline font-bold cursor-pointer shrink-0 ml-1"
+                    title="切換其他使用者"
                   >
-                    睇片儲星 +
+                    ⇄ 切換
                   </button>
                 )}
               </div>
-            ) : (
-              <div className="text-[10px] text-[#5C7A9E] pt-0.5">
-                {normRole === 'paid' && '✨ 全功能直接解鎖免儲星'}
-                {normRole === 'admin' && '⚙️ 全功能 + 內容管理'}
-                {normRole === 'super_admin' && '🛡️ 全功能 + 更改會員等級'}
-              </div>
+            )}
+          </div>
+        ) : (
+          <div className="p-2.5 mb-2 rounded-xl bg-sky-50 border border-sky-200 text-xs text-center space-y-1.5">
+            <div className="text-[11px] text-slate-600 font-medium">尚未登入帳戶</div>
+            {onOpenLogin && (
+              <button
+                type="button"
+                onClick={onOpenLogin}
+                className="w-full py-1.5 px-2.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs flex items-center justify-center gap-1 cursor-pointer transition-colors"
+                id="sidebar-login-prompt-btn"
+              >
+                <span>🔑 立即登入 / 註冊</span>
+              </button>
             )}
           </div>
         )}
@@ -133,22 +173,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span>🕰️ 日記典藏</span>
         </button>
 
-        <button
-          type="button"
-          onClick={() => onNavigate('app', 'astrolabe')}
-          className={`sideitem ${activeSection === 'astrolabe' ? 'active' : ''}`}
-          id="sidebar-item-astrolabe"
-          title="👑 付費會員專區 · 潛意識天體星盤"
-        >
-          <Crown className="w-4 h-4 text-amber-500" />
-          <div className="text-left leading-tight">
-            <div className="font-semibold flex items-center gap-1">
-              <span>🪐 潛意識星盤</span>
-              <span className="text-[9px] px-1 py-0.2 rounded bg-amber-100 text-amber-900 border border-amber-300 font-bold">VIP</span>
-            </div>
-            <div className="text-[10px] text-[#5C7A9E] font-normal">付費會員專區</div>
-          </div>
-        </button>
 
         <div className="my-2 border-t border-[#BAE6FD]" />
 
@@ -223,15 +247,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span>← 返回首頁</span>
         </button>
 
-        <button
-          type="button"
-          onClick={onLogout}
-          className="sideitem text-rose-600 hover:bg-rose-50"
-          id="sidebar-item-logout"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>登出</span>
-        </button>
+        {currentUser ? (
+          <button
+            type="button"
+            onClick={onLogout}
+            className="sideitem text-rose-600 hover:bg-rose-50"
+            id="sidebar-item-logout"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>登出</span>
+          </button>
+        ) : onOpenLogin ? (
+          <button
+            type="button"
+            onClick={onOpenLogin}
+            className="sideitem text-sky-700 hover:bg-sky-50 font-bold"
+            id="sidebar-item-login"
+          >
+            <span className="text-sm">🔑</span>
+            <span>登入 / 註冊</span>
+          </button>
+        ) : null}
       </div>
     </aside>
   );

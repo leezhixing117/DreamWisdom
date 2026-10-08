@@ -155,6 +155,8 @@ export interface DreamEntry {
   report_json: DreamReport;
   rawCantoneseTranscription?: string;
   tags?: string[];
+  moodTags?: string[]; // 自訂心境/情緒標籤 (Manual Mood Tags)
+  symbolTags?: string[]; // 自訂象徵/意象標籤 (Manual Symbol Tags)
 }
 
 export interface DreamDnaSymbol {

@@ -64,8 +64,19 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     created_at: '2026-09-01T08:00:00Z',
   };
 
-  // Login form state (default pre-filled with super admin email and password)
-  const [loginEmail, setLoginEmail] = useState('mysticblaza@gmail.com');
+  // Find general free user (regular user) or fallback
+  const freeUser: User = availableUsers.find((u) => normalizeRole(u.role) === 'free') || {
+    id: 'user_free',
+    email: 'free.user@gmail.com',
+    display_name: 'Chris (一般會員)',
+    role: 'free' as UserRole,
+    password: 'Abc123',
+    stars: 6,
+    created_at: '2026-09-10T14:15:00Z',
+  };
+
+  // Login form state (default pre-filled with general user email for easy login)
+  const [loginEmail, setLoginEmail] = useState('free.user@gmail.com');
   const [loginPassword, setLoginPassword] = useState('Abc123');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -86,6 +97,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     setBusy(true);
     setErrorMessage(null);
 
+    if (isEmailBanned(user.email)) {
+      setErrorMessage(`⚠️ 此帳號 (${user.email}) 已被停權封禁，無法登入。`);
+      setBusy(false);
+      return;
+    }
+
     // Ensure user has valid structure
     const targetUser: User = {
       ...user,
@@ -97,18 +114,23 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       trackLoginEvent(targetUser, 'quick_select', 'success');
       onLogin(targetUser);
       onClose();
-    }, 150);
+    }, 120);
   };
 
   // Handle password login submit
-  const handlePasswordLoginSubmit = (e: React.FormEvent, skipPasswordCheck = false) => {
+  const handlePasswordLoginSubmit = (e?: React.FormEvent, skipPasswordCheck = false) => {
     if (e) e.preventDefault();
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    const emailTrimmed = (loginEmail || 'mysticblaza@gmail.com').trim().toLowerCase();
+    const emailTrimmed = (loginEmail || '').trim().toLowerCase();
     if (!emailTrimmed) {
       setErrorMessage('請輸入電子郵件 (Email)');
+      return;
+    }
+
+    if (isEmailBanned(emailTrimmed)) {
+      setErrorMessage('⚠️ 此電子郵件已被系統封禁停權，無法登入。如有疑問請聯絡系統支援。');
       return;
     }
 
@@ -135,7 +157,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         const newUser: User = {
           id: 'user_' + Date.now(),
           email: loginEmail.trim(),
-          display_name: loginEmail.split('@')[0],
+          display_name: loginEmail.trim().split('@')[0],
           role: 'free',
           password: loginPassword || 'Abc123',
           stars: 6,
@@ -145,7 +167,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         onLogin(newUser);
         onClose();
       }
-    }, 150);
+    }, 120);
   };
 
   // Handle forgot password reset
@@ -178,9 +200,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   };
 
   return (
-    <div className="modalback" id="login-modal-backdrop" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/85 backdrop-blur-md overflow-y-auto cursor-pointer"
+      id="login-modal-backdrop"
+      onClick={onClose}
+    >
       <div
-        className="loginbox relative max-w-lg w-full p-6 sm:p-8 rounded-3xl bg-slate-900/95 border border-slate-700 text-white shadow-2xl backdrop-blur-xl"
+        className="loginbox relative max-w-lg w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 rounded-3xl bg-slate-900/98 border border-slate-700 text-white shadow-2xl cursor-default"
         id="login-modal-box"
         onClick={(e) => e.stopPropagation()}
       >
@@ -201,26 +227,47 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           登入 DreamWisdom
         </h2>
         <p className="text-slate-300 text-xs sm:text-sm text-center leading-relaxed max-w-md mx-auto mb-5">
-          歡迎探索心靈解夢宇宙。支援 Google 一鍵登入、演示角色免密登入，或輸入自訂帳號。
+          歡迎探索心靈解夢宇宙。支援 Google 一鍵登入、角色快速切換，或輸入自訂帳號登入/註冊。
         </p>
 
-        {/* 1. 頂部最高優先：Google 一鍵快速登入 (mysticblaza@gmail.com) */}
-        <div className="mb-5">
+        {/* 1. 頂部最高優先：Google 一鍵快速登入（一般使用者 & 管理員雙選項） */}
+        <div className="mb-5 space-y-2">
+          {/* 一般使用者 Google 一鍵登入 */}
+          <button
+            type="button"
+            onClick={() => handleDirectLogin(freeUser)}
+            className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs sm:text-sm flex items-center justify-between gap-2.5 cursor-pointer shadow-lg shadow-black/20 hover:shadow-xl transition-all active:scale-[0.99] border border-slate-200"
+            id="btn-google-one-click-free"
+            title="以一般使用者 Google 帳號一鍵登入"
+          >
+            <div className="flex items-center gap-2.5 truncate">
+              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+              </svg>
+              <span className="truncate">Google 一鍵登入 (使用者: free.user@gmail.com)</span>
+            </div>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold shrink-0">
+              一般會員
+            </span>
+          </button>
+
+          {/* 管理員 Google 一鍵登入（折疊或次要按鈕） */}
           <button
             type="button"
             onClick={() => handleDirectLogin(superUser)}
-            className="w-full py-3.5 px-5 rounded-2xl bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs sm:text-sm flex items-center justify-center gap-3 cursor-pointer shadow-lg shadow-black/20 hover:shadow-xl transition-all active:scale-[0.99] border border-slate-200"
-            id="btn-google-one-click-login"
+            className="w-full py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center justify-between gap-2 cursor-pointer border border-slate-700 transition-colors"
+            id="btn-google-one-click-admin"
+            title="以高級管理員帳號登入系統控制室"
           >
-            <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-            </svg>
-            <span className="truncate">以 Google 帳號一鍵登入 (mysticblaza@gmail.com)</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-bold shrink-0">
-              高級管理員
+            <div className="flex items-center gap-2 truncate">
+              <ShieldCheck className="w-4 h-4 text-sky-400 shrink-0" />
+              <span className="truncate text-[11px]">以高級管理員登入 (mysticblaza@gmail.com)</span>
+            </div>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-900/60 text-blue-300 border border-blue-600/40 shrink-0">
+              管理後台
             </span>
           </button>
         </div>
@@ -228,7 +275,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         {/* 分隔線 */}
         <div className="flex items-center gap-3 mb-5">
           <div className="flex-1 h-px bg-slate-700" />
-          <span className="text-[11px] text-slate-400 font-mono uppercase tracking-wider">或選擇其他登入方式</span>
+          <span className="text-[11px] text-slate-400 font-mono uppercase tracking-wider">或選擇其他登入 / 註冊方式</span>
           <div className="flex-1 h-px bg-slate-700" />
         </div>
 
@@ -246,7 +293,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            ⚡ 快速切換 4 種角色
+            ⚡ 快速選取 4 種角色
           </button>
           <button
             type="button"
@@ -260,7 +307,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            🔐 帳號密碼登入
+            🔐 帳號登入 / 快速註冊
           </button>
           <button
             type="button"
@@ -294,29 +341,30 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           </div>
         )}
 
-        {/* TAB 1: Quick Role Switcher (4 Level Accounts) */}
+        {/* TAB 1: Quick Role Switcher (4 Level Accounts - 一般會員優先) */}
         {activeTab === 'quick' && (
           <div className="space-y-2.5 text-left" id="login-quick-demo-list">
-            {/* 1. 高級管理員 */}
+            {/* 1. 一般會員 (使用者) */}
             <button
               type="button"
-              onClick={() => handleDirectLogin(superUser)}
-              className="w-full p-3 rounded-2xl border border-blue-500/40 bg-blue-950/30 hover:bg-blue-900/40 transition-all text-left flex items-start justify-between gap-3 group cursor-pointer"
+              onClick={() => handleDirectLogin(freeUser)}
+              className="w-full p-3 rounded-2xl border border-amber-500/40 bg-amber-950/25 hover:bg-amber-900/35 transition-all text-left flex items-start justify-between gap-3 group cursor-pointer"
+              id="login-role-free-user"
             >
               <div className="flex items-start gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/40 flex items-center justify-center text-blue-300 shrink-0 mt-0.5">
-                  <ShieldCheck className="w-4 h-4" />
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0 mt-0.5">
+                  <Star className="w-4 h-4 fill-amber-300/40" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-white group-hover:text-blue-300 transition-colors flex items-center gap-1.5">
-                    <span>👑 高級管理員 · mysticblaza@gmail.com</span>
+                  <div className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors flex items-center gap-1.5">
+                    <span>⭐ 一般會員 (使用者) · {freeUser.email}</span>
                   </div>
                   <div className="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
-                    最高權限：後台控制室、全免扣星、天體星盤、會員審批與管理
+                    常規使用者：體驗解夢、記錄夢庫、DREAM DNA、睇廣告儲星星幣
                   </div>
                 </div>
               </div>
-              <span className="text-[10px] px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/40 font-bold shrink-0">
+              <span className="text-[10px] px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 font-bold shrink-0">
                 一鍵登入
               </span>
             </button>
@@ -336,6 +384,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   type="button"
                   onClick={() => handleDirectLogin(paidUser)}
                   className="w-full p-3 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 hover:bg-emerald-900/30 transition-all text-left flex items-start justify-between gap-3 group cursor-pointer"
+                  id="login-role-paid-user"
                 >
                   <div className="flex items-start gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shrink-0 mt-0.5">
@@ -343,10 +392,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     </div>
                     <div>
                       <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors flex items-center gap-1.5">
-                        <span>💎 付費會員 (VIP) · pro.dreamer@gmail.com</span>
+                        <span>💎 付費會員 (VIP) · {paidUser.email}</span>
                       </div>
                       <div className="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
-                        享有天體星盤無限次撥盤、全站免廣告、免扣星深度解夢與無限存檔
+                        VIP 特權：天體星盤無限次撥盤、全站免廣告、免扣星深度解夢與無限存檔
                       </div>
                     </div>
                   </div>
@@ -357,7 +406,32 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               );
             })()}
 
-            {/* 3. 內容管理員 */}
+            {/* 3. 高級管理員 */}
+            <button
+              type="button"
+              onClick={() => handleDirectLogin(superUser)}
+              className="w-full p-3 rounded-2xl border border-blue-500/40 bg-blue-950/30 hover:bg-blue-900/40 transition-all text-left flex items-start justify-between gap-3 group cursor-pointer"
+              id="login-role-super-admin"
+            >
+              <div className="flex items-start gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/40 flex items-center justify-center text-blue-300 shrink-0 mt-0.5">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white group-hover:text-blue-300 transition-colors flex items-center gap-1.5">
+                    <span>👑 高級管理員 · {superUser.email}</span>
+                  </div>
+                  <div className="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
+                    最高權限：後台控制室、全免扣星、天體星盤、會員審批與管理
+                  </div>
+                </div>
+              </div>
+              <span className="text-[10px] px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/40 font-bold shrink-0">
+                一鍵登入
+              </span>
+            </button>
+
+            {/* 4. 內容管理員 */}
             {(() => {
               const adminUser = availableUsers.find((u) => normalizeRole(u.role) === 'admin') || {
                 id: 'demo_admin',
@@ -372,6 +446,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   type="button"
                   onClick={() => handleDirectLogin(adminUser)}
                   className="w-full p-3 rounded-2xl border border-purple-500/30 bg-purple-950/20 hover:bg-purple-900/30 transition-all text-left flex items-start justify-between gap-3 group cursor-pointer"
+                  id="login-role-content-admin"
                 >
                   <div className="flex items-start gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center text-purple-300 shrink-0 mt-0.5">
@@ -379,7 +454,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     </div>
                     <div>
                       <div className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors flex items-center gap-1.5">
-                        <span>🛠️ 內容管理員 · admin@dreamwisdom.com</span>
+                        <span>🛠️ 內容管理員 · {adminUser.email}</span>
                       </div>
                       <div className="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
                         免星解鎖全功能，支援商品與百科內容維護管理
@@ -387,42 +462,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     </div>
                   </div>
                   <span className="text-[10px] px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-400/30 font-bold shrink-0">
-                    一鍵登入
-                  </span>
-                </button>
-              );
-            })()}
-
-            {/* 4. 一般會員 */}
-            {(() => {
-              const freeUser = availableUsers.find((u) => normalizeRole(u.role) === 'free') || {
-                id: 'demo_free',
-                email: 'free.user@gmail.com',
-                display_name: 'Chris (一般會員)',
-                role: 'free' as UserRole,
-                password: 'Abc123',
-                stars: 6,
-              };
-              return (
-                <button
-                  type="button"
-                  onClick={() => handleDirectLogin(freeUser)}
-                  className="w-full p-3 rounded-2xl border border-amber-500/30 bg-amber-950/20 hover:bg-amber-900/30 transition-all text-left flex items-start justify-between gap-3 group cursor-pointer"
-                >
-                  <div className="flex items-start gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300 shrink-0 mt-0.5">
-                      <Star className="w-4 h-4 fill-amber-300/40" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors flex items-center gap-1.5">
-                        <span>⭐ 一般會員 · free.user@gmail.com</span>
-                      </div>
-                      <div className="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
-                        體驗扣星機制：初步分析 3 星、深度解夢 6 星，睇廣告儲星
-                      </div>
-                    </div>
-                  </div>
-                  <span className="text-[10px] px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 font-bold shrink-0">
                     一鍵登入
                   </span>
                 </button>
@@ -439,22 +478,42 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 <label className="text-xs text-slate-300 font-medium">
                   電子郵件 (EMAIL)
                 </label>
-                <div className="flex items-center gap-1 text-[11px] text-blue-400">
+                <div className="flex items-center gap-1.5 text-[11px] text-sky-400">
                   <span>快速填入：</span>
                   <button
                     type="button"
-                    onClick={() => setLoginEmail('mysticblaza@gmail.com')}
-                    className="hover:underline cursor-pointer font-mono"
+                    onClick={() => {
+                      setLoginEmail('free.user@gmail.com');
+                      setLoginPassword('Abc123');
+                    }}
+                    className="hover:underline cursor-pointer font-medium text-amber-300"
+                    title="填入一般使用者帳號"
                   >
-                    管理員
+                    ⭐ 使用者
                   </button>
                   <span>·</span>
                   <button
                     type="button"
-                    onClick={() => setLoginEmail('pro.dreamer@gmail.com')}
-                    className="hover:underline cursor-pointer font-mono"
+                    onClick={() => {
+                      setLoginEmail('pro.dreamer@gmail.com');
+                      setLoginPassword('Abc123');
+                    }}
+                    className="hover:underline cursor-pointer font-medium text-emerald-300"
+                    title="填入 VIP 會員帳號"
                   >
-                    VIP
+                    💎 VIP
+                  </button>
+                  <span>·</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginEmail('mysticblaza@gmail.com');
+                      setLoginPassword('Abc123');
+                    }}
+                    className="hover:underline cursor-pointer font-medium text-blue-300"
+                    title="填入高級管理員帳號"
+                  >
+                    👑 管理員
                   </button>
                 </div>
               </div>
@@ -464,7 +523,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   required
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  placeholder="例如：mysticblaza@gmail.com 或 free.user@gmail.com"
+                  placeholder="請輸入 Email (例如: free.user@gmail.com 或任意新信箱)"
                   className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs placeholder:text-slate-400 focus:outline-none focus:border-blue-400"
                   id="login-input-email"
                 />
@@ -493,7 +552,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   type={showPassword ? 'text' : 'password'}
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
-                  placeholder="輸入任意密碼或預設密碼 Abc123"
+                  placeholder="輸入密碼 (預設密碼 Abc123 或任意自訂密碼)"
                   className="w-full pl-9 pr-10 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs placeholder:text-slate-400 focus:outline-none focus:border-blue-400"
                   id="login-input-password"
                 />
@@ -508,7 +567,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 </button>
               </div>
               <p className="text-[11px] text-slate-400 mt-1">
-                提示：所有帳戶預設密碼為 <code className="text-amber-300 font-mono font-bold">Abc123</code>，亦支援免密直接登入。
+                提示：若輸入未註冊 Email，系統將為您<span className="text-amber-300 font-semibold">自動建立一般使用者帳號</span>並直接登入。
               </p>
             </div>
 

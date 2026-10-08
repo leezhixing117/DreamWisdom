@@ -3,26 +3,17 @@ import {
   Sparkles,
   ArrowRight,
   ShieldCheck,
-  Brain,
   Compass,
   Key,
   ChevronDown,
   ChevronUp,
   Dna,
   Heart,
-  Lock,
-  Eye,
-  AlertCircle,
   PhoneCall,
-  UserCheck,
-  CheckCircle2,
-  HelpCircle,
   Tag,
   RotateCcw,
 } from 'lucide-react';
 import { TherapeuticSupportModal } from './TherapeuticSupportModal';
-import { SampleReportPreviewModal } from './SampleReportPreviewModal';
-import { CelestialRotatingAstrolabe, Archetype } from './CelestialRotatingAstrolabe';
 import { TherapistItem, User, normalizeRole } from '../types';
 import {
   StepNotepadIcon,
@@ -36,7 +27,7 @@ import {
 interface HomeViewProps {
   currentUser?: User | null;
   onStartWithDream: (dreamText: string, includeStarChart?: boolean) => void;
-  onGoToApp: (tab?: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'astrolabe') => void;
+  onGoToApp: (tab?: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history') => void;
   onGoToPricing?: () => void;
   onOpenLogin?: () => void;
   onGoToPrivacy?: () => void;
@@ -93,12 +84,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onStartWithDream,
   onGoToApp,
   onGoToPricing,
-  onOpenLogin,
   therapists,
 }) => {
-  const normRole = currentUser ? normalizeRole(currentUser.role) : null;
-  const isPaidMember = normRole === 'paid' || normRole === 'admin' || normRole === 'super_admin';
-
   // 本地 LocalStorage 草稿儲存與即時恢復
   const [draftDream, setDraftDream] = useState<string>(() => {
     try {
@@ -124,8 +111,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const [isShaking, setIsShaking] = useState(false);
 
   const [isTherapeuticOpen, setIsTherapeuticOpen] = useState(false);
-  const [isSamplePreviewOpen, setIsSamplePreviewOpen] = useState(false);
-  const [sampleInitialTab, setSampleInitialTab] = useState<'dna' | 'constellation' | 'mystery'>('dna');
 
   // 香港心理支援熱線可折疊模塊，預設收起
   const [isHotlinesOpen, setIsHotlinesOpen] = useState(false);
@@ -225,39 +210,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
     }
   };
 
-  // 星盤連動：將右側星盤原型加入左側夢境
-  const handleAstrolabeAddToDream = (arch: Archetype) => {
-    const tag = `【今日星象共振】：${arch.symbol} ${arch.label}（${arch.insight}）`;
-    setIncludeStarChart(true);
-    if (draftDream.includes(tag)) return;
-    const combined = draftDream ? `${draftDream.trim()}\n${tag}` : tag;
-    if (combined.length <= 200) {
-      setDraftDream(combined);
-      try {
-        localStorage.setItem('dreamwisdom_draft_dream', combined);
-      } catch {}
-    } else {
-      const shortTag = `【${arch.symbol}${arch.label}】`;
-      if (!draftDream.includes(shortTag) && draftDream.length + shortTag.length <= 200) {
-        const next = `${draftDream.trim()} ${shortTag}`;
-        setDraftDream(next);
-        try {
-          localStorage.setItem('dreamwisdom_draft_dream', next);
-        } catch {}
-      }
-    }
-  };
-
-  const handleAstrolabeRemoveFromDream = (arch: Archetype) => {
-    const tag = `【今日星象共振】：${arch.symbol} ${arch.label}（${arch.insight}）`;
-    const shortTag = `【${arch.symbol}${arch.label}】`;
-    const next = draftDream.replace(tag, '').replace(shortTag, '').replace(/\n\n+/g, '\n').trim();
-    setDraftDream(next);
-    try {
-      localStorage.setItem('dreamwisdom_draft_dream', next);
-    } catch {}
-  };
-
   // 提交解夢（不足30字時觸發 shake 動畫及焦點提示）
   const handleStartAnalysis = () => {
     const trimmed = draftDream.trim();
@@ -273,12 +225,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
       return;
     }
     onStartWithDream(trimmed, includeStarChart);
-  };
-
-  // 打開示範報告彈窗（不跳轉新頁）
-  const handleOpenSampleModal = () => {
-    setSampleInitialTab('dna');
-    setIsSamplePreviewOpen(true);
   };
 
   // FAQ 展開/收起切換
@@ -313,13 +259,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     {
       id: 'star',
       q: '星圖解析係點樣運作？需要額外收費嗎？',
-      a: '星圖解析為可選附加功能，預設關閉。勾選後，AI 會結合天體宿位與榮格「共時性（Synchronicity）」視角解構夢境。付費會員更可使用旋轉星盤獲取今日生活小貼士，並自由選擇是否納入夢境作深入分析。',
-    },
-    {
-      id: 'sample',
-      q: '我想先睇下解夢報告嘅格式，有冇示範？',
-      a: '有的！你可以隨時點擊下方「查看示範報告」按鈕，立即彈窗預覽包含【潛意識訊息】、【情緒反思建議】的標準報告範本。',
-      isSampleAction: true,
+      a: '星圖解析為可選附加功能，預設關閉。勾選後，AI 會結合天體宿位與榮格「共時性（Synchronicity）」視角解構夢境。付費會員更可進入專屬工作台使用旋轉星盤獲取今日生活小貼士，並自由選擇是否納入夢境作深入分析。',
     },
   ];
 
@@ -332,7 +272,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* ============================================================ */}
       {/* 🌟 1. HERO 頂部視覺：天體主標題與精簡副標題 🌟 */}
       {/* ============================================================ */}
-      <section className="shell relative pt-8 sm:pt-12 pb-4 text-center px-4 max-w-5xl mx-auto" id="hero-section">
+      <section className="shell relative pt-8 sm:pt-14 pb-4 text-center px-4 max-w-4xl mx-auto" id="hero-section">
         {/* 經典主標題：帶雙側銀藍四角星辰 */}
         <div className="relative inline-block max-w-3xl mx-auto mb-3">
           <span
@@ -368,7 +308,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </p>
 
         {/* ============================================================ */}
-        {/* ⚠️ 4. 重要提醒 合併到副標題下方，簡潔不顯眼（符合用戶要求：不用頁面太明顯） ⚠️ */}
+        {/* ⚠️ 重要提醒 合併到副標題下方，簡潔不顯眼（不用頁面太明顯） ⚠️ */}
         {/* ============================================================ */}
         <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[11px] sm:text-xs text-slate-500 max-w-2xl mx-auto mb-6 text-center px-2">
           <span>⚠️ 溫馨提醒：本平台為榮格心理學自我反思工具，非醫療診斷。</span>
@@ -382,312 +322,272 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         {/* ============================================================ */}
-        {/* 🌟 3. 首頁黃金雙欄互動巨幕（左欄記夢輸入 + 右欄天體旋轉星盤） 🌟 */}
+        {/* 🌟 2. 居中夢境速記卡片（首頁無星盤，簡潔專注，直達核心） 🌟 */}
         {/* ============================================================ */}
-        <div className="w-full text-left my-2">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* ------------------------------------------------------------ */}
-            {/* 【左欄】：記夢輸入卡片（記夢參考之前的入法） */}
-            {/* ------------------------------------------------------------ */}
-            <div className="lg:col-span-7 bg-white rounded-3xl border border-sky-100 shadow-md p-5 sm:p-6 transition-all" id="recorddream">
-              {/* 卡片標題 */}
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 pb-2.5">
-                <div className="flex items-center gap-2 text-slate-900 font-bold text-base sm:text-lg">
-                  <Sparkles className="w-4 h-4 text-sky-600" />
-                  <span>記錄今晨夢境片段</span>
-                </div>
-                <div className="text-xs text-sky-700 font-medium">
-                  以廣東話口語輸入即可 · 建議 30-200 字
-                </div>
+        <div className="w-full text-left my-2 max-w-3xl mx-auto" id="recorddream">
+          <div className="bg-white rounded-3xl border border-sky-100 shadow-md p-5 sm:p-7 transition-all">
+            {/* 卡片標題 */}
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 pb-2.5">
+              <div className="flex items-center gap-2 text-slate-900 font-bold text-base sm:text-lg">
+                <Sparkles className="w-4 h-4 text-sky-600" />
+                <span>記錄今晨夢境片段</span>
               </div>
-
-              {/* 記夢引導（點擊帶入回憶結構） */}
-              <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/80 mb-3.5">
-                <div className="flex items-center justify-between gap-1 text-xs text-sky-800 font-bold mb-2">
-                  <span className="flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5 text-sky-600" />
-                    <span>記夢引導（點擊帶入提示詞）：</span>
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-normal">快速建立夢境骨架</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleAddGuidePrompt('characters')}
-                    className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-xs text-slate-800 hover:text-sky-700 font-medium transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
-                    title="點擊帶入【人物】提示"
-                  >
-                    <span>👥</span>
-                    <span>有邊啲人物？</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddGuidePrompt('scene')}
-                    className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-xs text-slate-800 hover:text-sky-700 font-medium transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
-                    title="點擊帶入【場景】提示"
-                  >
-                    <span>📍</span>
-                    <span>場景係邊度？</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddGuidePrompt('emotion')}
-                    className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-xs text-slate-800 hover:text-sky-700 font-medium transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
-                    title="點擊帶入【感覺】提示"
-                  >
-                    <span>💭</span>
-                    <span>感覺如何？</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddGuidePrompt('objects')}
-                    className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-xs text-slate-800 hover:text-sky-700 font-medium transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
-                    title="點擊帶入【物件】提示"
-                  >
-                    <span>🚪</span>
-                    <span>有特定物件？</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* 夢境類型選單 */}
-              <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-sky-50/50 border border-sky-100 text-xs mb-3">
-                <div className="flex items-center gap-2">
-                  <Tag className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-                  <label htmlFor="home-dream-category" className="font-semibold text-slate-700">
-                    夢境類型：
-                  </label>
-                  <select
-                    id="home-dream-category"
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-slate-800 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-sky-500 cursor-pointer shadow-2xs"
-                  >
-                    {DREAM_CATEGORIES.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {draftDream.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (window.confirm('確定要清空當前輸入內容重寫嗎？')) {
-                        setDraftDream('');
-                        setSelectedTags([]);
-                        try {
-                          localStorage.removeItem('dreamwisdom_draft_dream');
-                        } catch {}
-                      }
-                    }}
-                    className="text-[11px] text-slate-500 hover:text-rose-600 transition-colors flex items-center gap-1 cursor-pointer"
-                  >
-                    <RotateCcw className="w-3 h-3" />
-                    <span>清空重寫</span>
-                  </button>
-                )}
-              </div>
-
-              {/* 夢境主要輸入框（30-200字約束 + shake 晃動視覺回饋） */}
-              <div className="relative mb-2">
-                <textarea
-                  ref={textareaRef}
-                  value={draftDream}
-                  onChange={handleDreamChange}
-                  maxLength={200}
-                  placeholder="寫低你醒來記得嘅夢境片段……夢見邊個、喺邊度、當時心情如何？（字數限制：最少 30 字，最多 200 字；亦可點擊上方引導或下方意象詞直接插入）"
-                  id="hero-dream-textarea"
-                  rows={4}
-                  className={`w-full bg-slate-50/70 focus:bg-white border rounded-2xl text-slate-900 placeholder:text-slate-400 text-sm sm:text-base p-4 focus:outline-none resize-none leading-relaxed transition-all shadow-inner ${
-                    isShaking
-                      ? 'animate-shake border-rose-500 ring-2 ring-rose-300 bg-rose-50/30'
-                      : 'border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-100'
-                  }`}
-                />
-
-                {/* 實時字數顯示 */}
-                <div className="flex flex-wrap items-center justify-between text-xs mt-1 px-1 gap-2">
-                  <span className="text-slate-500 text-[11px]">
-                    {isTooShort ? (
-                      <span className={`font-medium transition-colors ${isShaking ? 'text-rose-600 font-bold' : 'text-amber-800'}`}>
-                        ⚠️ 夢境需要30‑200字，寫多啲細節，AI分析更貼近你嘅狀況。
-                      </span>
-                    ) : (
-                      <span className="text-emerald-700 font-medium">
-                        ✓ 字數符合標準，可隨時點擊下方按鈕提交拆解
-                      </span>
-                    )}
-                  </span>
-                  <span
-                    className={`font-mono font-bold px-2 py-0.5 rounded-md text-[11px] ${
-                      isShaking
-                        ? 'bg-rose-200 text-rose-900 animate-pulse'
-                        : isTooShort
-                        ? 'bg-amber-100 text-amber-900'
-                        : isAtLimit
-                        ? 'bg-rose-100 text-rose-800'
-                        : 'bg-sky-100 text-sky-900'
-                    }`}
-                  >
-                    已輸入：{currentLength} / 30‑200字
-                  </span>
-                </div>
-              </div>
-
-              {/* 補充意象詞快速晶片（可點擊插入/移除） */}
-              <div className="mt-3 pt-2.5 border-t border-slate-100">
-                <div className="flex items-center justify-between text-xs text-slate-700 font-bold mb-1.5">
-                  <span className="flex items-center gap-1">
-                    <span>✦ 補充意象詞（點擊帶入，高亮可移除）：</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setShowDetailedTags(!showDetailedTags)}
-                    className="text-[11px] text-sky-700 hover:text-sky-900 cursor-pointer font-medium"
-                  >
-                    {showDetailedTags ? '收起四類標籤 ▲' : '展開四類分類標籤 ▼'}
-                  </button>
-                </div>
-
-                {/* 常用快速意象詞 */}
-                <div className="flex flex-wrap items-center gap-1.5 text-xs mb-2">
-                  {QUICK_DREAM_TAGS.map((tag) => {
-                    const isSelected = selectedTags.includes(tag.label) || draftDream.includes(`【${tag.label}】`);
-                    return (
-                      <button
-                        key={tag.label}
-                        type="button"
-                        onClick={() => handleToggleTag(tag.label)}
-                        className={`px-2 py-1 rounded-lg border text-xs font-medium cursor-pointer transition-all flex items-center gap-1 ${
-                          isSelected
-                            ? 'bg-sky-600 text-white border-sky-600 shadow-xs ring-1 ring-sky-200'
-                            : 'bg-slate-50 hover:bg-sky-50 text-slate-700 border-slate-200 hover:border-sky-300'
-                        }`}
-                        title={isSelected ? `點擊移除【${tag.label}】` : `點擊插入【${tag.label}】`}
-                      >
-                        <span className="text-xs">{tag.icon}</span>
-                        <span>{tag.label}</span>
-                        <span>{isSelected ? '✓' : '+'}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* 展開之四類分類結構 */}
-                {showDetailedTags && (
-                  <div className="space-y-2 pt-2 border-t border-dashed border-slate-200 animate-fadeIn">
-                    {TAG_CATEGORIES.map((cat) => (
-                      <div key={cat.category} className="flex flex-wrap items-center gap-1.5 text-xs">
-                        <span className="font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md shrink-0 text-[11px]">
-                          {cat.category}
-                        </span>
-                        {cat.tags.map((tag) => {
-                          const isSelected = selectedTags.includes(tag) || draftDream.includes(`【${tag}】`);
-                          return (
-                            <button
-                              key={tag}
-                              type="button"
-                              onClick={() => handleToggleTag(tag)}
-                              className={`px-2 py-0.5 rounded-md border text-[11px] font-medium cursor-pointer transition-all flex items-center gap-0.5 ${
-                                isSelected
-                                  ? 'bg-sky-600 text-white border-sky-600 shadow-2xs'
-                                  : 'bg-white hover:bg-sky-50 text-slate-600 border-slate-200'
-                              }`}
-                            >
-                              <span>{isSelected ? '✓' : '+'}</span>
-                              <span>{tag}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 星圖解析手動勾選（預設關閉） */}
-              <div className="mt-3 pt-2.5 border-t border-slate-100">
-                <label className="flex items-start gap-2 p-2.5 rounded-xl bg-sky-50/60 border border-sky-100 cursor-pointer hover:bg-sky-50 transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={includeStarChart}
-                    onChange={(e) => setIncludeStarChart(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 cursor-pointer"
-                  />
-                  <div className="text-xs">
-                    <div className="font-bold text-sky-950 flex items-center gap-1">
-                      <Compass className="w-3.5 h-3.5 text-sky-700" />
-                      <span>附加星圖解析（可選 · 預設關閉）</span>
-                    </div>
-                    <div className="text-slate-600 mt-0.5 leading-relaxed text-[11px]">
-                      結合右側天體輪盤宿位與榮格共時性視角。手動勾選或點擊右側星盤「加入夢境」後納入 AI 報告。
-                    </div>
-                  </div>
-                </label>
-              </div>
-
-              {/* 底部操作欄 */}
-              <div className="mt-4 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div className="text-[11px] text-slate-500 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>絕不用於 AI 訓練 · 保證私隱安全</span>
-                </div>
-
-                <div className="flex items-center gap-2.5 w-full sm:w-auto">
-                  <button
-                    type="button"
-                    onClick={handleOpenSampleModal}
-                    className="min-h-[44px] px-3.5 py-2 rounded-xl border border-sky-300 text-sky-800 hover:bg-sky-50 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer w-full sm:w-auto"
-                  >
-                    <Eye className="w-3.5 h-3.5 text-sky-700" />
-                    <span>觀看示範報告</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleStartAnalysis}
-                    className={`min-h-[44px] px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer w-full sm:w-auto ${
-                      isTooShort
-                        ? 'bg-slate-200 hover:bg-rose-50 text-slate-400 hover:text-rose-700 border border-slate-200 hover:border-rose-300'
-                        : 'bg-sky-600 hover:bg-sky-700 active:scale-98 text-white shadow-sm ring-2 ring-sky-200'
-                    }`}
-                    id="hero-cta-record-btn"
-                    title={isTooShort ? '未滿30字，點擊查看提示' : '開始AI榮格分析'}
-                  >
-                    <span>記錄夢境開始分析</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
+              <div className="text-xs text-sky-700 font-medium">
+                以廣東話口語輸入即可 · 建議 30-200 字
               </div>
             </div>
 
-            {/* ------------------------------------------------------------ */}
-            {/* 【右欄】：天體旋轉星盤（Version B 首頁設計回歸） */}
-            {/* ------------------------------------------------------------ */}
-            <div className="lg:col-span-5 bg-white rounded-3xl border border-sky-100 shadow-md p-4 sm:p-5 transition-all">
-              <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-100">
-                <div className="flex items-center gap-1.5 text-slate-900 font-bold text-sm sm:text-base">
-                  <Compass className="w-4 h-4 text-sky-600" />
-                  <span>天體星盤 · 今日生活小貼士</span>
-                </div>
-                <span className="text-[11px] text-sky-700 font-medium">
-                  拖曳探索 12 原型
+            {/* 記夢引導（點擊帶入回憶結構） */}
+            <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/80 mb-3.5">
+              <div className="flex items-center justify-between gap-1 text-xs text-sky-800 font-bold mb-2">
+                <span className="flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-sky-600" />
+                  <span>記夢引導（點擊帶入提示詞）：</span>
                 </span>
+                <span className="text-[11px] text-slate-400 font-normal">快速建立夢境骨架</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleAddGuidePrompt('characters')}
+                  className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-xs text-slate-800 hover:text-sky-700 font-medium transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                  title="點擊帶入【人物】提示"
+                >
+                  <span>👥</span>
+                  <span>有邊啲人物？</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleAddGuidePrompt('scene')}
+                  className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-xs text-slate-800 hover:text-sky-700 font-medium transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                  title="點擊帶入【場景】提示"
+                >
+                  <span>📍</span>
+                  <span>場景係邊度？</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleAddGuidePrompt('emotion')}
+                  className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-xs text-slate-800 hover:text-sky-700 font-medium transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                  title="點擊帶入【感覺】提示"
+                >
+                  <span>💭</span>
+                  <span>感覺如何？</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleAddGuidePrompt('objects')}
+                  className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-xs text-slate-800 hover:text-sky-700 font-medium transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                  title="點擊帶入【物件】提示"
+                >
+                  <span>🚪</span>
+                  <span>有特定物件？</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 夢境類型選單 */}
+            <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-sky-50/50 border border-sky-100 text-xs mb-3">
+              <div className="flex items-center gap-2">
+                <Tag className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                <label htmlFor="home-dream-category" className="font-semibold text-slate-700">
+                  夢境類型：
+                </label>
+                <select
+                  id="home-dream-category"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-slate-800 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-sky-500 cursor-pointer shadow-2xs"
+                >
+                  {DREAM_CATEGORIES.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* 嵌入天體星盤（compact 模式） */}
-              <CelestialRotatingAstrolabe
-                compact={true}
-                hideHeader={true}
-                isPaidMember={isPaidMember}
-                onRequirePaid={onGoToPricing}
-                onAddToDream={handleAstrolabeAddToDream}
-                onRemoveFromDream={handleAstrolabeRemoveFromDream}
-                onNavigateToWorkspace={handleStartAnalysis}
+              {draftDream.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm('確定要清空當前輸入內容重寫嗎？')) {
+                      setDraftDream('');
+                      setSelectedTags([]);
+                      try {
+                        localStorage.removeItem('dreamwisdom_draft_dream');
+                      } catch {}
+                    }
+                  }}
+                  className="text-[11px] text-slate-500 hover:text-rose-600 transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>清空重寫</span>
+                </button>
+              )}
+            </div>
+
+            {/* 夢境主要輸入框（30-200字約束 + shake 晃動視覺回饋） */}
+            <div className="relative mb-2">
+              <textarea
+                ref={textareaRef}
+                value={draftDream}
+                onChange={handleDreamChange}
+                maxLength={200}
+                placeholder="寫低你醒來記得嘅夢境片段……夢見邊個、喺邊度、當時心情如何？（字數限制：最少 30 字，最多 200 字；亦可點擊上方引導或下方意象詞直接插入）"
+                id="hero-dream-textarea"
+                rows={4}
+                className={`w-full bg-slate-50/70 focus:bg-white border rounded-2xl text-slate-900 placeholder:text-slate-400 text-sm sm:text-base p-4 focus:outline-none resize-none leading-relaxed transition-all shadow-inner ${
+                  isShaking
+                    ? 'animate-shake border-rose-500 ring-2 ring-rose-300 bg-rose-50/30'
+                    : 'border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-100'
+                }`}
               />
+
+              {/* 實時字數顯示 */}
+              <div className="flex flex-wrap items-center justify-between text-xs mt-1 px-1 gap-2">
+                <span className="text-slate-500 text-[11px]">
+                  {isTooShort ? (
+                    <span className={`font-medium transition-colors ${isShaking ? 'text-rose-600 font-bold' : 'text-amber-800'}`}>
+                      ⚠️ 夢境需要30‑200字，寫多啲細節，AI分析更貼近你嘅狀況。
+                    </span>
+                  ) : (
+                    <span className="text-emerald-700 font-medium">
+                      ✓ 字數符合標準，可隨時點擊下方按鈕提交拆解
+                    </span>
+                  )}
+                </span>
+                <span
+                  className={`font-mono font-bold px-2 py-0.5 rounded-md text-[11px] ${
+                    isShaking
+                      ? 'bg-rose-200 text-rose-900 animate-pulse'
+                      : isTooShort
+                      ? 'bg-amber-100 text-amber-900'
+                      : isAtLimit
+                      ? 'bg-rose-100 text-rose-800'
+                      : 'bg-sky-100 text-sky-900'
+                  }`}
+                >
+                  已輸入：{currentLength} / 30‑200字
+                </span>
+              </div>
+            </div>
+
+            {/* 補充意象詞快速晶片（可點擊插入/移除） */}
+            <div className="mt-3 pt-2.5 border-t border-slate-100">
+              <div className="flex items-center justify-between text-xs text-slate-700 font-bold mb-1.5">
+                <span className="flex items-center gap-1">
+                  <span>✦ 補充意象詞（點擊帶入，高亮可移除）：</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowDetailedTags(!showDetailedTags)}
+                  className="text-[11px] text-sky-700 hover:text-sky-900 cursor-pointer font-medium"
+                >
+                  {showDetailedTags ? '收起四類標籤 ▲' : '展開四類分類標籤 ▼'}
+                </button>
+              </div>
+
+              {/* 常用快速意象詞 */}
+              <div className="flex flex-wrap items-center gap-1.5 text-xs mb-2">
+                {QUICK_DREAM_TAGS.map((tag) => {
+                  const isSelected = selectedTags.includes(tag.label) || draftDream.includes(`【${tag.label}】`);
+                  return (
+                    <button
+                      key={tag.label}
+                      type="button"
+                      onClick={() => handleToggleTag(tag.label)}
+                      className={`px-2 py-1 rounded-lg border text-xs font-medium cursor-pointer transition-all flex items-center gap-1 ${
+                        isSelected
+                          ? 'bg-sky-600 text-white border-sky-600 shadow-xs ring-1 ring-sky-200'
+                          : 'bg-slate-50 hover:bg-sky-50 text-slate-700 border-slate-200 hover:border-sky-300'
+                      }`}
+                      title={isSelected ? `點擊移除【${tag.label}】` : `點擊插入【${tag.label}】`}
+                    >
+                      <span className="text-xs">{tag.icon}</span>
+                      <span>{tag.label}</span>
+                      <span>{isSelected ? '✓' : '+'}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* 展開之四類分類結構 */}
+              {showDetailedTags && (
+                <div className="space-y-2 pt-2 border-t border-dashed border-slate-200 animate-fadeIn">
+                  {TAG_CATEGORIES.map((cat) => (
+                    <div key={cat.category} className="flex flex-wrap items-center gap-1.5 text-xs">
+                      <span className="font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md shrink-0 text-[11px]">
+                        {cat.category}
+                      </span>
+                      {cat.tags.map((tag) => {
+                        const isSelected = selectedTags.includes(tag) || draftDream.includes(`【${tag}】`);
+                        return (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => handleToggleTag(tag)}
+                            className={`px-2 py-0.5 rounded-md border text-[11px] font-medium cursor-pointer transition-all flex items-center gap-0.5 ${
+                              isSelected
+                                ? 'bg-sky-600 text-white border-sky-600 shadow-2xs'
+                              : 'bg-white hover:bg-sky-50 text-slate-600 border-slate-200'
+                            }`}
+                          >
+                            <span>{isSelected ? '✓' : '+'}</span>
+                            <span>{tag}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 星圖解析手動勾選（預設關閉） */}
+            <div className="mt-3 pt-2.5 border-t border-slate-100">
+              <label className="flex items-start gap-2 p-2.5 rounded-xl bg-sky-50/60 border border-sky-100 cursor-pointer hover:bg-sky-50 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={includeStarChart}
+                  onChange={(e) => setIncludeStarChart(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 cursor-pointer"
+                />
+                <div className="text-xs">
+                  <div className="font-bold text-sky-950 flex items-center gap-1">
+                    <Compass className="w-3.5 h-3.5 text-sky-700" />
+                    <span>附加星圖解析（可選 · 預設關閉）</span>
+                  </div>
+                  <div className="text-slate-600 mt-0.5 leading-relaxed text-[11px]">
+                    結合天體宿位與榮格共時性視角。手動勾選後納入 AI 報告章節；付費會員更可進入工作台使用旋轉星盤深入體驗。
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            {/* 底部操作欄 */}
+            <div className="mt-5 pt-3.5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>絕不用於 AI 訓練 · 保證私隱安全</span>
+              </div>
+
+              <div className="w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={handleStartAnalysis}
+                  className={`min-h-[46px] w-full sm:w-auto px-7 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm ${
+                    isTooShort
+                      ? 'bg-slate-200 hover:bg-rose-50 text-slate-400 hover:text-rose-700 border border-slate-200 hover:border-rose-300'
+                      : 'bg-sky-600 hover:bg-sky-700 active:scale-98 text-white ring-2 ring-sky-200'
+                  }`}
+                  id="hero-cta-record-btn"
+                  title={isTooShort ? '未滿30字，點擊查看提示' : '開始AI榮格分析'}
+                >
+                  <span>記錄夢境開始分析</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -952,16 +852,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 {isOpen && (
                   <div className="px-5 pb-4 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
                     <p>{item.a}</p>
-                    {item.isSampleAction && (
-                      <button
-                        type="button"
-                        onClick={handleOpenSampleModal}
-                        className="mt-3 min-h-[44px] px-4 py-2 rounded-xl bg-sky-600 text-white font-bold text-xs inline-flex items-center gap-1.5 hover:bg-sky-700 cursor-pointer"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>立即彈窗預覽示範報告</span>
-                      </button>
-                    )}
                   </div>
                 )}
               </div>
@@ -969,18 +859,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
           })}
         </div>
       </section>
-
-      {/* 示範報告彈窗（不跳轉新頁） */}
-      <SampleReportPreviewModal
-        isOpen={isSamplePreviewOpen}
-        onClose={() => setIsSamplePreviewOpen(false)}
-        onGoToPricing={onGoToPricing}
-        initialTab={sampleInitialTab}
-        onOpenEarnStars={() => {
-          setIsSamplePreviewOpen(false);
-          onGoToApp('workspace');
-        }}
-      />
 
       {/* 心理支援引導 Modal */}
       <TherapeuticSupportModal

@@ -22,8 +22,8 @@ interface NavbarProps {
   currentUser: User | null;
   onOpenLogin: () => void;
   onLogout: () => void;
-  activeSection?: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns' | 'astrolabe';
-  onNavigateSection?: (section: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns' | 'astrolabe') => void;
+  activeSection?: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns';
+  onNavigateSection?: (section: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns') => void;
   savedDreamCount?: number;
 }
 
@@ -230,8 +230,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* User Auth & Actions */}
         <div className="flex items-center gap-2">
           {currentUser ? (
-            <div className="flex items-center gap-2" id="nav-user-profile">
-              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-50 border border-sky-200 text-xs text-sky-900 font-medium">
+            <div className="flex items-center gap-1.5" id="nav-user-profile">
+              <button
+                type="button"
+                onClick={onOpenLogin}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-50 hover:bg-sky-100 border border-sky-200 text-xs text-sky-900 font-medium cursor-pointer transition-colors"
+                title="點擊切換使用者或登入其他帳號"
+                id="nav-user-badge-btn"
+              >
                 {isPaid ? (
                   <Crown className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
                 ) : (
@@ -241,12 +247,25 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {currentUser.display_name || currentUser.email.split('@')[0]}
                 </span>
                 {isPaid && <span className="text-[10px] bg-amber-100 text-amber-800 px-1 rounded font-bold">VIP</span>}
-              </div>
+                <span className="text-[10px] text-sky-600 ml-0.5 font-bold hover:underline">⇄ 切換</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onOpenLogin}
+                className="sm:hidden min-h-[44px] px-2.5 py-1.5 rounded-xl text-xs text-sky-700 bg-sky-50 border border-sky-200 hover:bg-sky-100 font-medium transition-colors cursor-pointer flex items-center gap-1"
+                title="切換使用者帳戶"
+              >
+                <UserCircle className="w-4 h-4 text-sky-600" />
+                <span>切換</span>
+              </button>
+
               <button
                 type="button"
                 onClick={onLogout}
                 className="min-h-[44px] px-3 py-1.5 rounded-xl text-xs text-slate-600 hover:text-sky-800 hover:bg-slate-100 font-medium transition-colors cursor-pointer flex items-center gap-1"
                 title="登出帳戶"
+                id="nav-logout-btn"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">登出</span>
@@ -384,21 +403,51 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>FAQ 常見問題</span>
           </button>
 
-          {currentUser && (
-            <div className="pt-3 border-t border-sky-100 flex items-center justify-between text-xs px-2 text-slate-600">
-              <div className="flex items-center gap-1.5 font-medium">
-                <UserCircle className="w-4 h-4 text-sky-600" />
-                <span>已登入：{currentUser.display_name || currentUser.email}</span>
+          {currentUser ? (
+            <div className="pt-3 border-t border-sky-100 flex flex-col gap-2 px-2 text-xs text-slate-600">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 font-medium truncate">
+                  <UserCircle className="w-4 h-4 text-sky-600 shrink-0" />
+                  <span className="truncate">已登入：{currentUser.display_name || currentUser.email}</span>
+                </div>
+                {isPaid && <span className="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold">VIP</span>}
               </div>
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenLogin();
+                  }}
+                  className="flex-1 min-h-[44px] py-2 px-3 text-xs text-sky-800 bg-sky-50 hover:bg-sky-100 rounded-xl font-bold flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <span>⇄ 切換其他帳號</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onLogout();
+                  }}
+                  className="min-h-[44px] px-4 text-xs text-rose-600 hover:bg-rose-50 rounded-xl font-semibold cursor-pointer"
+                >
+                  登出
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="pt-3 border-t border-sky-100 px-2">
               <button
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  onLogout();
+                  onOpenLogin();
                 }}
-                className="min-h-[44px] px-3 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-lg font-semibold"
+                className="w-full min-h-[48px] py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-98 transition-all"
+                id="nav-mobile-login-btn"
               >
-                登出
+                <LogIn className="w-4 h-4 text-white" />
+                <span>立即登入 / 快速註冊</span>
               </button>
             </div>
           )}

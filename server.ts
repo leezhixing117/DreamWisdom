@@ -626,6 +626,19 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
+app.post('/api/users', async (req, res) => {
+  try {
+    const user = req.body;
+    if (!user || !user.id || !user.email) {
+      return res.status(400).json({ error: 'Invalid user payload' });
+    }
+    const synced = await upsertUser(user);
+    res.json({ success: true, user: synced });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to sync user', details: err.message });
+  }
+});
+
 app.post('/api/users/sync', async (req, res) => {
   try {
     const user = req.body;
