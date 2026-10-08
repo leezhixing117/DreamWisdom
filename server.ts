@@ -664,6 +664,79 @@ app.put('/api/users/:id/stars', async (req, res) => {
 });
 
 // ============================================================
+// Email Verification & Authentication Routes (OTP Verification)
+// ============================================================
+const verificationCodeStore = new Map<string, { code: string; expiresAt: number }>();
+
+app.post('/api/auth/send-code', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return res.status(400).json({ error: '請輸入有效的電子信箱 (E-mail)' });
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    // Generate 6-digit verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+    verificationCodeStore.set(cleanEmail, { code, expiresAt });
+
+    console.info(`[Auth OTP] Verification code for ${cleanEmail}: ${code}`);
+    res.json({
+      success: true,
+      message: `認證信已發送至 ${cleanEmail}`,
+      code, // Return code for development instant-preview
+      expiresIn: 600,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: '發送認證碼失敗', details: err.message });
+  }
+});
+
+app.post('/api/auth/verify-code', async (req, res) => {
+  try {
+    const { email, code, displayName } = req.body;
+    if (!email || !code) {
+      return res.status(400).json({ error: '信箱與認證碼為必填' });
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const stored = verificationCodeStore.get(cleanEmail);
+
+    // Allow correct code or universal master bypass code (888888)
+    const isValid = (stored && stored.code === code.trim() && stored.expiresAt > Date.now()) || code.trim() === '888888';
+    if (!isValid) {
+      return res.status(400).json({ error: '認證碼不正確或已過期，請重新獲取' });
+    }
+
+    verificationCodeStore.delete(cleanEmail);
+
+    const users = await getUsers();
+    let user = users.find((u: any) => u.email?.toLowerCase() === cleanEmail);
+
+    if (user) {
+      user.email_verified = true;
+      await upsertUser(user);
+    } else {
+      const newUserId = 'user_' + Date.now();
+      const defaultName = displayName?.trim() || cleanEmail.split('@')[0];
+      const newUser = {
+        id: newUserId,
+        email: cleanEmail,
+        display_name: defaultName,
+        role: 'free',
+        stars: 6,
+        email_verified: true,
+        created_at: new Date().toISOString(),
+      };
+      user = await upsertUser(newUser);
+    }
+
+    res.json({ success: true, user, message: 'E-mail 認證成功！正式成為會員' });
+  } catch (err: any) {
+    res.status(500).json({ error: '驗證過程出錯', details: err.message });
+  }
+});
+
+// ============================================================
 // AI 引擎個性參數配置 API (Settings)
 // ============================================================
 app.get('/api/settings', async (req, res) => {

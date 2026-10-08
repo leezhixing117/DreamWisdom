@@ -34,6 +34,7 @@ export interface User {
   is_banned?: boolean; // 高級管理員封禁停權標記
   banned_at?: string; // 封禁時間
   banned_reason?: string; // 封禁原因
+  email_verified?: boolean; // 是否已通過 E-mail 認證
 }
 
 export interface BannedRecord {

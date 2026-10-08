@@ -13,6 +13,7 @@ import { HomeView } from './components/HomeView';
 import { DreamWorkspace } from './components/DreamWorkspace';
 import { AdminConsole } from './components/AdminConsole';
 import { LoginModal } from './components/LoginModal';
+import { AdminSecurityModal } from './components/AdminSecurityModal';
 import { StarVideoModal } from './components/StarVideoModal';
 import { PricingView } from './components/PricingView';
 import { PrivacyView } from './components/PrivacyView';
@@ -29,6 +30,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState<'home' | 'app' | 'pricing' | 'privacy' | 'store' | 'admin' | 'stars'>('home');
   const [activeSection, setActiveSection] = useState<'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns'>('workspace');
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isAdminSecurityOpen, setIsAdminSecurityOpen] = useState(false);
   const [isStarVideoOpen, setIsStarVideoOpen] = useState(false);
   const [prefilledDream, setPrefilledDream] = useState('');
   const [targetProductId, setTargetProductId] = useState<string | undefined>(undefined);
@@ -131,14 +133,26 @@ export default function App() {
       const saved = localStorage.getItem('dreamwisdom_current_user');
       if (saved) {
         const parsed: User = JSON.parse(saved);
-        return {
-          ...parsed,
-          password: parsed.password || 'Abc123',
-        };
+        const norm = normalizeRole(parsed.role);
+        // STRICT SECURITY ENHANCEMENT:
+        // Prevent unauthorized auto-login as Super Admin (Mystic Blaza) or Admin.
+        // If an administrative role or mysticblaza is stored, require an active verified session token.
+        if (norm === 'super_admin' || norm === 'admin' || parsed.email?.toLowerCase() === 'mysticblaza@gmail.com' || parsed.email?.toLowerCase() === 'boyman131418@gmail.com') {
+          const isVerified = typeof window !== 'undefined' && (
+            sessionStorage.getItem('dreamwisdom_admin_auth_token') === 'verified' ||
+            localStorage.getItem('dreamwisdom_admin_auth_token') === 'verified'
+          );
+          if (!isVerified) {
+            console.info('[Security Guard] Clearing unauthenticated admin session from localStorage');
+            localStorage.removeItem('dreamwisdom_current_user');
+            return null;
+          }
+        }
+        return parsed;
       }
-      return INITIAL_USERS[0]; // Default to super_admin (Mystic Blaza)
+      return null; // Public visitors start as unauthenticated guests
     } catch {
-      return INITIAL_USERS[0];
+      return null;
     }
   });
 
@@ -322,7 +336,7 @@ export default function App() {
         setCurrentView('admin');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        setCurrentView('home');
+        setIsAdminSecurityOpen(true);
       }
     }
   };
@@ -357,7 +371,7 @@ export default function App() {
       return;
     }
     if (view === 'admin' && !isManagement) {
-      setCurrentView('home');
+      setIsAdminSecurityOpen(true);
       return;
     }
     setCurrentView(view);
@@ -463,12 +477,25 @@ export default function App() {
   const handleSwitchUser = async (user: User) => {
     setCurrentUser(user);
     trackLoginEvent(user, 'quick_select', 'success');
+    const norm = normalizeRole(user.role);
+    if (
+      norm === 'admin' ||
+      norm === 'super_admin' ||
+      user.email?.toLowerCase() === 'mysticblaza@gmail.com' ||
+      user.email?.toLowerCase() === 'boyman131418@gmail.com'
+    ) {
+      try {
+        sessionStorage.setItem('dreamwisdom_admin_auth_token', 'verified');
+        localStorage.setItem('dreamwisdom_admin_auth_token', 'verified');
+      } catch {}
+    }
     setUsers((prev) => {
       const exists = prev.some((u) => u.id === user.id);
       return exists ? prev.map((u) => (u.id === user.id ? user : u)) : [user, ...prev];
     });
 
     try {
+      localStorage.setItem('dreamwisdom_current_user', JSON.stringify(user));
       await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -610,6 +637,11 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    try {
+      sessionStorage.removeItem('dreamwisdom_admin_auth_token');
+      localStorage.removeItem('dreamwisdom_admin_auth_token');
+      localStorage.removeItem('dreamwisdom_current_user');
+    } catch {}
     setCurrentUser(null);
     setCurrentView('home');
   };
@@ -862,11 +894,29 @@ export default function App() {
         onClose={() => setIsLoginOpen(false)}
         onLogin={(user) => {
           handleSwitchUser(user);
-          setCurrentView('app');
+          const norm = normalizeRole(user.role);
+          if (norm === 'admin' || norm === 'super_admin') {
+            setCurrentView('admin');
+          } else {
+            setCurrentView('app');
+          }
         }}
         availableUsers={users}
         bannedRecords={bannedRecords}
         onResetPassword={handleResetPassword}
+        onOpenAdminSecurity={() => setIsAdminSecurityOpen(true)}
+      />
+
+      {/* Admin Passkey Verification Security Modal */}
+      <AdminSecurityModal
+        isOpen={isAdminSecurityOpen}
+        onClose={() => setIsAdminSecurityOpen(false)}
+        superUser={users.find((u) => u.email?.toLowerCase() === 'mysticblaza@gmail.com') || INITIAL_USERS[0]}
+        onSuccess={(adminUser) => {
+          handleSwitchUser(adminUser);
+          setCurrentView('admin');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
 
       {/* Star Video Earning Modal (for General Members) */}

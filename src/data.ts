@@ -8,6 +8,7 @@ export const INITIAL_USERS: User[] = [
     role: 'super_admin',
     password: 'Abc123',
     stars: 999,
+    email_verified: true,
     created_at: '2026-09-01T08:00:00Z',
   },
   {
@@ -17,6 +18,7 @@ export const INITIAL_USERS: User[] = [
     role: 'admin',
     password: 'Abc123',
     stars: 999,
+    email_verified: true,
     created_at: '2026-09-02T10:00:00Z',
   },
   {
@@ -26,6 +28,7 @@ export const INITIAL_USERS: User[] = [
     role: 'paid',
     password: 'Abc123',
     stars: 999,
+    email_verified: true,
     created_at: '2026-09-05T12:30:00Z',
   },
   {
@@ -35,6 +38,7 @@ export const INITIAL_USERS: User[] = [
     role: 'free',
     password: 'Abc123',
     stars: 6,
+    email_verified: true,
     created_at: '2026-09-10T14:15:00Z',
   },
   {
@@ -44,6 +48,7 @@ export const INITIAL_USERS: User[] = [
     role: 'super_admin',
     password: 'Abc123',
     stars: 999,
+    email_verified: true,
     created_at: '2026-09-01T00:00:00Z',
   },
 ];
