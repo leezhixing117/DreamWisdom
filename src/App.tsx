@@ -865,6 +865,7 @@ export default function App() {
           setCurrentView('app');
         }}
         availableUsers={users}
+        bannedRecords={bannedRecords}
         onResetPassword={handleResetPassword}
       />
 
