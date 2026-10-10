@@ -11,7 +11,7 @@ export const getDeepDreamAnalysis = async (dreamData) => {
     const data = await res.json();
     return data.deep_analysis;
   } catch (err) {
-    console.error("API錯誤：", err);
+    console.error("API錯誤: ", err);
     return "暫時無法取得深度解夢，請稍後再試";
   }
 };
