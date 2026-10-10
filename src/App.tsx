@@ -24,10 +24,11 @@ import { INITIAL_PRODUCTS } from './data/products';
 import { Sparkles, ShieldAlert, BookOpen, Star, Package, Tv } from 'lucide-react';
 import { DreamAtmosphereController } from './components/DreamAtmosphereController';
 import { trackLoginEvent } from './utils/auditLogger';
+import DreamDeepAnalyze from './DreamDeepAnalyze';
 
 export default function App() {
   // Load or initialize state from localStorage
-  const [currentView, setCurrentView] = useState<'home' | 'app' | 'pricing' | 'privacy' | 'store' | 'admin' | 'stars'>('home');
+const [currentView, setCurrentView] = useState<'home' | 'app' | 'pricing' | 'privacy' | 'store' | 'admin' | 'stars' | 'dream'>('home');
   const [activeSection, setActiveSection] = useState<'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns'>('workspace');
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdminSecurityOpen, setIsAdminSecurityOpen] = useState(false);
@@ -338,6 +339,9 @@ export default function App() {
       } else {
         setIsAdminSecurityOpen(true);
       }
+    } else if (raw === 'dream') {
+      setCurrentView('dream');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -362,7 +366,7 @@ export default function App() {
 
   // Navigate handler with URL hash sync for SEO and social bookmarking
   const handleNavigate = (
-    view: 'home' | 'app' | 'pricing' | 'privacy' | 'store' | 'admin' | 'stars',
+    view: 'home' | 'app' | 'pricing' | 'privacy' | 'store' | 'admin' | 'stars' | 'dream',
     section?: 'workspace' | 'dna' | 'constellation' | 'mystery' | 'history' | 'patterns' | 'astrolabe'
   ) => {
     if ((section as string) === 'astrolabe') {
@@ -390,6 +394,8 @@ export default function App() {
       targetHash = '#stars';
     } else if (view === 'admin') {
       targetHash = '#admin';
+    } else if (view === 'dream') {
+      targetHash = '#dream';
     } else if (view === 'app') {
       if (section === 'workspace') targetHash = '#recorddream';
       else if (section) targetHash = `#${section}`;
@@ -769,6 +775,12 @@ export default function App() {
         />
       )}
 
+      {currentView === 'dream' && (
+        <main className="page shell flex-1">
+          <DreamDeepAnalyze />
+        </main>
+      )}
+
       {currentView === 'app' && (
         <main className="page shell flex-1" id="app-page-layout">
           <div className="layout">
@@ -943,4 +955,3 @@ export default function App() {
     </div>
   );
 }
-
