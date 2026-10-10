@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getDeepDreamAnalysis } from './services/dreamApi';
 
 export default function DreamDeepAnalyze() {
   // 狀態
@@ -33,39 +34,30 @@ export default function DreamDeepAnalyze() {
     }
   }
 
-  // 睇廣告按鈕 - 第二步（解鎖深度解夢API）
+  // 睇廣告按鈕 - 第二步（睇齊3個廣告 → 去到step3，顯示按鈕去觸發API）
   const handleWatchAd2 = () => {
     const newCount = adCount2 +1;
     setAdCount2(newCount);
     if(newCount >=3){
       setStep(3);
-      callDeepApi();
     }
   }
 
-  // 呼叫後端 Python API（已對齊後端app.py嘅欄位同網址）
-  const callDeepApi = async () => {
+  // 點擊按鈕，呼叫後端 Python API
+  const handleRunDeepAnalysis = async () => {
     setLoading(true);
     try {
-      // payload 欄位完全配合後端接收格式
+      // payload 完全配合 Postman 測試成功嘅API格式
       const payload = {
+        dream_content: dreamText,
         simple_analysis: simpleResult,
         q1: answers.q1,
         q2: answers.q2,
-        q3: answers.q3
+        q3: answers.q3,
+        past_records: ""
       }
-      // 後端根網址：https://dreamofwisdom.com，POST到根路徑
-      const res = await fetch("https://dream-api-gfrb.onrender.com", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(payload)
-      })
-      const data = await res.json();
-      if(data.success){
-        setDeepResult(data.deep_result);
-      }else{
-        setDeepResult("API返回錯誤：" + data.error);
-      }
+      const analysisText = await getDeepDreamAnalysis(payload);
+      setDeepResult(analysisText);
     } catch(err) {
       setDeepResult("連接後端API失敗，請稍後再試。");
       console.error(err);
@@ -138,7 +130,7 @@ export default function DreamDeepAnalyze() {
             </div>
           </div>
           <div>
-            <p>已觀看廣告：{adCount2}/3，睇齊3個就會呼叫AI做深度詳細解夢</p>
+            <p>已觀看廣告：{adCount2}/3，睇齊3個就可以使用AI深度詳細解夢</p>
             <button
               onClick={handleWatchAd2}
               disabled={!answers.q1 || !answers.q2 || !answers.q3}
@@ -150,11 +142,21 @@ export default function DreamDeepAnalyze() {
         </div>
       )}
 
-      {/* Step3：深度解夢結果 */}
+      {/* Step3：深度解夢區，按鈕手動觸發API */}
       {step ===3 && (
         <div style={{background:"#f0f7ff", padding:"20px", borderRadius:"10px"}}>
           <h4>深度詳細解夢</h4>
-          {loading ? <p>AI分析中，請稍候...</p> : <p>{deepResult}</p>}
+          {!deepResult ? (
+            <button
+              onClick={handleRunDeepAnalysis}
+              disabled={loading}
+              style={{padding:"10px 20px"}}
+            >
+              {loading ? "AI分析中，請稍候..." : "開始深度解析"}
+            </button>
+          ) : (
+            <p>{deepResult}</p>
+          )}
         </div>
       )}
     </div>
