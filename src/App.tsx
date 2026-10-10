@@ -342,6 +342,9 @@ const [currentView, setCurrentView] = useState<'home' | 'app' | 'pricing' | 'pri
     } else if (raw === 'dream') {
       setCurrentView('dream');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (raw === 'dreamdeepanalyze') {
+      setCurrentView('dream');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
