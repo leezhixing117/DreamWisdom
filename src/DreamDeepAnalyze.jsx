@@ -43,23 +43,29 @@ export default function DreamDeepAnalyze() {
     }
   }
 
-  // 呼叫後端 dream-api Python API
+  // 呼叫後端 Python API（已對齊後端app.py嘅欄位同網址）
   const callDeepApi = async () => {
     setLoading(true);
     try {
+      // payload 欄位完全配合後端接收格式
       const payload = {
-        dreamContent: dreamText,
-        simpleAnalysis: simpleResult,
-        qa: answers
+        simple_analysis: simpleResult,
+        q1: answers.q1,
+        q2: answers.q2,
+        q3: answers.q3
       }
-      // API地址已填好
-      const res = await fetch("https://dream-api-gfrb.onrender.com/analyze", {
+      // 後端根網址：https://dreamofwisdom.com，POST到根路徑
+      const res = await fetch("https://dreamofwisdom.com", {
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify(payload)
       })
       const data = await res.json();
-      setDeepResult(data.deepAnalysis);
+      if(data.success){
+        setDeepResult(data.deep_result);
+      }else{
+        setDeepResult("API返回錯誤：" + data.error);
+      }
     } catch(err) {
       setDeepResult("連接後端API失敗，請稍後再試。");
       console.error(err);
