@@ -5,7 +5,7 @@ export default function DreamDeepAnalyze() {
   // ========== 頁面狀態 ==========
   const [dreamText, setDreamText] = useState('');
   const [dreamType, setDreamType] = useState('普通夢境');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState([]);
   const [simpleResult, setSimpleResult] = useState('');
   const [step, setStep] = useState(1);
   const [adCount1, setAdCount1] = useState(0); // 簡單解夢：3個廣告
@@ -35,7 +35,7 @@ export default function DreamDeepAnalyze() {
   ];
 
   // 切換意象標籤
-  const toggleTag = (tagVal:string) => {
+  const toggleTag = (tagVal) => {
     if(selectedTags.includes(tagVal)){
       setSelectedTags(selectedTags.filter(item => item !== tagVal));
     }else{
@@ -44,7 +44,7 @@ export default function DreamDeepAnalyze() {
   };
 
   // 前端本地簡單解夢（唔呼叫API，唔耗token，控制150字內）
-  function generateSimpleDreamAnalysis(dream:string, tags:string[]) {
+  function generateSimpleDreamAnalysis(dream, tags) {
     if (!dream.trim()) return '';
     const tagStr = tags.length > 0 ? `，附加意象：${tags.join('、')}` : '';
     return `你記錄嘅夢境：${dream.slice(0,80)}。呢個夢反映潛意識嘅內在情緒，代表你正經歷內心轉變，釋放累積壓力。夢中嘅感受比畫面更重要，係心靈整理感受嘅訊號${tagStr}。`;
