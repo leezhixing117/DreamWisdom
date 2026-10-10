@@ -55,7 +55,7 @@ export default function DreamDeepAnalyze() {
         q3: answers.q3
       }
       // 後端根網址：https://dreamofwisdom.com，POST到根路徑
-      const res = await fetch("https://dreamofwisdom.com", {
+      const res = await fetch("https://dream-api-gfrb.onrender.com", {
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify(payload)
