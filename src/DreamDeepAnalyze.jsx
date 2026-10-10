@@ -1,126 +1,154 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 export default function DreamDeepAnalyze() {
-  // 夢境資料
-  const [dreamContent, setDreamContent] = useState("");
-  const [simpleResult, setSimpleResult] = useState("");
-  const [q1Ans, setQ1Ans] = useState("");
-  const [q2Ans, setQ2Ans] = useState("");
-  const [q3Ans, setQ3Ans] = useState("");
-
-  const [deepResult, setDeepResult] = useState("");
+  // 狀態
+  const [dreamText, setDreamText] = useState('');
+  const [simpleResult, setSimpleResult] = useState('');
+  const [step, setStep] = useState(1);
+  const [adCount1, setAdCount1] = useState(0); // 簡單解夢 3個廣告
+  const [adCount2, setAdCount2] = useState(0); // 深度解夢 額外3個廣告
+  const [answers, setAnswers] = useState({
+    q1: '',
+    q2: '',
+    q3: ''
+  });
+  const [deepResult, setDeepResult] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
 
-  // ===== 廣告觀看計數（核心業務邏輯）=====
-  const [adCountSimple, setAdCountSimple] = useState(0); // 簡單解夢：需要3個廣告
-  const [adCountDeep, setAdCountDeep] = useState(0);     // 深度解夢額外：再多3個廣告
-
-  // 解鎖判斷
-  const canSimpleAnalyze = adCountSimple >= 3;
-  const canDeepAnalyze = canSimpleAnalyze && adCountDeep >= 3;
-
-  // 模擬觀看廣告函數，真實環境就綁定廣告SDK的onAdComplete事件
-  const watchAdSimple = () => {
-    if(adCountSimple < 3) setAdCountSimple(prev => prev + 1);
-  }
-  const watchAdDeep = () => {
-    if(adCountDeep < 3) setAdCountDeep(prev => prev + 1);
+  // 前端本地簡單解夢（唔打API，唔耗token，150字內）
+  function generateSimpleDreamAnalysis(dream) {
+    if (!dream.trim()) return '';
+    return `你夢見：${dream.slice(0,70)}。夢中體驗反映內在潛意識情緒，代表你近期正感受改變、釋放壓力。留意夢中感受，情緒訊號往往比畫面更重要。這是內心自我整理、釋放壓抑感受的訊號。`;
   }
 
-  // 呼叫API
-  const fetchDeepAnalysis = async () => {
-    setLoading(true);
-    setErrorMsg("");
-    try {
-      const res = await fetch("https://dream-api-gfrb.onrender.com/dream_analysis", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          dream_content: dreamContent,
-          simple_analysis: simpleResult,
-          q1: q1Ans,
-          q2: q2Ans,
-          q3: q3Ans
-        })
-      });
-      const data = await res.json();
-      setDeepResult(data.deep_analysis);
-    } catch (err) {
-      console.error(err);
-      setErrorMsg("深度解夢載入失敗，Render服務可能休眠，請重新點擊嘗試");
-    } finally {
-      setLoading(false);
+  // 睇廣告按鈕 - 第一步（解鎖簡單解夢）
+  const handleWatchAd1 = () => {
+    const newCount = adCount1 + 1;
+    setAdCount1(newCount);
+    if (newCount >=3) {
+      // 夠3個廣告，生成簡單解夢，跳去第二步（3條問題）
+      const simpleText = generateSimpleDreamAnalysis(dreamText);
+      setSimpleResult(simpleText);
+      setStep(2);
     }
-  };
+  }
 
-  // 前端本地簡單解夢（唔耗token）
-  const runSimpleAnalyze = () => {
-    if(!canSimpleAnalyze) return;
-    // 你之後可以替換成你本地大量知識庫邏輯
-    setSimpleResult("呢個夢象徵你渴望自由，想擺脫現有束縛，內心有強烈嘅突破慾望。");
+  // 睇廣告按鈕 - 第二步（解鎖深度解夢API）
+  const handleWatchAd2 = () => {
+    const newCount = adCount2 +1;
+    setAdCount2(newCount);
+    if(newCount >=3){
+      setStep(3);
+      callDeepApi();
+    }
+  }
+
+  // 呼叫後端 dream-api Python API
+  const callDeepApi = async () => {
+    setLoading(true);
+    try {
+      const payload = {
+        dreamContent: dreamText,
+        simpleAnalysis: simpleResult,
+        qa: answers
+      }
+      // 替換成你Render上dream-api嘅真實網址
+      const res = await fetch("https://dream-api.onrender.com/analyze", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+      })
+      const data = await res.json();
+      setDeepResult(data.deepAnalysis);
+    } catch(err) {
+      setDeepResult("連接後端API失敗，請稍後再試。");
+      console.error(err);
+    }
+    setLoading(false);
   }
 
   return (
-    <div style={{maxWidth:700, margin:"30px auto", padding:"20px"}}>
-      <h3>輸入你的夢境</h3>
-      <textarea
-        value={dreamContent}
-        onChange={(e)=>setDreamContent(e.target.value)}
-        style={{width:"100%", height:80}}
-        placeholder="描述你的夢境..."
-      />
+    <div style={{maxWidth:"720px", margin:"3rem auto", padding:"0 1rem"}}>
+      <h2 style={{textAlign:"center"}}>夢境深度解析</h2>
 
-      <div style={{margin:"20px 0"}}>
-        <h4>簡單解夢（觀看3個廣告解鎖）</h4>
-        <p>已觀看廣告：{adCountSimple}/3</p>
-        <button onClick={watchAdSimple} disabled={canSimpleAnalyze}>
-          觀看廣告 +1
-        </button>
-        <button onClick={runSimpleAnalyze} disabled={!canSimpleAnalyze} style={{marginLeft:10}}>
-          生成簡單解夢
-        </button>
-        {simpleResult && <div style={{marginTop:10, padding:10, border:"1px solid #ccc"}}>{simpleResult}</div>}
-      </div>
-
-      {canSimpleAnalyze && (
-        <div style={{margin:"20px 0"}}>
-          <h4>補充3條問題</h4>
-          <p>1. 在夢裡，你是旁觀者，還是親身參與夢中事件？</p>
-          <input type="text" value={q1Ans} onChange={(e)=>setQ1Ans(e.target.value)} style={{width:"100%"}}/>
-
-          <p style={{marginTop:10}}>2. 夢境結束時，有冇出現一個明確的結局，或是夢是突然中斷？</p>
-          <input type="text" value={q2Ans} onChange={(e)=>setQ2Ans(e.target.value)} style={{width:"100%"}}/>
-
-          <p style={{marginTop:10}}>3. 夢裡的環境，感覺熟悉還是完全陌生？</p>
-          <input type="text" value={q3Ans} onChange={(e)=>setQ3Ans(e.target.value)} style={{width:"100%"}}/>
-
-          <div style={{marginTop:20}}>
-            <h4>深度詳細解夢（額外再睇3個廣告）</h4>
-            <p>額外已觀看廣告：{adCountDeep}/3</p>
-            <button onClick={watchAdDeep} disabled={adCountDeep >=3}>
-              觀看廣告 +1
-            </button>
-
+      {/* Step1：輸入夢境 + 睇3廣告解鎖簡單解夢 */}
+      {step ===1 && (
+        <div>
+          <p>請寫低你的夢境內容：</p>
+          <textarea
+            value={dreamText}
+            onChange={(e)=>setDreamText(e.target.value)}
+            placeholder="描述你嘅夢..."
+            style={{width:"100%", minHeight:"140px", padding:"12px", borderRadius:"8px"}}
+          />
+          <div style={{margin:"1rem 0"}}>
+            <p>已觀看廣告：{adCount1}/3，睇齊3個就會得到簡單解夢</p>
             <button
-              onClick={fetchDeepAnalysis}
-              disabled={loading || !canDeepAnalyze}
-              style={{marginLeft:10, padding:"10px 16px"}}
+              onClick={handleWatchAd1}
+              disabled={!dreamText.trim()}
+              style={{padding:"8px 16px"}}
             >
-              {loading ? "正在生成深度解夢..." : "開始深度詳細解夢"}
+              觀看廣告
             </button>
           </div>
         </div>
       )}
 
-      {errorMsg && <p style={{color:"red", marginTop:15}}>{errorMsg}</p>}
+      {/* Step2：顯示簡單解夢 + 3條問題，再睇3廣告解鎖深度分析 */}
+      {step ===2 && (
+        <div>
+          <div style={{background:"#f8fafc", padding:"16px", borderRadius:"8px"}}>
+            <h4>簡單解夢</h4>
+            <p>{simpleResult}</p>
+          </div>
+          <div style={{margin:"1.5rem 0"}}>
+            <h4>請回答以下3條問題：</h4>
+            <div style={{marginBottom:"12px"}}>
+              <label>1. 在夢裡，你是旁觀者，還是親身參與夢中事件？</label>
+              <input
+                type="text"
+                value={answers.q1}
+                onChange={(e)=>setAnswers({...answers, q1:e.target.value})}
+                style={{width:"100%", padding:"8px", marginTop:"4px"}}
+              />
+            </div>
+            <div style={{marginBottom:"12px"}}>
+              <label>2. 夢境結束時，有冇出現一個明確的結局，或是夢是突然中斷？</label>
+              <input
+                type="text"
+                value={answers.q2}
+                onChange={(e)=>setAnswers({...answers, q2:e.target.value})}
+                style={{width:"100%", padding:"8px", marginTop:"4px"}}
+              />
+            </div>
+            <div style={{marginBottom:"12px"}}>
+              <label>3. 夢裡的環境，感覺熟悉還是完全陌生？</label>
+              <input
+                type="text"
+                value={answers.q3}
+                onChange={(e)=>setAnswers({...answers, q3:e.target.value})}
+                style={{width:"100%", padding:"8px", marginTop:"4px"}}
+              />
+            </div>
+          </div>
+          <div>
+            <p>已觀看廣告：{adCount2}/3，睇齊3個就會呼叫AI做深度詳細解夢</p>
+            <button
+              onClick={handleWatchAd2}
+              disabled={!answers.q1 || !answers.q2 || !answers.q3}
+              style={{padding:"8px 16px"}}
+            >
+              觀看廣告
+            </button>
+          </div>
+        </div>
+      )}
 
-      {deepResult && (
-        <div style={{marginTop:25, border:"1px solid #ddd", padding:15}}>
-          <h4>深度詳細解夢結果</h4>
-          <p style={{whiteSpace:"pre-line"}}>{deepResult}</p>
+      {/* Step3：深度解夢結果 */}
+      {step ===3 && (
+        <div style={{background:"#f0f7ff", padding:"20px", borderRadius:"10px"}}>
+          <h4>深度詳細解夢</h4>
+          {loading ? <p>AI分析中，請稍候...</p> : <p>{deepResult}</p>}
         </div>
       )}
     </div>
