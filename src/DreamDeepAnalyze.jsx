@@ -18,7 +18,7 @@ export default function DreamDeepAnalyze() {
   // 前端本地簡單解夢（唔打API，唔耗token，150字內）
   function generateSimpleDreamAnalysis(dream) {
     if (!dream.trim()) return '';
-    return `你夢見：${dream.slice(0,70)}。夢中體驗反映內在潛意識情緒，代表你近期正感受改變、釋放壓力。留意夢中感受，情緒訊號往往比畫面更重要。這是內心自我整理、釋放壓抑感受的訊號。`;
+    return `你夢見：${dream.slice(0,70)}。夢中體驗反映內在潛意識情緒，代表你正面對改變、釋放壓力。請留意夢裡帶出嘅感受，情緒往往比畫面更重要，呢個夢係內心整理感受嘅訊號。`;
   }
 
   // 睇廣告按鈕 - 第一步（解鎖簡單解夢）
@@ -52,8 +52,8 @@ export default function DreamDeepAnalyze() {
         simpleAnalysis: simpleResult,
         qa: answers
       }
-      // 替換成你Render上dream-api嘅真實網址
-      const res = await fetch("https://dream-api.onrender.com/analyze", {
+      // API地址已填好
+      const res = await fetch("https://dream-api-gfrb.onrender.com/analyze", {
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify(payload)
