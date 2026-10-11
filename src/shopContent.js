@@ -73,7 +73,10 @@ export const shopProductList = [
   }
 ];
 
-// 無匹配時嘅預設推介
+// 補齊JSX需要嘅匯出變數
+export const shopDefaultIntro = "根據你嘅夢境主題，揀選合適嘅水晶陪伴你療癒內在";
+export const shopAllLink = "/crystal-shop";
+export const shopMoreText = "瀏覽全部水晶";
 export const shopDefault = {
   name: "水晶療癒系列",
   desc: "探索更多水晶，陪伴你理解每個夢境帶來嘅訊息。",
