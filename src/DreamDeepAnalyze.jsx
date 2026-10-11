@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { getDeepDreamAnalysis } from './services/dreamApi';
-// 引入靜態資料
 import { tagList, promptHints, generateSimpleDreamAnalysis } from './dreamStaticData';
-// 引入UI元件
 import { TagButton, QuestionForm } from './DreamUIComponents';
-// 引入轉介、商店內容
-import { referralInfo } from './referralContent';
-import { shopProducts, shopSectionTitle, shopIntro } from './shopContent';
+import { referralList, referralDefault } from './referralContent';
+import { shopProductList, shopDefaultIntro } from './shopContent';
+import { matchItemsByKeywords } from './dreamMatchHelper';
 
 export default function DreamDeepAnalyze() {
   // ========== 頁面狀態 ==========
@@ -15,8 +13,8 @@ export default function DreamDeepAnalyze() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [simpleResult, setSimpleResult] = useState('');
   const [step, setStep] = useState(1);
-  const [adCount1, setAdCount1] = useState(0); // 簡單解夢：3個廣告
-  const [adCount2, setAdCount2] = useState(0); // 深度解夢：額外3個廣告
+  const [adCount1, setAdCount1] = useState(0);
+  const [adCount2, setAdCount2] = useState(0);
   const [answers, setAnswers] = useState({
     q1: '',
     q2: '',
@@ -24,6 +22,10 @@ export default function DreamDeepAnalyze() {
   });
   const [deepResult, setDeepResult] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // 自動配對推介
+  const matchedReferrals = matchItemsByKeywords(deepResult, referralList);
+  const matchedProducts = matchItemsByKeywords(deepResult, shopProductList);
 
   // 切換意象標籤
   const toggleTag = (tagVal) => {
@@ -34,7 +36,7 @@ export default function DreamDeepAnalyze() {
     }
   };
 
-  // 更新問卷答案（傳入QuestionForm）
+  // 更新問卷答案
   const handleAnswerChange = (key, value) => {
     setAnswers(prev => ({...prev, [key]: value}))
   }
@@ -147,7 +149,7 @@ export default function DreamDeepAnalyze() {
             <span style={{color:"#334155"}}>已輸入：{charCount} / 30–200字</span>
           </div>
 
-          {/* 補充意象詞標籤（使用TagButton元件） */}
+          {/* 補充意象詞標籤 */}
           <div style={{marginBottom:"24px"}}>
             <div style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>
               <p style={{fontWeight:"500", color:"#1e293b"}}>✦ 補充意象詞（點擊帶入，高亮可移除）：</p>
@@ -228,7 +230,7 @@ export default function DreamDeepAnalyze() {
         </div>
       )}
 
-      {/* Step3：深度榮格報告區 */}
+      {/* Step3：深度榮格報告區 + 動態推介 */}
       {step ===3 && (
         <div style={{background:"#ffffff", border:"1px solid #e2e8f0", borderRadius:"16px", padding:"24px"}}>
           <h3 style={{textAlign:"center", color:"#1e293b"}}>DreamWisdom 榮格心理自我反思報告</h3>
@@ -252,37 +254,55 @@ export default function DreamDeepAnalyze() {
               <p style={{color:"#475569", marginTop:"12px"}}>會消耗AI Token生成完整榮格心理報告</p>
             </div>
           ) : (
-            <div style={{background:"#f0f7ff", padding:"20px", borderRadius:"10px"}}>
-              <p style={{whiteSpace:"pre-line", color:"#1e293b"}}>{deepResult}</p>
-            </div>
-          )}
+            <>
+              <div style={{background:"#f0f7ff", padding:"20px", borderRadius:"10px"}}>
+                <p style={{whiteSpace:"pre-line", color:"#1e293b"}}>{deepResult}</p>
+              </div>
 
-          {/* ========== 轉介服務區（讀取referralContent） ========== */}
-          <div style={{marginTop:"32px", padding:"20px", background:"#f8fafc", borderRadius:"12px"}}>
-            <h4 style={{color:"#1e293b"}}>{referralInfo.title}</h4>
-            <p style={{color:"#334155"}}>{referralInfo.description}</p>
-            <ul style={{paddingLeft:"20px", color:"#334155"}}>
-              {referralInfo.list.map((item,i)=><li key={i}>{item}</li>)}
-            </ul>
-            <button style={{marginTop:"10px", padding:"8px 14px", background:"#2563eb", color:"#fff", border:"none", borderRadius:"8px"}}>
-              {referralInfo.buttonText}
-            </button>
-          </div>
+              {/* 動態轉介推介 */}
+              <div style={{marginTop:"32px", padding:"20px", background:"#f8fafc", borderRadius:"12px"}}>
+                <h4 style={{color:"#1e293b"}}>根據你今次夢境嘅建議服務</h4>
+                {matchedReferrals.length > 0 ? (
+                  matchedReferrals.map(item => (
+                    <div key={item.id} style={{marginBottom:"16px", borderBottom:"1px solid #e2e8f0", paddingBottom:"12px"}}>
+                      <h5 style={{margin:0, color:"#1e293b"}}>{item.title}</h5>
+                      <p style={{color:"#334155"}}>{item.description}</p>
+                      <a href={item.link}>
+                        <button style={{marginTop:"8px", padding:"8px 14px", background:"#2563eb", color:"#fff", border:"none", borderRadius:"8px"}}>
+                          {item.buttonText}
+                        </button>
+                      </a>
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <p style={{color:"#334155"}}>{referralDefault.description}</p>
+                    <a href={referralDefault.link}>
+                      <button style={{marginTop:"8px", padding:"8px 14px", background:"#2563eb", color:"#fff", border:"none", borderRadius:"8px"}}>
+                        {referralDefault.buttonText}
+                      </button>
+                    </a>
+                  </>
+                )}
+              </div>
 
-          {/* ========== 水晶商店區（讀取shopContent） ========== */}
-          <div style={{marginTop:"32px", padding:"20px", background:"#f8fafc", borderRadius:"12px"}}>
-            <h4 style={{color:"#1e293b"}}>{shopSectionTitle}</h4>
-            <p style={{color:"#334155"}}>{shopIntro}</p>
-            <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(200px,1fr))", gap:"16px", marginTop:"16px"}}>
-              {shopProducts.map(product=>(
-                <div key={product.id} style={{border:"1px solid #e2e8f0", borderRadius:"10px", padding:"12px"}}>
-                  <h5 style={{margin:"0 0 6px 0", color:"#1e293b"}}>{product.name}</h5>
-                  <p style={{fontSize:"13px", color:"#475569"}}>{product.desc}</p>
-                  <p style={{fontWeight:"bold", color:"#2563eb"}}>{product.price}</p>
+              {/* 動態水晶產品推介 */}
+              {matchedProducts.length > 0 && (
+                <div style={{marginTop:"24px", padding:"20px", background:"#f8fafc", borderRadius:"12px"}}>
+                  <h4 style={{color:"#1e293b"}}>{shopDefaultIntro}</h4>
+                  <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(200px,1fr))", gap:"16px", marginTop:"16px"}}>
+                    {matchedProducts.map(product=>(
+                      <div key={product.id} style={{border:"1px solid #e2e8f0", borderRadius:"10px", padding:"12px"}}>
+                        <h5 style={{margin:"0 0 6px 0", color:"#1e293b"}}>{product.name}</h5>
+                        <p style={{fontSize:"13px", color:"#475569"}}>{product.desc}</p>
+                        <p style={{fontWeight:"bold", color:"#2563eb"}}>{product.price}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              )}
+            </>
+          )}
         </div>
       )}
     </div>
