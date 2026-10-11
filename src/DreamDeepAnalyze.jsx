@@ -3,7 +3,7 @@ import { getDeepDreamAnalysis } from './services/dreamApi';
 import { tagList, promptHints, generateSimpleDreamAnalysis } from './dreamStaticData';
 import { TagButton, QuestionForm } from './DreamUIComponents';
 import { referralList, referralDefault } from './referralContent';
-import { shopProductList, shopDefaultIntro } from './shopContent';
+import { shopProductList, shopDefaultIntro, shopAllLink, shopMoreText } from './shopContent';
 import { matchItemsByKeywords } from './dreamMatchHelper';
 
 export default function DreamDeepAnalyze() {
@@ -23,9 +23,9 @@ export default function DreamDeepAnalyze() {
   const [deepResult, setDeepResult] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // 自動配對推介
-  const matchedReferrals = matchItemsByKeywords(deepResult, referralList);
-  const matchedProducts = matchItemsByKeywords(deepResult, shopProductList);
+  // 最多返回2個推介
+  const matchedReferrals = matchItemsByKeywords(deepResult, referralList, 2);
+  const matchedProducts = matchItemsByKeywords(deepResult, shopProductList, 2);
 
   // 切換意象標籤
   const toggleTag = (tagVal) => {
@@ -286,7 +286,7 @@ export default function DreamDeepAnalyze() {
                 )}
               </div>
 
-              {/* 動態水晶產品推介 */}
+              {/* 動態水晶產品推介，最多2個 + 前往選物店連結 */}
               {matchedProducts.length > 0 && (
                 <div style={{marginTop:"24px", padding:"20px", background:"#f8fafc", borderRadius:"12px"}}>
                   <h4 style={{color:"#1e293b"}}>{shopDefaultIntro}</h4>
@@ -298,6 +298,14 @@ export default function DreamDeepAnalyze() {
                         <p style={{fontWeight:"bold", color:"#2563eb"}}>{product.price}</p>
                       </div>
                     ))}
+                  </div>
+                  <div style={{textAlign:"center", marginTop:"20px"}}>
+                    <p style={{color:"#334155", marginBottom:8}}>{shopMoreText}</p>
+                    <a href={shopAllLink}>
+                      <button style={{padding:"9px 16px", background:"#2563eb", color:"#fff", border:"none", borderRadius:"8px"}}>
+                        進入解夢選物店
+                      </button>
+                    </a>
                   </div>
                 </div>
               )}
