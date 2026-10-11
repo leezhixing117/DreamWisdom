@@ -27,3 +27,5 @@ export const shopProductList = [
 ];
 
 export const shopDefaultIntro = "以下為適合你今次夢境主題嘅療癒水晶推薦";
+export const shopAllLink = "/dream-shop";
+export const shopMoreText = "更多療癒水晶，可前往解夢選物店瀏覽";
