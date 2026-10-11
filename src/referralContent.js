@@ -1,4 +1,3 @@
-// 轉介服務，改用group綁定，配對上面嘅同義詞組
 export const referralList = [
   {
     id: 1,
@@ -58,7 +57,6 @@ export const referralList = [
   }
 ];
 
-// 通用推介（冇任何group匹配時使用）
 export const referralDefault = {
   title: "專業心理轉介服務",
   description: "想更深入探索夢境帶來嘅訊息，可以預約專業諮詢。",
