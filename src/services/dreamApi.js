@@ -44,6 +44,21 @@ export async function getDreamHistory() {
   }
 }
 
+// 4. 刪除單一夢境紀錄
+export async function deleteDreamRecord(dreamId) {
+  const token = localStorage.getItem('token');
+  try {
+    const res = await axios.delete(`${API_BASE_URL}/dream-record/${dreamId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "刪除夢境記錄失敗"};
+  }
+}
+
 // ========== 會員登入 / 註冊 / 驗證碼 / 忘記密碼 API ==========
 // 發送註冊驗證碼
 export async function sendRegisterCode(email) {
