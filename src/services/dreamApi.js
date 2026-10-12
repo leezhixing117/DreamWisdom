@@ -3,12 +3,11 @@ import axios from 'axios';
 // 後端Render API地址，替換成你自己嘅後端網址
 const API_BASE_URL = "https://dream-api-gfrb.onrender.com";
 
-// 1. 發送夢境，呼叫DeepSeek生成解夢報告（兩個名都export，兼容舊import）
+// 1. 發送夢境，呼叫DeepSeek生成解夢報告（兩個名稱同時export，兼容舊import）
 export async function getDreamAnalysis(payload) {
   const res = await axios.post(`${API_BASE_URL}/analyze`, payload);
   return res.data;
 }
-// 補返呢個名，解決build error
 export const getDeepDreamAnalysis = getDreamAnalysis;
 
 // 2. 儲存夢境紀錄到MongoDB
