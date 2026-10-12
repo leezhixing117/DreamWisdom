@@ -59,11 +59,29 @@ export async function deleteDreamRecord(dreamId) {
   }
 }
 
+// 5. 更新夢境標籤 tags（新增加接口，對應後端PUT /api/dream-record/:dreamId/tags）
+export async function updateDreamTags(dreamId, tagsArray) {
+  const token = localStorage.getItem('token');
+  try {
+    const res = await axios.put(`${API_BASE_URL}/dream-record/${dreamId}/tags`,
+      { tags: tagsArray },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "更新夢境標籤失敗"};
+  }
+}
+
 // ========== 會員登入 / 註冊 / 驗證碼 / 忘記密碼 API ==========
-// 發送註冊驗證碼
+// 發送註冊驗證碼【修正路由名稱，同後端對齊：/auth/send-code】
 export async function sendRegisterCode(email) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/auth/send-register-code`, { email });
+    const res = await axios.post(`${API_BASE_URL}/auth/send-code`, { email });
     return res.data;
   } catch (err) {
     throw err.response?.data || {message: "發送註冊驗證碼失敗"};
@@ -74,6 +92,11 @@ export async function sendRegisterCode(email) {
 export async function registerWithCode({email, password, code}) {
   try {
     const res = await axios.post(`${API_BASE_URL}/auth/register`, {email, password, code});
+    // 註冊成功時，將token & user資訊存入localStorage
+    if(res.data.success){
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+    }
     return res.data;
   } catch (err) {
     throw err.response?.data || {message: "註冊失敗"};
@@ -84,28 +107,51 @@ export async function registerWithCode({email, password, code}) {
 export async function loginAccount({email, password}) {
   try {
     const res = await axios.post(`${API_BASE_URL}/auth/login`, {email, password});
+    // 登入成功儲存token同用戶資料
+    if(res.data.success){
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+    }
     return res.data;
   } catch (err) {
     throw err.response?.data || {message: "登入失敗"};
   }
 }
 
-// 發送忘記密碼驗證碼
+// 發送忘記密碼驗證碼【修正路由名稱，同後端對齊：/auth/forgot-code】
 export async function sendResetPwdCode(email) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/auth/send-reset-code`, { email });
+    const res = await axios.post(`${API_BASE_URL}/auth/forgot-code`, { email });
     return res.data;
   } catch (err) {
     throw err.response?.data || {message: "發送重設密碼驗證碼失敗"};
   }
 }
 
-// 重設密碼
+// 重設密碼【參數名對齊後端：password】
 export async function resetPassword({email, code, newPassword}) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/auth/reset-password`, {email, code, newPassword});
+    const res = await axios.post(`${API_BASE_URL}/auth/reset-password`, {
+      email,
+      code,
+      password: newPassword
+    });
     return res.data;
   } catch (err) {
     throw err.response?.data || {message: "重設密碼失敗"};
   }
+}
+
+// ========== 新增加輔助函數 ==========
+// 登出：清除本地儲存
+export function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+}
+
+// 讀取目前登入用戶資料
+export function getCurrentUser() {
+  const userStr = localStorage.getItem("user");
+  if(!userStr) return null;
+  return JSON.parse(userStr);
 }
