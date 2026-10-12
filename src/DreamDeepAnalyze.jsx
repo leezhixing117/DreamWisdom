@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { getDeepDreamAnalysis } from './services/dreamApi';
+import { useAuth } from './AuthContext';
+import { getDeepDreamAnalysis, saveDreamRecord, getDreamHistory } from './services/dreamApi';
 import { tagList, promptHints, generateSimpleDreamAnalysis } from './dreamStaticData';
 import { TagButton, QuestionForm } from './DreamUIComponents';
 import { referralList, referralDefault } from './referralContent';
@@ -8,6 +9,7 @@ import { matchItemsByKeywords } from './dreamMatchHelper';
 
 export default function DreamDeepAnalyze() {
   // ========== 頁面狀態 ==========
+  const { userId } = useAuth();
   const [dreamText, setDreamText] = useState('');
   const [dreamType, setDreamType] = useState('普通夢境');
   const [selectedTags, setSelectedTags] = useState([]);
@@ -82,6 +84,16 @@ export default function DreamDeepAnalyze() {
       }
       const analysisText = await getDeepDreamAnalysis(payload);
       setDeepResult(analysisText);
+
+      // 登入用戶自動儲存夢境紀錄
+      if(userId) {
+        await saveDreamRecord({
+          userId: userId,
+          dreamContent: dreamText,
+          analysisResult: analysisText,
+          createAt: new Date()
+        });
+      }
     } catch(err) {
       setDeepResult("連接後端API失敗，請稍後再試。");
       console.error(err);
