@@ -10,15 +10,25 @@ export async function getDreamAnalysis(payload) {
 }
 export const getDeepDreamAnalysis = getDreamAnalysis;
 
-// 2. 儲存夢境紀錄到MongoDB
+// 2. 儲存夢境紀錄到MongoDB（加上Bearer Token驗證）
 export async function saveDreamRecord(data) {
-  const res = await axios.post(`${API_BASE_URL}/dream-record`, data);
+  const token = localStorage.getItem('token');
+  const res = await axios.post(`${API_BASE_URL}/dream-record`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
   return res.data;
 }
 
-// 3. 讀取該用戶所有夢境歷史紀錄
-export async function getDreamHistory(userId) {
-  const res = await axios.get(`${API_BASE_URL}/dream-records?userId=${userId}`);
+// 3. 讀取該用戶所有夢境歷史紀錄（改用Header Bearer Token，唔用URL傳userId，更安全）
+export async function getDreamHistory() {
+  const token = localStorage.getItem('token');
+  const res = await axios.get(`${API_BASE_URL}/dream-records`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
   return res.data;
 }
 
