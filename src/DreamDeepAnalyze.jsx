@@ -25,9 +25,33 @@ export default function DreamDeepAnalyze() {
   const [deepResult, setDeepResult] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // 夢境紀錄面板狀態
+  const [showRecordPanel, setShowRecordPanel] = useState(false);
+  const [dreamRecords, setDreamRecords] = useState([]);
+  const [loadingRecord, setLoadingRecord] = useState(false);
+
   // 最多返回2個推介
   const matchedReferrals = matchItemsByKeywords(deepResult, referralList, 2);
   const matchedProducts = matchItemsByKeywords(deepResult, shopProductList, 2);
+
+  // 讀取夢境紀錄
+  const fetchDreamRecords = async () => {
+    if (!userId) {
+      alert('請先登入會員，驗證電郵開通帳號後才可查看紀錄');
+      return;
+    }
+    setLoadingRecord(true);
+    try {
+      const records = await getDreamHistory();
+      setDreamRecords(records || []);
+      setShowRecordPanel(true);
+    } catch (err) {
+      console.error('讀取紀錄失敗：', err);
+      alert('讀取夢境紀錄失敗，請重新登入再試');
+    } finally {
+      setLoadingRecord(false);
+    }
+  };
 
   // 切換意象標籤
   const toggleTag = (tagVal) => {
@@ -106,11 +130,28 @@ export default function DreamDeepAnalyze() {
 
   return (
     <div style={{maxWidth:"1100px", margin:"2rem auto", padding:"0 1rem"}}>
-      <h2 style={{textAlign:"center", display:"flex", alignItems:"center", justifyContent:"center", gap:"8px", color:"#1e293b"}}>
-        <span style={{color:"#3b82f6"}}>✦</span>
-        記錄今晨夢境片段
-      </h2>
-      <p style={{textAlign:"right", color:"#475569", fontSize:"14px"}}>以廣東話口語輸入即可 · 建議30–200字</p>
+      <div style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+        <h2 style={{display:"flex", alignItems:"center", gap:"8px", color:"#1e293b", margin:0}}>
+          <span style={{color:"#3b82f6"}}>✦</span>
+          記錄今晨夢境片段
+        </h2>
+        {/* 查看我的夢境紀錄 按鈕 */}
+        <button
+          onClick={fetchDreamRecords}
+          disabled={loadingRecord}
+          style={{
+            padding: '10px 18px',
+            background: '#5a6b7c',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: loadingRecord ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {loadingRecord ? '載入中…' : '查看我的夢境紀錄'}
+        </button>
+      </div>
+      <p style={{textAlign:"right", color:"#475569", fontSize:"14px", marginTop:"8px"}}>以廣東話口語輸入即可 · 建議30–200字</p>
 
       {/* Step1：夢境輸入UI */}
       {step ===1 && (
@@ -323,6 +364,48 @@ export default function DreamDeepAnalyze() {
               )}
             </>
           )}
+        </div>
+      )}
+
+      {/* 夢境紀錄彈窗面板 */}
+      {showRecordPanel && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 999
+        }}>
+          <div style={{
+            background: '#fff',
+            width: '90%',
+            maxWidth: '700px',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            padding: '24px',
+            borderRadius: '12px'
+          }}>
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+              <h3>我的夢境紀錄</h3>
+              <button onClick={()=>setShowRecordPanel(false)} style={{border:'none', fontSize:'22px', cursor:'pointer', background:'transparent'}}>×</button>
+            </div>
+            {dreamRecords.length === 0 ? (
+              <p>暫無夢境紀錄，開始記錄第一個夢啦</p>
+            ) : (
+              dreamRecords.map((item, idx) => (
+                <div key={idx} style={{borderBottom:'1px solid #eee', padding:'16px 0'}}>
+                  <p><b>日期：</b>{new Date(item.createAt).toLocaleString()}</p>
+                  <p><b>夢境內容：</b>{item.dreamContent}</p>
+                  <p><b>解讀結果：</b>{item.analysisResult}</p>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>
