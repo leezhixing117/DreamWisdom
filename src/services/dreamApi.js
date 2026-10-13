@@ -1,17 +1,62 @@
 import axios from 'axios';
 
-// Flask 夢境API（dream-api）
-const API_BASE_URL = "https://dream-api-gfrb.onrender.com";
-// Node Auth（DreamofWisdom-Auth）
+// Auth 獨立後端
 const AUTH_BASE_URL = "https://dreamofwisdom-auth.onrender.com";
+// 夢境Flask後端
+const API_BASE_URL = "https://dream-api-gfrb.onrender.com/api";
 
-function getAuthHeader() {
-  const token = localStorage.getItem('token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
+// 全域axios預設：允許攜帶cookie（跨域必須呢個）
+axios.defaults.withCredentials = true;
+
+// ========== Auth 相關（Node Auth，Cookie模式） ==========
+// 發送註冊驗證碼
+export async function sendRegisterCode(payload) {
+  const res = await axios.post(`${AUTH_BASE_URL}/api/auth/send-register-code`, payload);
+  return res.data;
 }
 
-// 1. 解夢（公開，唔使token，兼容舊名）
-async function getDreamAnalysis(payload) {
+// 驗證註冊碼，開通帳號
+export async function verifyRegister(payload) {
+  const res = await axios.post(`${AUTH_BASE_URL}/api/auth/verify-register`, payload);
+  return res.data;
+}
+
+// 登入（會自動set cookie access_token，唔使自己存localStorage）
+export async function login(payload) {
+  const res = await axios.post(`${AUTH_BASE_URL}/api/auth/login`, payload);
+  return res.data;
+}
+
+// 發送重設密碼驗證碼
+export async function sendResetCode(payload) {
+  const res = await axios.post(`${AUTH_BASE_URL}/api/auth/send-reset-code`, payload);
+  return res.data;
+}
+
+// 重設密碼
+export async function resetPassword(payload) {
+  const res = await axios.post(`${AUTH_BASE_URL}/api/auth/reset-password`, payload);
+  return res.data;
+}
+
+// 拿當前用戶資料
+export async function getMe() {
+  const res = await axios.get(`${AUTH_BASE_URL}/api/auth/me`);
+  return res.data;
+}
+
+// 登出（清除cookie）
+export async function logout() {
+  const res = await axios.post(`${AUTH_BASE_URL}/api/auth/logout`);
+  return res.data;
+}
+
+// Google登入跳轉網址
+export const googleLoginUrl = `${AUTH_BASE_URL}/api/auth/google`;
+
+// ========== 夢境API（Flask後端） ==========
+// 解夢
+export async function getDreamAnalysis(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/analyze`, payload);
     return res.data;
@@ -19,126 +64,29 @@ async function getDreamAnalysis(payload) {
     throw err.response?.data || {message: "解夢API請求失敗"};
   }
 }
+export const getDeepDreamAnalysis = getDreamAnalysis;
 
-// 2. 儲存夢境
-async function saveDreamRecord(data) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/dream-record`, data, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "儲存失敗"};
-  }
+// 儲存夢境紀錄
+export async function saveDreamRecord(data) {
+  // ⚠️ 重點：而家Flask要改為讀Cookie入面嘅access_token，唔再傳Bearer header
+  const res = await axios.post(`${API_BASE_URL}/dream-record`, data);
+  return res.data;
 }
 
-// 3. 讀取夢境歷史
-async function getDreamHistory() {
-  try {
-    const res = await axios.get(`${API_BASE_URL}/dream-records`, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "讀取記錄失敗"};
-  }
+// 讀取夢境歷史
+export async function getDreamHistory() {
+  const res = await axios.get(`${API_BASE_URL}/dream-records`);
+  return res.data;
 }
 
-// 4. 刪除夢境
-async function deleteDreamRecord(recordId) {
-  try {
-    const res = await axios.delete(`${API_BASE_URL}/dream-record/${recordId}`, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "刪除失敗"};
-  }
+// 刪除夢境
+export async function deleteDreamRecord(dreamId) {
+  const res = await axios.delete(`${API_BASE_URL}/dream-record/${dreamId}`);
+  return res.data;
 }
 
-// 5. 更新標籤
-async function updateDreamTags(recordId, tags) {
-  try {
-    const res = await axios.put(`${API_BASE_URL}/dream-record/${recordId}`, { tags }, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "更新標籤失敗"};
-  }
+// 更新標籤 PUT
+export async function updateDreamTags(dreamId, tags) {
+  const res = await axios.put(`${API_BASE_URL}/dream-record/${dreamId}/tags`, { tags });
+  return res.data;
 }
-
-// 6. 提交測驗
-async function submitDreamQuiz(payload) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/dream-quiz`, payload, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "提交測驗失敗"};
-  }
-}
-
-// 7. 登入（DreamofWisdom-Auth）
-async function login(payload) {
-  try {
-    const res = await axios.post(`${AUTH_BASE_URL}/auth/login`, payload);
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "登入失敗"};
-  }
-}
-
-// 8. 註冊（DreamofWisdom-Auth）
-async function register(payload) {
-  try {
-    const res = await axios.post(`${AUTH_BASE_URL}/auth/register`, payload);
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "註冊失敗"};
-  }
-}
-
-// 9. 看廣告攞星星
-async function watchAdGetStars() {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/watch-ad`, {}, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "獎勵領取失敗"};
-  }
-}
-
-// 10. 取得用戶資料（DreamofWisdom-Auth）
-async function getMyProfile() {
-  try {
-    const res = await axios.get(`${AUTH_BASE_URL}/auth/profile`, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "讀取個人資料失敗"};
-  }
-}
-
-// export 維持全部舊名，組件完全唔使改
-export {
-  getDreamAnalysis,
-  getDreamAnalysis as getDeepDreamAnalysis,
-  getDreamAnalysis as deepDreamAnalyze,
-
-  saveDreamRecord,
-  getDreamHistory,
-  deleteDreamRecord,
-  updateDreamTags,
-
-  submitDreamQuiz,
-
-  login,
-  register,
-  watchAdGetStars,
-  getMyProfile
-};
