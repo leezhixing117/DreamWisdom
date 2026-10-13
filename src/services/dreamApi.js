@@ -3,14 +3,17 @@ import axios from 'axios';
 // 後端Render API地址，全部接口都前置 /api
 const API_BASE_URL = "https://dream-api-gfrb.onrender.com/api";
 
+// 統一取出 token 同組 header
+function getAuthHeader() {
+  const token = localStorage.getItem('token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 // 1. 發送夢境，呼叫DeepSeek生成解夢報告（兩個名稱同時export，兼容舊import）
 export async function getDreamAnalysis(payload) {
-  const token = localStorage.getItem('token');
   try {
     const res = await axios.post(`${API_BASE_URL}/analyze`, payload, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: getAuthHeader()
     });
     return res.data;
   } catch (err) {
@@ -21,12 +24,9 @@ export const getDeepDreamAnalysis = getDreamAnalysis;
 
 // 2. 儲存夢境紀錄到MongoDB（加上Bearer Token驗證）
 export async function saveDreamRecord(data) {
-  const token = localStorage.getItem('token');
   try {
     const res = await axios.post(`${API_BASE_URL}/dream-record`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: getAuthHeader()
     });
     return res.data;
   } catch (err) {
@@ -36,12 +36,9 @@ export async function saveDreamRecord(data) {
 
 // 3. 讀取該用戶所有夢境歷史紀錄（改用Header Bearer Token，唔用URL傳userId，更安全）
 export async function getDreamHistory() {
-  const token = localStorage.getItem('token');
   try {
     const res = await axios.get(`${API_BASE_URL}/dream-records`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: getAuthHeader()
     });
     return res.data;
   } catch (err) {
@@ -51,12 +48,9 @@ export async function getDreamHistory() {
 
 // 4. 刪除單一夢境紀錄
 export async function deleteDreamRecord(dreamId) {
-  const token = localStorage.getItem('token');
   try {
     const res = await axios.delete(`${API_BASE_URL}/dream-record/${dreamId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: getAuthHeader()
     });
     return res.data;
   } catch (err) {
@@ -66,14 +60,11 @@ export async function deleteDreamRecord(dreamId) {
 
 // 5. 更新夢境標籤 tags（新增加接口，對應後端PUT /api/dream-record/:dreamId/tags）
 export async function updateDreamTags(dreamId, tagsArray) {
-  const token = localStorage.getItem('token');
   try {
     const res = await axios.put(`${API_BASE_URL}/dream-record/${dreamId}/tags`,
       { tags: tagsArray },
       {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        headers: getAuthHeader()
       }
     );
     return res.data;
@@ -84,12 +75,9 @@ export async function updateDreamTags(dreamId, tagsArray) {
 
 // 6. 深度AI解夢
 export async function deepDreamAnalyze(payload) {
-  const token = localStorage.getItem('token');
   try {
     const res = await axios.post(`${API_BASE_URL}/deep-analyze`, payload, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: getAuthHeader()
     });
     return res.data;
   } catch (err) {
@@ -99,12 +87,9 @@ export async function deepDreamAnalyze(payload) {
 
 // 7. 提交3條心理問卷
 export async function submitDreamQuiz(quizData) {
-  const token = localStorage.getItem('token');
   try {
     const res = await axios.post(`${API_BASE_URL}/quiz-finish`, quizData, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: getAuthHeader()
     });
     return res.data;
   } catch (err) {
@@ -114,12 +99,9 @@ export async function submitDreamQuiz(quizData) {
 
 // 8. 觀看1個廣告 +1星（累計3個廣告先兌換3星，後端負責計 adWatchCount）
 export async function watchAdGetStars() {
-  const token = localStorage.getItem('token');
   try {
     const res = await axios.post(`${API_BASE_URL}/watch-ad`, {}, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: getAuthHeader()
     });
     return res.data;
   } catch (err) {
@@ -129,12 +111,9 @@ export async function watchAdGetStars() {
 
 // 9. 取得用戶資料（星星、adWatchCount）
 export async function getMyProfile() {
-  const token = localStorage.getItem('token');
   try {
     const res = await axios.get(`${API_BASE_URL}/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: getAuthHeader()
     });
     return res.data;
   } catch (err) {
@@ -143,7 +122,7 @@ export async function getMyProfile() {
 }
 
 // ========== 會員登入 / 註冊 / 驗證碼 / 忘記密碼 API ==========
-// 發送註冊驗證碼【修正路由名稱，同後端對齊：/auth/send-code】
+// 發送註冊驗證碼【路由：/auth/send-code】
 export async function sendRegisterCode(email) {
   try {
     const res = await axios.post(`${API_BASE_URL}/auth/send-code`, { email });
@@ -183,7 +162,7 @@ export async function loginAccount({email, password}) {
   }
 }
 
-// 發送忘記密碼驗證碼【修正路由名稱，同後端對齊：/auth/forgot-code】
+// 發送忘記密碼驗證碼【路由：/auth/forgot-code】
 export async function sendResetPwdCode(email) {
   try {
     const res = await axios.post(`${API_BASE_URL}/auth/forgot-code`, { email });
