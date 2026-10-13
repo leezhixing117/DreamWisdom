@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// 後端Render API地址，全部接口都前置 /api
-const API_BASE_URL = "https://dream-api-gfrb.onrender.com/api";
+// 後端Render API地址：唔再加 /api 前綴（方案2）
+const API_BASE_URL = "https://dream-api-gfrb.onrender.com";
 
 // 統一取出 token 同組 header
 function getAuthHeader() {
@@ -58,7 +58,7 @@ export async function deleteDreamRecord(dreamId) {
   }
 }
 
-// 5. 更新夢境標籤 tags（新增加接口，對應後端PUT /api/dream-record/:dreamId/tags）
+// 5. 更新夢境標籤 tags（對應後端PUT /dream-record/:dreamId/tags）
 export async function updateDreamTags(dreamId, tagsArray) {
   try {
     const res = await axios.put(`${API_BASE_URL}/dream-record/${dreamId}/tags`,
