@@ -7,8 +7,8 @@ function getAuthHeader() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// 1. 普通解夢（免登入、唔扣星）
-export async function getDreamAnalysis(payload) {
+// 1. 普通解夢
+async function getDreamAnalysis(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/analyze`, payload);
     return res.data;
@@ -16,10 +16,9 @@ export async function getDreamAnalysis(payload) {
     throw err.response?.data || { message: "解夢API請求失敗" };
   }
 }
-export const getDeepDreamAnalysis = getDreamAnalysis;
 
-// 2. 深度解夢（需要登入、扣1粒星星）
-export async function deepDreamAnalysis(payload) {
+// 2. 深度解夢
+async function deepDreamAnalysis(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/deep-analyze`, payload, {
       headers: getAuthHeader()
@@ -29,10 +28,9 @@ export async function deepDreamAnalysis(payload) {
     throw err.response?.data || { message: "深度解夢失敗" };
   }
 }
-export const deepDreamAnalyze = deepDreamAnalysis; // 舊名兼容 DreamPage
 
 // 3. 儲存夢境紀錄
-export async function saveDreamRecord(data) {
+async function saveDreamRecord(data) {
   try {
     const res = await axios.post(`${API_BASE_URL}/dream-record`, data, {
       headers: getAuthHeader()
@@ -44,7 +42,7 @@ export async function saveDreamRecord(data) {
 }
 
 // 4. 讀取夢境歷史
-export async function getDreamHistory() {
+async function getDreamHistory() {
   try {
     const res = await axios.get(`${API_BASE_URL}/dream-records`, {
       headers: getAuthHeader()
@@ -56,7 +54,7 @@ export async function getDreamHistory() {
 }
 
 // 5. 刪除夢境紀錄
-export async function deleteDreamRecord(recordId) {
+async function deleteDreamRecord(recordId) {
   try {
     const res = await axios.delete(`${API_BASE_URL}/dream-record/${recordId}`, {
       headers: getAuthHeader()
@@ -67,8 +65,8 @@ export async function deleteDreamRecord(recordId) {
   }
 }
 
-// 6. 更新夢境標籤 tags（PUT接口）
-export async function updateDreamTags(recordId, tags) {
+// 6. 更新標籤
+async function updateDreamTags(recordId, tags) {
   try {
     const res = await axios.put(`${API_BASE_URL}/dream-record/${recordId}/tags`, { tags }, {
       headers: getAuthHeader()
@@ -79,8 +77,8 @@ export async function updateDreamTags(recordId, tags) {
   }
 }
 
-// 7. 觀看廣告領取星星
-export async function watchAd() {
+// 7. 看廣告攞星星
+async function watchAd() {
   try {
     const res = await axios.post(`${API_BASE_URL}/watch-ad`, {}, {
       headers: getAuthHeader()
@@ -90,10 +88,21 @@ export async function watchAd() {
     throw err.response?.data || { message: "廣告獎勵失敗" };
   }
 }
-export const watchAdGetStars = watchAd; // 舊名兼容 DreamPage
 
-// 8. 註冊（email + password + displayName，對接LoginModal）
-export async function register(payload) {
+// 8. 提交夢境測驗 submitDreamQuiz
+async function submitDreamQuiz(payload) {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/dream-quiz`, payload, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || { message: "提交測驗失敗" };
+  }
+}
+
+// 9. 註冊
+async function register(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/auth/register`, payload);
     return res.data;
@@ -102,8 +111,8 @@ export async function register(payload) {
   }
 }
 
-// 9. 登入
-export async function login(payload) {
+// 10. 登入
+async function login(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/auth/login`, payload);
     return res.data;
@@ -112,8 +121,8 @@ export async function login(payload) {
   }
 }
 
-// 10. 拿取用戶資料、星星數
-export async function getMe() {
+// 11. 個人資料
+async function getMe() {
   try {
     const res = await axios.get(`${API_BASE_URL}/me`, {
       headers: getAuthHeader()
@@ -123,4 +132,28 @@ export async function getMe() {
     throw err.response?.data || { message: "取得用戶資料失敗" };
   }
 }
-export const getMyProfile = getMe; // 舊名兼容 DreamPage
+
+// ========== 一次過全部 export + 舊別名 alias ==========
+export {
+  getDreamAnalysis,
+  getDreamAnalysis as getDeepDreamAnalysis,
+
+  deepDreamAnalysis,
+  deepDreamAnalysis as deepDreamAnalyze,
+
+  saveDreamRecord,
+  getDreamHistory,
+  deleteDreamRecord,
+  updateDreamTags,
+
+  watchAd,
+  watchAd as watchAdGetStars,
+
+  submitDreamQuiz,
+
+  register,
+  login,
+
+  getMe,
+  getMe as getMyProfile
+};
