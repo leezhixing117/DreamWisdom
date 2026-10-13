@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Modal, Button, Form, Alert } from 'antd';
 import { loginUser, registerUser, sendResetCode, resetPassword } from '@/services/dreamApi';
 
 type Mode = 'login' | 'register' | 'forgot' | 'reset';
@@ -14,11 +13,23 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onCancel, onSuccess }) =>
   const [mode, setMode] = useState<Mode>('login');
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{type:'success'|'error', text:string}|null>(null);
-  const [form] = Form.useForm();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    code: '',
+    newPassword: ''
+  });
 
   const resetState = () => {
     setMsg(null);
-    form.resetFields();
+    setFormData({
+      email: '',
+      password: '',
+      confirmPassword: '',
+      code: '',
+      newPassword: ''
+    });
   };
 
   const switchMode = (m: Mode) => {
@@ -26,12 +37,20 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onCancel, onSuccess }) =>
     setMode(m);
   };
 
-  const handleSubmit = async (values: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
     setMsg(null);
     try {
       if (mode === 'login') {
-        const res = await loginUser(values.email, values.password);
+        const res = await loginUser(formData.email, formData.password);
         localStorage.setItem('token', res.token);
         setMsg({type:'success', text:'登入成功'});
         setTimeout(()=>{
@@ -39,15 +58,20 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onCancel, onSuccess }) =>
           onCancel();
         }, 800);
       } else if (mode === 'register') {
-        await registerUser(values.email, values.password);
+        if(formData.password !== formData.confirmPassword){
+          setMsg({type:'error', text:'兩次密碼唔一樣'});
+          setLoading(false);
+          return;
+        }
+        await registerUser(formData.email, formData.password);
         setMsg({type:'success', text:'註冊成功，請登入'});
         setTimeout(()=>switchMode('login'), 1200);
       } else if (mode === 'forgot') {
-        await sendResetCode(values.email);
+        await sendResetCode(formData.email);
         setMsg({type:'success', text:'驗證碼已發送到你電郵'});
         setTimeout(()=>switchMode('reset'), 1200);
       } else if (mode === 'reset') {
-        await resetPassword(values.email, values.code, values.newPassword);
+        await resetPassword(formData.email, formData.code, formData.newPassword);
         setMsg({type:'success', text:'密碼重設成功，請登入'});
         setTimeout(()=>switchMode('login'), 1200);
       }
@@ -67,118 +91,156 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onCancel, onSuccess }) =>
     }
   };
 
+  if (!open) return null;
+
   return (
-    <Modal
-      open={open}
-      title={getTitle()}
-      onCancel={onCancel}
-      footer={null}
-      maskClosable={false}
-    >
-      {msg && (
-        <Alert
-          message={msg.text}
-          type={msg.type}
-          showIcon
-          style={{marginBottom:16}}
-        />
-      )}
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        autoComplete="off"
-      >
-        <Form.Item
-          label="電郵"
-          name="email"
-          rules={[{required:true, message:'請輸入電郵'}, {type:'email', message:'電郵格式錯誤'}]}
-        >
-          <input className="ant-input" type="email" placeholder="your@email.com"/>
-        </Form.Item>
+    <div style={{
+      position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999
+    }}>
+      <div style={{
+        background: 'white', padding: '24px', borderRadius: '12px',
+        width: '420px', maxWidth: '90vw'
+      }}>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'16px'}}>
+          <h3 style={{margin:0}}>{getTitle()}</h3>
+          <button onClick={onCancel} style={{border:'none', background:'transparent', fontSize:'20px', cursor:'pointer'}}>×</button>
+        </div>
 
-        {mode === 'login' && (
-          <Form.Item
-            label="密碼"
-            name="password"
-            rules={[{required:true, message:'請輸入密碼'}]}
+        {msg && (
+          <div style={{
+            padding:'8px 12px', borderRadius:'6px', marginBottom:'16px',
+            background: msg.type==='success' ? '#ecfdf3' : '#fef2f2',
+            color: msg.type==='success' ? '#065f46' : '#991b1b'
+          }}>
+            {msg.text}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div style={{marginBottom:'12px'}}>
+            <label style={{display:'block', marginBottom:'4px'}}>電郵</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              style={{width:'100%', padding:'8px', boxSizing:'border-box'}}
+              placeholder="your@email.com"
+            />
+          </div>
+
+          {mode === 'login' && (
+            <div style={{marginBottom:'12px'}}>
+              <label style={{display:'block', marginBottom:'4px'}}>密碼</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                style={{width:'100%', padding:'8px', boxSizing:'border-box'}}
+                placeholder="密碼"
+              />
+            </div>
+          )}
+
+          {mode === 'register' && (
+            <>
+              <div style={{marginBottom:'12px'}}>
+                <label style={{display:'block', marginBottom:'4px'}}>密碼</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  minLength={6}
+                  style={{width:'100%', padding:'8px', boxSizing:'border-box'}}
+                  placeholder="設定密碼（最少6位）"
+                />
+              </div>
+              <div style={{marginBottom:'12px'}}>
+                <label style={{display:'block', marginBottom:'4px'}}>確認密碼</label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  style={{width:'100%', padding:'8px', boxSizing:'border-box'}}
+                  placeholder="確認密碼"
+                />
+              </div>
+            </>
+          )}
+
+          {mode === 'reset' && (
+            <>
+              <div style={{marginBottom:'12px'}}>
+                <label style={{display:'block', marginBottom:'4px'}}>驗證碼</label>
+                <input
+                  type="text"
+                  name="code"
+                  value={formData.code}
+                  onChange={handleChange}
+                  required
+                  style={{width:'100%', padding:'8px', boxSizing:'border-box'}}
+                  placeholder="6位數字驗證碼"
+                />
+              </div>
+              <div style={{marginBottom:'12px'}}>
+                <label style={{display:'block', marginBottom:'4px'}}>新密碼</label>
+                <input
+                  type="password"
+                  name="newPassword"
+                  value={formData.newPassword}
+                  onChange={handleChange}
+                  required
+                  minLength={6}
+                  style={{width:'100%', padding:'8px', boxSizing:'border-box'}}
+                  placeholder="新密碼（最少6位）"
+                />
+              </div>
+            </>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width:'100%', padding:'10px',
+              background:'#1677ff', color:'white', border:'none',
+              borderRadius:'6px', cursor: loading ? 'not-allowed' : 'pointer'
+            }}
           >
-            <input className="ant-input" type="password" placeholder="密碼"/>
-          </Form.Item>
-        )}
-
-        {mode === 'register' && (
-          <>
-            <Form.Item
-              label="密碼"
-              name="password"
-              rules={[{required:true, message:'請設定密碼'}, {min:6, message:'密碼最少6位'}]}
-            >
-              <input className="ant-input" type="password" placeholder="設定密碼"/>
-            </Form.Item>
-            <Form.Item
-              label="確認密碼"
-              name="confirmPassword"
-              dependencies={['password']}
-              rules={[
-                {required:true, message:'請再次輸入密碼'},
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue('password') === value) return Promise.resolve();
-                    return Promise.reject(new Error('兩次密碼唔一樣'));
-                  }
-                })
-              ]}
-            >
-              <input className="ant-input" type="password" placeholder="確認密碼"/>
-            </Form.Item>
-          </>
-        )}
-
-        {mode === 'reset' && (
-          <>
-            <Form.Item
-              label="驗證碼"
-              name="code"
-              rules={[{required:true, message:'請輸入電郵收到嘅驗證碼'}]}
-            >
-              <input className="ant-input" placeholder="6位數字驗證碼"/>
-            </Form.Item>
-            <Form.Item
-              label="新密碼"
-              name="newPassword"
-              rules={[{required:true, message:'請輸入新密碼'}, {min:6, message:'密碼最少6位'}]}
-            >
-              <input className="ant-input" type="password" placeholder="新密碼"/>
-            </Form.Item>
-          </>
-        )}
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading} block>
-            {mode === 'login' ? '登入'
+            {loading ? '處理中...' : (
+              mode === 'login' ? '登入'
               : mode === 'register' ? '註冊'
               : mode === 'forgot' ? '發送驗證碼'
-              : '重設密碼'}
-          </Button>
-        </Form.Item>
-      </Form>
+              : '重設密碼'
+            )}
+          </button>
+        </form>
 
-      <div style={{textAlign:'center', marginTop:8}}>
-        {mode === 'login' && (
-          <>
-            <Button type="link" onClick={()=>switchMode('register')}>未有帳號？註冊</Button>
-            <Button type="link" onClick={()=>switchMode('forgot')}>忘記密碼</Button>
-          </>
-        )}
-        {mode === 'register' && (
-          <Button type="link" onClick={()=>switchMode('login')}>已有帳號？登入</Button>
-        )}
-        {(mode === 'forgot' || mode === 'reset') && (
-          <Button type="link" onClick={()=>switchMode('login')}>返回登入</Button>
-        )}
+        <div style={{textAlign:'center', marginTop:'16px'}}>
+          {mode === 'login' && (
+            <>
+              <button type="button" onClick={()=>switchMode('register')} style={{border:'none', background:'transparent', color:'#1677ff', cursor:'pointer'}}>未有帳號？註冊</button>
+              <span style={{margin:'0 6px'}}>|</span>
+              <button type="button" onClick={()=>switchMode('forgot')} style={{border:'none', background:'transparent', color:'#1677ff', cursor:'pointer'}}>忘記密碼</button>
+            </>
+          )}
+          {mode === 'register' && (
+            <button type="button" onClick={()=>switchMode('login')} style={{border:'none', background:'transparent', color:'#1677ff', cursor:'pointer'}}>已有帳號？登入</button>
+          )}
+          {(mode === 'forgot' || mode === 'reset') && (
+            <button type="button" onClick={()=>switchMode('login')} style={{border:'none', background:'transparent', color:'#1677ff', cursor:'pointer'}}>返回登入</button>
+          )}
+        </div>
       </div>
-    </Modal>
+    </div>
   );
 };
 
