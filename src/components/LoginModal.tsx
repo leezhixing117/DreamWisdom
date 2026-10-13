@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-// 改咗呢行，加咗 .js
-import { loginUser, registerUser, sendResetCode, resetPassword } from '../services/dreamApi.js';
+import { login, register, sendVerifyCode, resetPassword } from '../services/dreamApi.js';
 
 type Mode = 'login' | 'register' | 'forgot' | 'reset';
 
@@ -51,7 +50,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onCancel, onSuccess }) =>
     setMsg(null);
     try {
       if (mode === 'login') {
-        const res = await loginUser(formData.email, formData.password);
+        const res = await login(formData.email, formData.password);
         localStorage.setItem('token', res.token);
         setMsg({type:'success', text:'登入成功'});
         setTimeout(()=>{
@@ -64,11 +63,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onCancel, onSuccess }) =>
           setLoading(false);
           return;
         }
-        await registerUser(formData.email, formData.password);
+        await register(formData.email, formData.password);
         setMsg({type:'success', text:'註冊成功，請登入'});
         setTimeout(()=>switchMode('login'), 1200);
       } else if (mode === 'forgot') {
-        await sendResetCode(formData.email);
+        await sendVerifyCode(formData.email);
         setMsg({type:'success', text:'驗證碼已發送到你電郵'});
         setTimeout(()=>switchMode('reset'), 1200);
       } else if (mode === 'reset') {
