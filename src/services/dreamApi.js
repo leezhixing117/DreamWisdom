@@ -109,7 +109,7 @@ async function watchAdGetStars() {
   }
 }
 
-// 10. 【新增】取得用戶資料 getMyProfile
+// 10. 取得用戶資料
 async function getMyProfile() {
   try {
     const res = await axios.get(`${API_BASE_URL}/auth/profile`, {
@@ -121,10 +121,12 @@ async function getMyProfile() {
   }
 }
 
-// export 清單，補埋 getMyProfile
+// export：同時兼容三個名稱！
+// getDreamAnalysis（新）、getDeepDreamAnalysis（舊）、deepDreamAnalyze（組件而家用緊嘅名）
 export {
   getDreamAnalysis,
   getDreamAnalysis as getDeepDreamAnalysis,
+  getDreamAnalysis as deepDreamAnalyze,
 
   saveDreamRecord,
   getDreamHistory,
