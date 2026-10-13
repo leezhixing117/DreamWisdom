@@ -109,7 +109,7 @@ async function watchAdGetStars() {
   }
 }
 
-// 全部 export + 舊別名兼容
+// export，只寫一次，兼容舊 import
 export {
   getDreamAnalysis,
   getDreamAnalysis as getDeepDreamAnalysis,
@@ -119,11 +119,9 @@ export {
   deleteDreamRecord,
   updateDreamTags,
 
-  submitDreamQuiz as submitDreamQuiz,
-  submitDreamQuiz as submitDreamQuiz,
+  submitDreamQuiz,
 
   login,
   register,
-  watchAdGetStars,
-  watchAdGetStars as watchAdGetStars
+  watchAdGetStars
 };
