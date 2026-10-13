@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { loginUser, registerUser, sendResetCode, resetPassword } from '@/services/dreamApi';
+// 改咗呢行，加咗 .js
+import { loginUser, registerUser, sendResetCode, resetPassword } from '../services/dreamApi.js';
 
 type Mode = 'login' | 'register' | 'forgot' | 'reset';
 
