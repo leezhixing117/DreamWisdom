@@ -29,6 +29,7 @@ export async function deepDreamAnalysis(payload) {
     throw err.response?.data || { message: "深度解夢失敗" };
   }
 }
+export const deepDreamAnalyze = deepDreamAnalysis; // 舊名兼容 DreamPage
 
 // 3. 儲存夢境紀錄
 export async function saveDreamRecord(data) {
@@ -89,6 +90,7 @@ export async function watchAd() {
     throw err.response?.data || { message: "廣告獎勵失敗" };
   }
 }
+export const watchAdGetStars = watchAd; // 舊名兼容 DreamPage
 
 // 8. 註冊（email + password + displayName，對接LoginModal）
 export async function register(payload) {
@@ -121,3 +123,4 @@ export async function getMe() {
     throw err.response?.data || { message: "取得用戶資料失敗" };
   }
 }
+export const getMyProfile = getMe; // 舊名兼容 DreamPage
