@@ -1,25 +1,28 @@
 import axios from 'axios';
 
+// 後端Render API地址，全部接口都前置 /api
 const API_BASE_URL = "https://dream-api-gfrb.onrender.com/api";
 
-// 攞token統一處理
+// 輔助：取出token包埋Auth header
 function getAuthHeader() {
   const token = localStorage.getItem('token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  return {
+    Authorization: `Bearer ${token}`
+  };
 }
 
-// 1. 解夢（保留舊名兼容）
+// 1. 發送夢境，呼叫DeepSeek生成解夢報告（兩個名稱同時export，兼容舊import）
 export async function getDreamAnalysis(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/analyze`, payload);
     return res.data;
   } catch (err) {
-    throw err.response?.data || { message: "解夢API請求失敗" };
+    throw err.response?.data || {message: "解夢API請求失敗"};
   }
 }
 export const getDeepDreamAnalysis = getDreamAnalysis;
 
-// 2. 儲存夢境紀錄
+// 2. 儲存夢境紀錄到MongoDB（加上Bearer Token驗證）
 export async function saveDreamRecord(data) {
   try {
     const res = await axios.post(`${API_BASE_URL}/dream-record`, data, {
@@ -27,11 +30,11 @@ export async function saveDreamRecord(data) {
     });
     return res.data;
   } catch (err) {
-    throw err.response?.data || { message: "儲存夢境失敗" };
+    throw err.response?.data || {message: "儲存夢境失敗"};
   }
 }
 
-// 3. 讀取所有夢境歷史
+// 3. 讀取該用戶所有夢境歷史紀錄
 export async function getDreamHistory() {
   try {
     const res = await axios.get(`${API_BASE_URL}/dream-records`, {
@@ -39,93 +42,105 @@ export async function getDreamHistory() {
     });
     return res.data;
   } catch (err) {
-    throw err.response?.data || { message: "讀取夢境紀錄失敗" };
+    throw err.response?.data || {message: "讀取夢境記錄失敗"};
   }
 }
 
-// 4. 更新夢境（tags / 內容）
-export async function updateDreamRecord(id, data) {
+// 4. 刪除單條夢境紀錄
+export async function deleteDreamRecord(recordId) {
   try {
-    const res = await axios.put(`${API_BASE_URL}/dream-record/${id}`, data, {
+    const res = await axios.delete(`${API_BASE_URL}/dream-record/${recordId}`, {
       headers: getAuthHeader()
     });
     return res.data;
   } catch (err) {
-    throw err.response?.data || { message: "更新夢境失敗" };
+    throw err.response?.data || {message: "刪除夢境失敗"};
   }
 }
 
-// 5. 刪除夢境
-export async function deleteDreamRecord(id) {
+// 5. 更新夢境記錄（用於更新tags等內容）
+export async function updateDreamRecord(recordId, updateData) {
   try {
-    const res = await axios.delete(`${API_BASE_URL}/dream-record/${id}`, {
+    const res = await axios.put(`${API_BASE_URL}/dream-record/${recordId}`, updateData, {
       headers: getAuthHeader()
     });
     return res.data;
   } catch (err) {
-    throw err.response?.data || { message: "刪除夢境失敗" };
+    throw err.response?.data || {message: "更新夢境失敗"};
   }
 }
 
-// ========== Auth 認證接口 ==========
-// 發送註冊驗證碼
-export async function sendRegisterCode(email, password) {
+// ========== Auth 登入註冊相關接口 ==========
+export async function registerUser(payload) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/send-register-code`, { email, password });
+    const res = await axios.post(`${API_BASE_URL}/register`, payload);
     return res.data;
   } catch (err) {
-    throw err.response?.data || { message: "發送註冊驗證碼失敗" };
+    throw err.response?.data || {message: "註冊失敗"};
   }
 }
 
-// 驗證碼 + 註冊
-export async function verifyRegister(email, code) {
+export async function loginUser(payload) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/verify-register`, { email, code });
+    const res = await axios.post(`${API_BASE_URL}/login`, payload);
     return res.data;
   } catch (err) {
-    throw err.response?.data || { message: "註冊失敗" };
+    throw err.response?.data || {message: "登入失敗"};
   }
 }
 
-// 登入
-export async function login(email, password) {
+export async function getProfile() {
   try {
-    const res = await axios.post(`${API_BASE_URL}/login`, { email, password });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || { message: "登入失敗" };
-  }
-}
-
-// 拿使用者資料
-export async function getMe() {
-  try {
-    const res = await axios.get(`${API_BASE_URL}/me`, {
+    const res = await axios.get(`${API_BASE_URL}/profile`, {
       headers: getAuthHeader()
     });
     return res.data;
   } catch (err) {
-    throw err.response?.data || { message: "取得使用者資料失敗" };
+    throw err.response?.data || {message: "讀取個人資料失敗"};
   }
 }
 
-// 發送重設密碼驗證碼
-export async function sendResetCode(email) {
+export async function sendResetPasswordEmail(payload) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/send-reset-code`, { email });
+    const res = await axios.post(`${API_BASE_URL}/send-reset-email`, payload);
     return res.data;
   } catch (err) {
-    throw err.response?.data || { message: "發送重設密碼驗證碼失敗" };
+    throw err.response?.data || {message: "發送重設密碼郵件失敗"};
   }
 }
 
-// 重設密碼（呢度係 newPassword，對齊後端）
-export async function resetPassword(email, code, newPassword) {
+export async function resetPassword(payload) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/reset-password`, { email, code, newPassword });
+    const res = await axios.post(`${API_BASE_URL}/reset-password`, payload);
     return res.data;
   } catch (err) {
-    throw err.response?.data || { message: "重設密碼失敗" };
+    throw err.response?.data || {message: "重設密碼失敗"};
+  }
+}
+
+// ========== 補返舊有缺失函數，解決 Vite Build 報錯 ==========
+export async function submitDreamQuiz(payload) {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/dream-quiz`, payload, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || { message: "提交問卷失敗" };
+  }
+}
+
+export async function deepDreamAnalyze(payload) {
+  return getDreamAnalysis(payload);
+}
+
+export async function watchAdGetStars() {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/watch-ad-get-stars`, {}, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || { message: "領取星星失敗" };
   }
 }
