@@ -69,9 +69,9 @@ export async function deleteDreamRecord(id) {
 
 // ========== Auth 認證接口 ==========
 // 發送註冊驗證碼
-export async function sendRegisterCode(email) {
+export async function sendRegisterCode(email, password) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/send-register-code`, { email });
+    const res = await axios.post(`${API_BASE_URL}/send-register-code`, { email, password });
     return res.data;
   } catch (err) {
     throw err.response?.data || { message: "發送註冊驗證碼失敗" };
@@ -79,9 +79,9 @@ export async function sendRegisterCode(email) {
 }
 
 // 驗證碼 + 註冊
-export async function verifyRegister(email, code, password) {
+export async function verifyRegister(email, code) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/verify-register`, { email, code, password });
+    const res = await axios.post(`${API_BASE_URL}/verify-register`, { email, code });
     return res.data;
   } catch (err) {
     throw err.response?.data || { message: "註冊失敗" };
@@ -120,10 +120,10 @@ export async function sendResetCode(email) {
   }
 }
 
-// 重設密碼
-export async function resetPassword(email, code, password) {
+// 重設密碼（呢度係 newPassword，對齊後端）
+export async function resetPassword(email, code, newPassword) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/reset-password`, { email, code, password });
+    const res = await axios.post(`${API_BASE_URL}/reset-password`, { email, code, newPassword });
     return res.data;
   } catch (err) {
     throw err.response?.data || { message: "重設密碼失敗" };
