@@ -1,201 +1,191 @@
-import axios from 'axios';
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+import os
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import requests
+from pymongo import MongoClient
+from datetime import datetime
+import jwt
+import bcrypt
+from bson import ObjectId
 
-// 後端Render API地址：唔再加 /api 前綴
-const API_BASE_URL = "https://dream-api-gfrb.onrender.com";
+app = Flask(__name__)
 
-// 統一取出 token 同組 header
-function getAuthHeader() {
-  const token = localStorage.getItem('token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
+CORS(app,
+     origins=[
+         "https://dreamofwisdom.com",
+         "https://www.dreamofwisdom.com"
+     ],
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "OPTIONS"])
 
-// 1. 發送夢境，呼叫DeepSeek生成解夢報告（兩個名稱同時export，兼容舊import）
-export async function getDreamAnalysis(payload) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/analyze`, payload, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "解夢API請求失敗"};
-  }
-}
-export const getDeepDreamAnalysis = getDreamAnalysis;
+DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
+API_URL = "https://api.deepseek.com/v1/chat/completions"
+MONGODB_URI = os.environ.get("MONGODB_URI")
+JWT_SECRET = os.environ.get("JWT_SECRET")
 
-// 2. 儲存夢境紀錄到MongoDB（加上Bearer Token驗證）
-export async function saveDreamRecord(data) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/dream-record`, data, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "儲存夢境記錄失敗"};
-  }
-}
+client = MongoClient(MONGODB_URI)
+db = client["dreamofwisdom"]
+users_col = db["users"]
+records_col = db["dream_records"]
 
-// 3. 讀取該用戶所有夢境歷史紀錄（改用Header Bearer Token，唔用URL傳userId，更安全）
-export async function getDreamHistory() {
-  try {
-    const res = await axios.get(`${API_BASE_URL}/dream-records`, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "讀取夢境歷史失敗"};
-  }
-}
+def generate_token(user_id):
+    payload = {"uid": str(user_id), "exp": datetime.utcnow().timestamp() + 86400*7}
+    return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
 
-// 4. 刪除單一夢境紀錄
-export async function deleteDreamRecord(dreamId) {
-  try {
-    const res = await axios.delete(`${API_BASE_URL}/dream-record/${dreamId}`, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "刪除夢境記錄失敗"};
-  }
-}
+def get_uid_from_token():
+    auth = request.headers.get("Authorization","")
+    if not auth.startswith("Bearer "):
+        return None
+    token = auth.replace("Bearer ","")
+    try:
+        dec = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        return dec["uid"]
+    except Exception:
+        return None
 
-// 5. 更新夢境標籤 tags（對應後端PUT /dream-record/:dreamId/tags）
-export async function updateDreamTags(dreamId, tagsArray) {
-  try {
-    const res = await axios.put(`${API_BASE_URL}/dream-record/${dreamId}/tags`,
-      { tags: tagsArray },
-      {
-        headers: getAuthHeader()
-      }
-    );
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "更新夢境標籤失敗"};
-  }
-}
+@app.route("/")
+def index():
+    return "DreamWisdom API Ready", 200
 
-// 6. 深度AI解夢
-export async function deepDreamAnalyze(payload) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/deep-analyze`, payload, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "深度解夢失敗"};
-  }
-}
-
-// 7. 提交3條心理問卷
-export async function submitDreamQuiz(quizData) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/quiz-finish`, quizData, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "提交問卷失敗"};
-  }
-}
-
-// 8. 觀看1個廣告 +1星（累計3個廣告先兌換3星，後端負責計 adWatchCount）
-export async function watchAdGetStars() {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/watch-ad`, {}, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "觀看廣告獎星失敗"};
-  }
-}
-
-// 9. 取得用戶資料（星星、adWatchCount）
-export async function getMyProfile() {
-  try {
-    const res = await axios.get(`${API_BASE_URL}/me`, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "讀取用戶資料失敗"};
-  }
-}
-
-// ========== 會員登入 / 註冊 / 驗證碼 / 忘記密碼 API ==========
-// 發送註冊驗證碼【路由：/auth/send-code】
-export async function sendRegisterCode(email) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/auth/send-code`, { email });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "發送註冊驗證碼失敗"};
-  }
-}
-
-// 提交註冊 + 驗證碼開通帳號
-export async function registerWithCode({email, password, code}) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/auth/register`, {email, password, code});
-    // 註冊成功時，將token & user資訊存入localStorage
-    if(res.data.success){
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+# 初步解夢，免登入免星星
+@app.route("/analyze", methods=["POST"])
+def analyze():
+    data = request.get_json()
+    prompt = data.get("dream","")
+    if not prompt:
+        return jsonify({"success":False, "message":"請輸入夢境"}),400
+    payload = {
+        "model":"deepseek-chat",
+        "messages":[{"role":"user","content":f"你係專業解夢師，廣東話口吻解夢：{prompt}"}]
     }
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "註冊失敗"};
-  }
-}
+    res = requests.post(API_URL, headers={"Authorization":f"Bearer {DEEPSEEK_API_KEY}"}, json=payload)
+    return jsonify(res.json())
 
-// 會員登入
-export async function loginAccount({email, password}) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/auth/login`, {email, password});
-    // 登入成功儲存token同用戶資料
-    if(res.data.success){
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+# 深度解夢：登入、檢查星星、扣1粒星星
+@app.route("/deep-analyze", methods=["POST"])
+def deep_analyze():
+    uid = get_uid_from_token()
+    if not uid:
+        return jsonify({"success":False,"message":"請先登入會員"}),401
+    user = users_col.find_one({"_id":ObjectId(uid)})
+    if not user:
+        return jsonify({"success":False,"message":"用戶不存在"}),404
+    if user.get("stars",0) <= 0:
+        return jsonify({"success":False,"message":"星星不足，請觀看廣告獲取星星"}),400
+
+    # 扣星星
+    users_col.update_one({"_id":ObjectId(uid)}, {"$inc":{"stars": -1}})
+
+    data = request.get_json()
+    prompt = data.get("dream","")
+    payload = {
+        "model":"deepseek-chat",
+        "messages":[{"role":"user","content":f"深度心理學解夢，詳細分析：{prompt}"}]
     }
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "登入失敗"};
-  }
-}
+    res = requests.post(API_URL, headers={"Authorization":f"Bearer {DEEPSEEK_API_KEY}"}, json=payload)
+    return jsonify(res.json())
 
-// ✅ 修正：發送忘記密碼驗證碼【路由：/auth/forgot-code】
-export async function sendResetPwdCode(email) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/auth/forgot-code`, { email });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "發送重設密碼驗證碼失敗"};
-  }
-}
+# 註冊：電郵密碼直接註冊，無郵件驗證
+@app.route("/auth/register", methods=["POST"])
+def register():
+    data = request.get_json()
+    email = data.get("email","").strip()
+    pwd = data.get("password","")
+    if not email or not pwd:
+        return jsonify({"success":False,"message":"電郵同密碼唔可以留空"}),400
+    exist = users_col.find_one({"email":email})
+    if exist:
+        return jsonify({"success":False,"message":"電郵已經註冊"}),400
+    hash_pwd = bcrypt.hashpw(pwd.encode(), bcrypt.gensalt())
+    new_user = {
+        "email": email,
+        "password": hash_pwd,
+        "stars": 0,
+        "adWatchCount": 0,
+        "created_at": datetime.utcnow()
+    }
+    uid = users_col.insert_one(new_user).inserted_id
+    token = generate_token(uid)
+    return jsonify({
+        "success": True,
+        "token": token,
+        "user": {"email": email, "stars": 0}
+    })
 
-// 重設密碼【參數名對齊後端：password】
-export async function resetPassword({email, code, newPassword}) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/auth/reset-password`, {
-      email,
-      code,
-      password: newPassword
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "重設密碼失敗"};
-  }
-}
+# 登入
+@app.route("/auth/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    email = data.get("email","").strip()
+    pwd = data.get("password","")
+    u = users_col.find_one({"email":email})
+    if not u or not bcrypt.checkpw(pwd.encode(), u["password"]):
+        return jsonify({"success":False,"message":"電郵或密碼錯誤"}),401
+    token = generate_token(u["_id"])
+    return jsonify({
+        "success": True,
+        "token": token,
+        "user": {"email": u["email"], "stars": u.get("stars",0), "adWatchCount": u.get("adWatchCount",0)}
+    })
 
-// ========== 新增加輔助函數 ==========
-// 登出：清除本地儲存
-export function logout() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-}
+# 儲存夢境紀錄
+@app.route("/dream-record", methods=["POST"])
+def save_record():
+    uid = get_uid_from_token()
+    if not uid:
+        return jsonify({"success":False,"message":"請先登入"}),401
+    data = request.get_json()
+    data["uid"] = uid
+    data["created_at"] = datetime.utcnow()
+    ret = records_col.insert_one(data)
+    return jsonify({"success":True, "record_id":str(ret.inserted_id)})
 
-// 讀取目前登入用戶資料
-export function getCurrentUser() {
-  const userStr = localStorage.getItem("user");
-  if(!userStr) return null;
-  return JSON.parse(userStr);
-}
+# 讀取夢境歷史
+@app.route("/dream-records", methods=["GET"])
+def list_records():
+    uid = get_uid_from_token()
+    if not uid:
+        return jsonify({"success":False,"message":"請先登入"}),401
+    lst = list(records_col.find({"uid":uid}).sort("created_at",-1))
+    for x in lst:
+        x["_id"] = str(x["_id"])
+    return jsonify({"success":True, "records":lst})
+
+# 睇廣告：累計3次 → +3星星（唯一星星渠道）
+@app.route("/watch-ad", methods=["POST"])
+def watch_ad():
+    uid = get_uid_from_token()
+    if not uid:
+        return jsonify({"success":False,"message":"請先登入"}),401
+    user = users_col.find_one({"_id":ObjectId(uid)})
+    cnt = user.get("adWatchCount",0)+1
+    if cnt >=3:
+        users_col.update_one({"_id":ObjectId(uid)}, {"$set":{"adWatchCount":0}, "$inc":{"stars":3}})
+        return jsonify({"success":True,"message":"累計3個廣告，已獲得3粒星星！"})
+    else:
+        users_col.update_one({"_id":ObjectId(uid)}, {"$set":{"adWatchCount":cnt}})
+        return jsonify({"success":True,"message":f"已觀看廣告 {cnt}/3"})
+
+# 取得個人資料、星星、廣告次數
+@app.route("/me", methods=["GET"])
+def me():
+    uid = get_uid_from_token()
+    if not uid:
+        return jsonify({"success":False,"message":"請先登入"}),401
+    u = users_col.find_one({"_id":ObjectId(uid)})
+    if not u:
+        return jsonify({"success":False,"message":"用戶不存在"}),404
+    return jsonify({
+        "success":True,
+        "user":{
+            "email":u["email"],
+            "stars":u.get("stars",0),
+            "adWatchCount":u.get("adWatchCount",0)
+        }
+    })
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT",5000)))
