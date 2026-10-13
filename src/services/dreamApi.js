@@ -162,7 +162,7 @@ export async function loginAccount({email, password}) {
   }
 }
 
-// 發送忘記密碼驗證碼【路由：/auth/forgot-code】
+// ✅ 修正：發送忘記密碼驗證碼【路由：/auth/forgot-code】
 export async function sendResetPwdCode(email) {
   try {
     const res = await axios.post(`${API_BASE_URL}/auth/forgot-code`, { email });
