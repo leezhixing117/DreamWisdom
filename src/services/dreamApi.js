@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const API_BASE_URL = "https://dream-api-gfrb.onrender.com/api";
 
-// 統一攞token
 function getAuthHeader() {
   const token = localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -19,7 +18,7 @@ export async function getDreamAnalysis(payload) {
 }
 export const getDeepDreamAnalysis = getDreamAnalysis;
 
-// 2. 深度解夢（登入、扣1粒星星）
+// 2. 深度解夢（需要登入、扣1粒星星）
 export async function deepDreamAnalysis(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/deep-analyze`, payload, {
@@ -55,7 +54,31 @@ export async function getDreamHistory() {
   }
 }
 
-// 5. 觀看廣告，攞星星（3次換3粒）
+// 5. 刪除夢境紀錄
+export async function deleteDreamRecord(recordId) {
+  try {
+    const res = await axios.delete(`${API_BASE_URL}/dream-record/${recordId}`, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || { message: "刪除紀錄失敗" };
+  }
+}
+
+// 6. 更新夢境標籤 tags（PUT接口）
+export async function updateDreamTags(recordId, tags) {
+  try {
+    const res = await axios.put(`${API_BASE_URL}/dream-record/${recordId}/tags`, { tags }, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || { message: "更新標籤失敗" };
+  }
+}
+
+// 7. 觀看廣告領取星星
 export async function watchAd() {
   try {
     const res = await axios.post(`${API_BASE_URL}/watch-ad`, {}, {
@@ -67,7 +90,7 @@ export async function watchAd() {
   }
 }
 
-// 6. 註冊（新：email + password，無驗證碼）
+// 8. 註冊（email + password + displayName，對接LoginModal）
 export async function register(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/auth/register`, payload);
@@ -77,7 +100,7 @@ export async function register(payload) {
   }
 }
 
-// 7. 登入
+// 9. 登入
 export async function login(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/auth/login`, payload);
@@ -87,7 +110,7 @@ export async function login(payload) {
   }
 }
 
-// 8. 拿取用戶資料、星星數
+// 10. 拿取用戶資料、星星數
 export async function getMe() {
   try {
     const res = await axios.get(`${API_BASE_URL}/me`, {
