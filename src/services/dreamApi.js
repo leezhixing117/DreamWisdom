@@ -1,344 +1,201 @@
-import React, { useState, useEffect } from 'react';
-import { sendRegisterCode, sendResetPwdCode, registerWithCode, loginAccount, resetPassword } from '../services/dreamApi';
+import axios from 'axios';
 
-type User = {
-  _id: string;
-  email: string;
-  displayName: string;
-  role: 'admin' | 'user';
-};
+// 後端Render API地址，全部接口都前置 /api
+const API_BASE_URL = "https://dream-api-gfrb.onrender.com/api";
 
-type BannedRecord = {
-  email: string;
-};
-
-interface LoginModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onLogin: (user: User) => void;
-  availableUsers?: User[];
-  bannedRecords?: BannedRecord[];
-  onResetPassword?: (email: string, newPassword: string) => boolean;
-  onOpenAdminSecurity?: () => void;
+// 統一取出 token 同組 header
+function getAuthHeader() {
+  const token = localStorage.getItem('token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export const LoginModal: React.FC<LoginModalProps> = ({
-  isOpen,
-  onClose,
-  onLogin,
-  bannedRecords = [],
-}) => {
-  const [mode, setMode] = useState<'login' | 'register' | 'forgot'>('login');
-  const [email, setEmail] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [password, setPassword] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [otpStep, setOtpStep] = useState(1);
-  const [countdown, setCountdown] = useState(0);
-  const [busy, setBusy] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+// 1. 發送夢境，呼叫DeepSeek生成解夢報告（兩個名稱同時export，兼容舊import）
+export async function getDreamAnalysis(payload) {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/analyze`, payload, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "解夢API請求失敗"};
+  }
+}
+export const getDeepDreamAnalysis = getDreamAnalysis;
 
-  // 倒數計時
-  useEffect(() => {
-    if (countdown <= 0) return;
-    const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [countdown]);
+// 2. 儲存夢境紀錄到MongoDB（加上Bearer Token驗證）
+export async function saveDreamRecord(data) {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/dream-record`, data, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "儲存夢境記錄失敗"};
+  }
+}
 
-  // 關閉時重置所有狀態
-  useEffect(() => {
-    if (!isOpen) {
-      setMode('login');
-      setEmail('');
-      setDisplayName('');
-      setPassword('');
-      setVerificationCode('');
-      setOtpStep(1);
-      setCountdown(0);
-      setErrorMessage(null);
-      setSuccessMessage(null);
-      setBusy(false);
+// 3. 讀取該用戶所有夢境歷史紀錄（改用Header Bearer Token，唔用URL傳userId，更安全）
+export async function getDreamHistory() {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/dream-records`, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "讀取夢境歷史失敗"};
+  }
+}
+
+// 4. 刪除單一夢境紀錄
+export async function deleteDreamRecord(dreamId) {
+  try {
+    const res = await axios.delete(`${API_BASE_URL}/dream-record/${dreamId}`, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "刪除夢境記錄失敗"};
+  }
+}
+
+// 5. 更新夢境標籤 tags（新增加接口，對應後端PUT /api/dream-record/:dreamId/tags）
+export async function updateDreamTags(dreamId, tagsArray) {
+  try {
+    const res = await axios.put(`${API_BASE_URL}/dream-record/${dreamId}/tags`,
+      { tags: tagsArray },
+      {
+        headers: getAuthHeader()
+      }
+    );
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "更新夢境標籤失敗"};
+  }
+}
+
+// 6. 深度AI解夢
+export async function deepDreamAnalyze(payload) {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/deep-analyze`, payload, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "深度解夢失敗"};
+  }
+}
+
+// 7. 提交3條心理問卷
+export async function submitDreamQuiz(quizData) {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/quiz-finish`, quizData, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "提交問卷失敗"};
+  }
+}
+
+// 8. 觀看1個廣告 +1星（累計3個廣告先兌換3星，後端負責計 adWatchCount）
+export async function watchAdGetStars() {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/watch-ad`, {}, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "觀看廣告獎星失敗"};
+  }
+}
+
+// 9. 取得用戶資料（星星、adWatchCount）
+export async function getMyProfile() {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/me`, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "讀取用戶資料失敗"};
+  }
+}
+
+// ========== 會員登入 / 註冊 / 驗證碼 / 忘記密碼 API ==========
+// 發送註冊驗證碼【路由：/auth/send-code】
+export async function sendRegisterCode(email) {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/auth/send-code`, { email });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "發送註冊驗證碼失敗"};
+  }
+}
+
+// 提交註冊 + 驗證碼開通帳號
+export async function registerWithCode({email, password, code}) {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/auth/register`, {email, password, code});
+    // 註冊成功時，將token & user資訊存入localStorage
+    if(res.data.success){
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
     }
-  }, [isOpen]);
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "註冊失敗"};
+  }
+}
 
-  const isBanned = (checkEmail: string) => {
-    return bannedRecords.some(b => b.email.toLowerCase() === checkEmail.toLowerCase());
-  };
-
-  // 註冊：發送註冊驗證碼
-  const handleSendRegisterCode = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    setErrorMessage(null);
-    setSuccessMessage(null);
-    const cleanEmail = email.trim().toLowerCase();
-
-    if (!cleanEmail || !cleanEmail.includes('@')) {
-      setErrorMessage('請輸入有效的電郵地址');
-      return;
+// 會員登入
+export async function loginAccount({email, password}) {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/auth/login`, {email, password});
+    // 登入成功儲存token同用戶資料
+    if(res.data.success){
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
     }
-    if (isBanned(cleanEmail)) {
-      setErrorMessage('此電郵已被限制使用');
-      return;
-    }
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "登入失敗"};
+  }
+}
 
-    setBusy(true);
-    try {
-      await sendRegisterCode(cleanEmail);
-      setOtpStep(2);
-      setCountdown(60);
-      setSuccessMessage('認證碼已經發送到你的電郵，請查收');
-    } catch (err: any) {
-      setErrorMessage(err.message || '發送認證碼失敗，請稍後再試');
-    } finally {
-      setBusy(false);
-    }
-  };
+// 發送忘記密碼驗證碼【路由：/auth/forgot-code】
+export async function sendResetPwdCode(email) {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/auth/forgot-code`, { email });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "發送重設密碼驗證碼失敗"};
+  }
+}
 
-  // 忘記密碼：發送重設密碼驗證碼
-  const handleSendResetCode = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    setErrorMessage(null);
-    setSuccessMessage(null);
-    const cleanEmail = email.trim().toLowerCase();
+// 重設密碼【參數名對齊後端：password】
+export async function resetPassword({email, code, newPassword}) {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/auth/reset-password`, {
+      email,
+      code,
+      password: newPassword
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "重設密碼失敗"};
+  }
+}
 
-    if (!cleanEmail || !cleanEmail.includes('@')) {
-      setErrorMessage('請輸入有效的電郵地址');
-      return;
-    }
-    setBusy(true);
-    try {
-      await sendResetPwdCode(cleanEmail);
-      setOtpStep(2);
-      setCountdown(60);
-      setSuccessMessage('重設密碼認證碼已寄出，請查收電郵');
-    } catch (err: any) {
-      setErrorMessage(err.message || '發送認證碼失敗，請稍後再試');
-    } finally {
-      setBusy(false);
-    }
-  };
+// ========== 新增加輔助函數 ==========
+// 登出：清除本地儲存
+export function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+}
 
-  // 註冊提交
-  const handleRegisterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
-    setSuccessMessage(null);
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanCode = verificationCode.trim();
-    const cleanName = displayName.trim();
-
-    if (cleanCode.length !== 6) {
-      setErrorMessage('請輸入6位數字認證碼');
-      return;
-    }
-    if (!cleanName) {
-      setErrorMessage('請填寫顯示名稱');
-      return;
-    }
-
-    setBusy(true);
-    try {
-      const res = await registerWithCode({
-        email: cleanEmail,
-        password,
-        code: cleanCode
-      });
-      setSuccessMessage('註冊成功，已自動登入');
-      setTimeout(() => {
-        onLogin(res.user);
-        onClose();
-      }, 800);
-    } catch (err: any) {
-      setErrorMessage(err.message || '註冊失敗，認證碼無效或已過期');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  // 密碼登入
-  const handlePasswordLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
-    setSuccessMessage(null);
-    const cleanEmail = email.trim().toLowerCase();
-
-    if (isBanned(cleanEmail)) {
-      setErrorMessage('此電郵已被限制使用');
-      return;
-    }
-    if (!password) {
-      setErrorMessage('請輸入密碼');
-      return;
-    }
-
-    setBusy(true);
-    try {
-      const res = await loginAccount({
-        email: cleanEmail,
-        password
-      });
-      setSuccessMessage('登入成功');
-      setTimeout(() => {
-        onLogin(res.user);
-        onClose();
-      }, 800);
-    } catch (err: any) {
-      setErrorMessage(err.message || '登入失敗，請檢查電郵及密碼');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  // 重設密碼提交
-  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
-    setSuccessMessage(null);
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanCode = verificationCode.trim();
-
-    if (cleanCode.length !== 6) {
-      setErrorMessage('請輸入6位數字認證碼');
-      return;
-    }
-
-    setBusy(true);
-    try {
-      await resetPassword({
-        email: cleanEmail,
-        code: cleanCode,
-        newPassword: password
-      });
-      setSuccessMessage('密碼重置成功，可以使用新密碼登入');
-      setTimeout(() => {
-        setMode('login');
-        setOtpStep(1);
-      }, 1200);
-    } catch (err: any) {
-      setErrorMessage(err.message || '重置密碼失敗，認證碼錯誤或過期');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="bg-white dark:bg-slate-800 p-6 rounded-xl w-full max-w-md shadow-xl">
-        <h2 className="text-xl font-bold mb-4">
-          {mode === 'login' ? '帳號登入' : mode === 'register' ? '新用戶註冊' : '忘記密碼'}
-        </h2>
-
-        <div className="flex gap-2 mb-4">
-          <button
-            onClick={() => { setMode('login'); setOtpStep(1); }}
-            className={`px-3 py-1 rounded ${mode === 'login' ? 'bg-sky-600 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}
-          >登入</button>
-          <button
-            onClick={() => { setMode('register'); setOtpStep(1); }}
-            className={`px-3 py-1 rounded ${mode === 'register' ? 'bg-sky-600 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}
-          >註冊</button>
-          <button
-            onClick={() => { setMode('forgot'); setOtpStep(1); }}
-            className={`px-3 py-1 rounded ${mode === 'forgot' ? 'bg-sky-600 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}
-          >忘記密碼</button>
-        </div>
-
-        {errorMessage && <p className="text-red-500 text-sm mb-3">{errorMessage}</p>}
-        {successMessage && <p className="text-emerald-500 text-sm mb-3">{successMessage}</p>}
-
-        {otpStep === 1 ? (
-          <form onSubmit={mode === 'register' ? handleSendRegisterCode : handleSendResetCode} className="space-y-3">
-            <input
-              className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
-              type="email"
-              placeholder="電郵 Email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
-            {mode === 'register' && (
-              <input
-                className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
-                type="text"
-                placeholder="顯示名稱"
-                value={displayName}
-                onChange={e => setDisplayName(e.target.value)}
-                required
-              />
-            )}
-            {mode === 'login' ? (
-              <>
-                <input
-                  className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
-                  type="password"
-                  placeholder="密碼"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={handlePasswordLogin}
-                  disabled={busy}
-                  className="w-full bg-sky-600 text-white py-2 rounded disabled:opacity-50"
-                >
-                  {busy ? '處理中...' : '登入'}
-                </button>
-              </>
-            ) : (
-              <button
-                type="submit"
-                disabled={busy || countdown > 0}
-                className="w-full bg-emerald-600 text-white py-2 rounded disabled:opacity-50"
-              >
-                {countdown > 0 ? `${countdown}s後重發` : busy ? '發送中...' : '發送6位認證碼'}
-              </button>
-            )}
-          </form>
-        ) : (
-          <form onSubmit={mode === 'register' ? handleRegisterSubmit : handleForgotPasswordSubmit} className="space-y-3">
-            <input
-              className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
-              type="text"
-              placeholder="輸入6位認證碼"
-              maxLength={6}
-              value={verificationCode}
-              onChange={e => setVerificationCode(e.target.value.replace(/\D/g, ''))}
-              required
-            />
-            <input
-              className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
-              type="password"
-              placeholder={mode === 'register' ? "設定密碼" : "輸入新密碼"}
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                disabled={busy}
-                className="flex-1 bg-sky-600 text-white py-2 rounded disabled:opacity-50"
-              >
-                {busy ? '處理中...' : mode === 'register' ? '完成註冊' : '重設密碼'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setOtpStep(1)}
-                className="flex-1 bg-slate-400 text-white py-2 rounded"
-              >返回</button>
-            </div>
-          </form>
-        )}
-
-        <button
-          onClick={onClose}
-          className="w-full mt-4 py-2 border rounded dark:text-white"
-        >關閉</button>
-      </div>
-    </div>
-  );
-};
+// 讀取目前登入用戶資料
+export function getCurrentUser() {
+  const userStr = localStorage.getItem("user");
+  if(!userStr) return null;
+  return JSON.parse(userStr);
+}
