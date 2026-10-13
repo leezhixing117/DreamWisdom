@@ -1,13 +1,15 @@
 import axios from 'axios';
 
+// 純域名，唔加 /api
 const API_BASE_URL = "https://dream-api-gfrb.onrender.com";
+const AUTH_BASE_URL = "https://dreamofwisdom-auth.onrender.com";
 
 function getAuthHeader() {
   const token = localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// 1. 解夢
+// 1. 解夢（公開，唔使token，兼容舊名）
 async function getDreamAnalysis(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/analyze`, payload);
@@ -53,7 +55,7 @@ async function deleteDreamRecord(recordId) {
   }
 }
 
-// 5. 更新標籤 PUT
+// 5. 更新標籤
 async function updateDreamTags(recordId, tags) {
   try {
     const res = await axios.put(`${API_BASE_URL}/dream-record/${recordId}`, { tags }, {
@@ -77,20 +79,20 @@ async function submitDreamQuiz(payload) {
   }
 }
 
-// 7. 登入
+// 7. 登入（Node Auth）
 async function login(payload) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/auth/login`, payload);
+    const res = await axios.post(`${AUTH_BASE_URL}/auth/login`, payload);
     return res.data;
   } catch (err) {
     throw err.response?.data || {message: "登入失敗"};
   }
 }
 
-// 8. 註冊
+// 8. 註冊（Node Auth）
 async function register(payload) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/auth/register`, payload);
+    const res = await axios.post(`${AUTH_BASE_URL}/auth/register`, payload);
     return res.data;
   } catch (err) {
     throw err.response?.data || {message: "註冊失敗"};
@@ -109,10 +111,10 @@ async function watchAdGetStars() {
   }
 }
 
-// 10. 取得用戶資料
+// 10. 取得用戶資料（Node Auth）
 async function getMyProfile() {
   try {
-    const res = await axios.get(`${API_BASE_URL}/auth/profile`, {
+    const res = await axios.get(`${AUTH_BASE_URL}/auth/profile`, {
       headers: getAuthHeader()
     });
     return res.data;
@@ -121,8 +123,7 @@ async function getMyProfile() {
   }
 }
 
-// export：同時兼容三個名稱！
-// getDreamAnalysis（新）、getDeepDreamAnalysis（舊）、deepDreamAnalyze（組件而家用緊嘅名）
+// 全部export同你原本一樣，組件唔使改
 export {
   getDreamAnalysis,
   getDreamAnalysis as getDeepDreamAnalysis,
