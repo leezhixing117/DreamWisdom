@@ -53,7 +53,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     return bannedRecords.some(b => b.email.toLowerCase() === checkEmail.toLowerCase());
   };
 
-  // 註冊提交（直接註冊，唔使驗證碼）
+  // 註冊提交（暫時停用，保留代碼日後開放）
+  /*
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -92,10 +93,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       }, 800);
     } catch (err: any) {
       setErrorMessage(err.message || '註冊失敗，請稍後再試');
-    } finally {
-      setBusy(false);
     }
   };
+  */
 
   // 密碼登入
   const handlePasswordLogin = async (e: React.FormEvent) => {
@@ -136,25 +136,32 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
       <div className="bg-white dark:bg-slate-800 p-6 rounded-xl w-full max-w-md shadow-xl">
-        <h2 className="text-xl font-bold mb-4">
-          {mode === 'login' ? '帳號登入' : '新用戶註冊'}
-        </h2>
+        <h2 className="text-xl font-bold mb-4">帳號登入</h2>
 
+        {/* ✅ 版本B 溫馨提示 */}
+        <p style={{color: '#5a5a68', fontSize: '14px', lineHeight: '1.6', marginBottom: '18px'}}>
+          💫 溫馨通知：現階段僅開放 Google 帳號登入。<br/>
+          如果你的Google帳號登記電郵是 hotmail / yahoo，一樣可以正常登入；純Outlook、Yahoo帳號暫時未能使用，後續會陸續新增其他登入方式。
+        </p>
+
+        {/* 註冊Tab按鈕暫時隱藏 */}
         <div className="flex gap-2 mb-4">
           <button
             onClick={() => setMode('login')}
             className={`px-3 py-1 rounded ${mode === 'login' ? 'bg-sky-600 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}
           >登入</button>
+          {/*
           <button
             onClick={() => setMode('register')}
             className={`px-3 py-1 rounded ${mode === 'register' ? 'bg-sky-600 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}
           >註冊</button>
+          */}
         </div>
 
         {errorMessage && <p className="text-red-500 text-sm mb-3">{errorMessage}</p>}
         {successMessage && <p className="text-emerald-500 text-sm mb-3">{successMessage}</p>}
 
-        <form onSubmit={mode === 'register' ? handleRegisterSubmit : handlePasswordLogin} className="space-y-3">
+        <form onSubmit={handlePasswordLogin} className="space-y-3">
           <input
             className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
             type="email"
@@ -163,16 +170,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             onChange={e => setEmail(e.target.value)}
             required
           />
-          {mode === 'register' && (
-            <input
-              className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
-              type="text"
-              placeholder="顯示名稱"
-              value={displayName}
-              onChange={e => setDisplayName(e.target.value)}
-              required
-            />
-          )}
           <input
             className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
             type="password"
@@ -186,9 +183,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             disabled={busy}
             className="w-full bg-sky-600 text-white py-2 rounded disabled:opacity-50"
           >
-            {busy ? '處理中...' : mode === 'register' ? '註冊' : '登入'}
+            {busy ? '處理中...' : '登入'}
           </button>
         </form>
+
+        {/* 之後就喺呢個位置加 Google 登入按鈕 */}
 
         <button
           onClick={onClose}
