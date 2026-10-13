@@ -7,7 +7,7 @@ import {
   submitDreamQuiz,
   deepDreamAnalyze,
   watchAdGetStars,
-  getMyProfile
+  getMe
 } from '../services/dreamApi.js';
 
 export default function DreamPage() {
@@ -23,7 +23,7 @@ export default function DreamPage() {
   // 讀取用戶星星、廣告計數
   const fetchProfile = async () => {
     try {
-      const res = await getMyProfile();
+      const res = await getMe();
       setUserInfo(res.user);
     } catch (err) {
       console.error('載入用戶資料失敗', err);
