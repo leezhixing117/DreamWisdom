@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-// 純域名，唔加 /api
+// Flask 夢境API（dream-api）
 const API_BASE_URL = "https://dream-api-gfrb.onrender.com";
+// Node Auth（DreamofWisdom-Auth）
 const AUTH_BASE_URL = "https://dreamofwisdom-auth.onrender.com";
 
 function getAuthHeader() {
@@ -79,7 +80,7 @@ async function submitDreamQuiz(payload) {
   }
 }
 
-// 7. 登入（Node Auth）
+// 7. 登入（DreamofWisdom-Auth）
 async function login(payload) {
   try {
     const res = await axios.post(`${AUTH_BASE_URL}/auth/login`, payload);
@@ -89,7 +90,7 @@ async function login(payload) {
   }
 }
 
-// 8. 註冊（Node Auth）
+// 8. 註冊（DreamofWisdom-Auth）
 async function register(payload) {
   try {
     const res = await axios.post(`${AUTH_BASE_URL}/auth/register`, payload);
@@ -111,7 +112,7 @@ async function watchAdGetStars() {
   }
 }
 
-// 10. 取得用戶資料（Node Auth）
+// 10. 取得用戶資料（DreamofWisdom-Auth）
 async function getMyProfile() {
   try {
     const res = await axios.get(`${AUTH_BASE_URL}/auth/profile`, {
@@ -123,7 +124,7 @@ async function getMyProfile() {
   }
 }
 
-// 全部export同你原本一樣，組件唔使改
+// export 維持全部舊名，組件完全唔使改
 export {
   getDreamAnalysis,
   getDreamAnalysis as getDeepDreamAnalysis,
