@@ -5,8 +5,13 @@ const API_BASE_URL = "https://dream-api-gfrb.onrender.com/api";
 
 // 1. 發送夢境，呼叫DeepSeek生成解夢報告（兩個名稱同時export，兼容舊import）
 export async function getDreamAnalysis(payload) {
+  const token = localStorage.getItem('token');
   try {
-    const res = await axios.post(`${API_BASE_URL}/analyze`, payload);
+    const res = await axios.post(`${API_BASE_URL}/analyze`, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return res.data;
   } catch (err) {
     throw err.response?.data || {message: "解夢API請求失敗"};
@@ -74,6 +79,66 @@ export async function updateDreamTags(dreamId, tagsArray) {
     return res.data;
   } catch (err) {
     throw err.response?.data || {message: "更新夢境標籤失敗"};
+  }
+}
+
+// 6. 深度AI解夢
+export async function deepDreamAnalyze(payload) {
+  const token = localStorage.getItem('token');
+  try {
+    const res = await axios.post(`${API_BASE_URL}/deep-analyze`, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "深度解夢失敗"};
+  }
+}
+
+// 7. 提交3條心理問卷
+export async function submitDreamQuiz(quizData) {
+  const token = localStorage.getItem('token');
+  try {
+    const res = await axios.post(`${API_BASE_URL}/quiz-finish`, quizData, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "提交問卷失敗"};
+  }
+}
+
+// 8. 觀看1個廣告 +1星（累計3個廣告先兌換3星，後端負責計 adWatchCount）
+export async function watchAdGetStars() {
+  const token = localStorage.getItem('token');
+  try {
+    const res = await axios.post(`${API_BASE_URL}/watch-ad`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "觀看廣告獎星失敗"};
+  }
+}
+
+// 9. 取得用戶資料（星星、adWatchCount）
+export async function getMyProfile() {
+  const token = localStorage.getItem('token');
+  try {
+    const res = await axios.get(`${API_BASE_URL}/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "讀取用戶資料失敗"};
   }
 }
 
