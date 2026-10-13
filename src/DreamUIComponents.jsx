@@ -55,3 +55,104 @@ export function QuestionForm({answers, onChange}) {
     </div>
   )
 }
+
+// 解夢操作按鈕區域（新加入，包含星星判斷、廣告進度、深度解夢按鈕）
+export function DreamActionButtons({
+  userInfo,
+  dreamStep,
+  onBasicAnalyze,
+  onDeepAnalyze,
+  onWatchAd
+}) {
+  const { stars = 0, adWatchCount = 0 } = userInfo || {};
+  const hasFinishedBasicAndQuiz = dreamStep === "quizDone";
+  const enoughBasic = stars >= 3;
+  const enoughDeep = stars >= 3;
+  const canDeepAnalyze = hasFinishedBasicAndQuiz && enoughDeep;
+
+  return (
+    <div style={{marginTop:"20px"}}>
+      {!enoughBasic ? (
+        <div>
+          <p style={{textAlign:"center", color:"#475569"}}>儲星進度：{adWatchCount} / 3（睇3個廣告獲得3星）</p>
+          <button
+            onClick={onWatchAd}
+            style={{
+              width:"100%",
+              background:"#2277dd",
+              color:"white",
+              border:"none",
+              borderRadius:"999px",
+              padding:"20px 40px",
+              fontSize:"24px",
+              cursor:"pointer"
+            }}
+          >
+            觀看廣告賺星星 →
+          </button>
+        </div>
+      ) : (
+        <>
+          {dreamStep === "input" && (
+            <button
+              onClick={onBasicAnalyze}
+              style={{
+                width:"100%",
+                background:"#1688ee",
+                color:"white",
+                border:"none",
+                borderRadius:"999px",
+                padding:"20px 40px",
+                fontSize:"24px",
+                cursor:"pointer"
+              }}
+            >
+              記錄夢境開始分析 →
+            </button>
+          )}
+
+          {hasFinishedBasicAndQuiz && (
+            <div style={{marginTop:"16px"}}>
+              {canDeepAnalyze ? (
+                <button
+                  onClick={onDeepAnalyze}
+                  style={{
+                    width:"100%",
+                    background:"#1b4cf0",
+                    color:"white",
+                    border:"none",
+                    borderRadius:"999px",
+                    padding:"20px 40px",
+                    fontSize:"24px",
+                    cursor:"pointer"
+                  }}
+                >
+                  ✨ 提交拆解夢境 (DreamWisdom AI) →
+                </button>
+              ) : (
+                <div>
+                  <p style={{textAlign:"center", color:"#475569"}}>儲星進度：{adWatchCount} / 3</p>
+                  <button
+                    onClick={onWatchAd}
+                    style={{
+                      width:"100%",
+                      background:"#2277dd",
+                      color:"white",
+                      border:"none",
+                      borderRadius:"999px",
+                      padding:"20px 40px",
+                      fontSize:"24px",
+                      cursor:"pointer"
+                    }}
+                  >
+                    觀看廣告賺星星 →
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
