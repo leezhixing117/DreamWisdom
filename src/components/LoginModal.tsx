@@ -1,219 +1,344 @@
-import React, { useState } from 'react';
-import { loginAccount, registerWithCode, sendRegisterCode, sendResetPwdCode, resetPassword } from '../services/dreamApi.js';
+import React, { useState, useEffect } from 'react';
+import { sendRegisterCode, sendResetPwdCode, registerWithCode, loginAccount, resetPassword } from '../services/dreamApi';
 
-type Mode = 'login' | 'register' | 'sendRegisterCode' | 'forgot' | 'resetPwd';
+type User = {
+  _id: string;
+  email: string;
+  displayName: string;
+  role: 'admin' | 'user';
+};
+
+type BannedRecord = {
+  email: string;
+};
 
 interface LoginModalProps {
-  open: boolean;
-  onCancel: () => void;
-  onSuccess: () => void;
+  isOpen: boolean;
+  onClose: () => void;
+  onLogin: (user: User) => void;
+  availableUsers?: User[];
+  bannedRecords?: BannedRecord[];
+  onResetPassword?: (email: string, newPassword: string) => boolean;
+  onOpenAdminSecurity?: () => void;
 }
 
-const LoginModal: React.FC<LoginModalProps> = ({ open, onCancel, onSuccess }) => {
-  const [mode, setMode] = useState<Mode>('login');
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
+export const LoginModal: React.FC<LoginModalProps> = ({
+  isOpen,
+  onClose,
+  onLogin,
+  bannedRecords = [],
+}) => {
+  const [mode, setMode] = useState<'login' | 'register' | 'forgot'>('login');
   const [email, setEmail] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [code, setCode] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [otpStep, setOtpStep] = useState(1);
+  const [countdown, setCountdown] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const resetForm = () => {
-    setMsg(null);
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
-    setCode('');
+  // 倒數計時
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  // 關閉時重置所有狀態
+  useEffect(() => {
+    if (!isOpen) {
+      setMode('login');
+      setEmail('');
+      setDisplayName('');
+      setPassword('');
+      setVerificationCode('');
+      setOtpStep(1);
+      setCountdown(0);
+      setErrorMessage(null);
+      setSuccessMessage(null);
+      setBusy(false);
+    }
+  }, [isOpen]);
+
+  const isBanned = (checkEmail: string) => {
+    return bannedRecords.some(b => b.email.toLowerCase() === checkEmail.toLowerCase());
   };
 
-  const switchMode = (newMode: Mode) => {
-    resetForm();
-    setMode(newMode);
-  };
+  // 註冊：發送註冊驗證碼
+  const handleSendRegisterCode = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    const cleanEmail = email.trim().toLowerCase();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMsg(null);
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setErrorMessage('請輸入有效的電郵地址');
+      return;
+    }
+    if (isBanned(cleanEmail)) {
+      setErrorMessage('此電郵已被限制使用');
+      return;
+    }
+
+    setBusy(true);
     try {
-      if (mode === 'login') {
-        await loginAccount({ email, password });
-        setMsg({ type: 'success', text: '登入成功' });
-        setTimeout(() => {
-          onSuccess();
-          onCancel();
-        }, 800);
-      } else if (mode === 'sendRegisterCode') {
-        await sendRegisterCode(email);
-        setMsg({ type: 'success', text: '註冊驗證碼已發送到你信箱' });
-        setMode('register');
-      } else if (mode === 'register') {
-        if (password !== confirmPassword) {
-          setMsg({ type: 'error', text: '兩次密碼唔一樣' });
-          setLoading(false);
-          return;
-        }
-        await registerWithCode({ email, password, code });
-        setMsg({ type: 'success', text: '註冊成功' });
-        setTimeout(() => {
-          onSuccess();
-          onCancel();
-        }, 800);
-      } else if (mode === 'forgot') {
-        await sendResetPwdCode(email);
-        setMsg({ type: 'success', text: '重設密碼驗證碼已發送' });
-        setMode('resetPwd');
-      } else if (mode === 'resetPwd') {
-        await resetPassword({ email, code, newPassword: password });
-        setMsg({ type: 'success', text: '密碼重設成功，可以登入' });
-        setTimeout(() => switchMode('login'), 1200);
-      }
+      await sendRegisterCode(cleanEmail);
+      setOtpStep(2);
+      setCountdown(60);
+      setSuccessMessage('認證碼已經發送到你的電郵，請查收');
     } catch (err: any) {
-      setMsg({ type: 'error', text: err?.message || '操作失敗，請再試' });
+      setErrorMessage(err.message || '發送認證碼失敗，請稍後再試');
     } finally {
-      setLoading(false);
+      setBusy(false);
     }
   };
 
-  const getTitle = () => {
-    switch (mode) {
-      case 'login': return '會員登入';
-      case 'sendRegisterCode': return '註冊 - 輸入電郵';
-      case 'register': return '驗證註冊';
-      case 'forgot': return '忘記密碼';
-      case 'resetPwd': return '重設密碼';
+  // 忘記密碼：發送重設密碼驗證碼
+  const handleSendResetCode = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setErrorMessage('請輸入有效的電郵地址');
+      return;
+    }
+    setBusy(true);
+    try {
+      await sendResetPwdCode(cleanEmail);
+      setOtpStep(2);
+      setCountdown(60);
+      setSuccessMessage('重設密碼認證碼已寄出，請查收電郵');
+    } catch (err: any) {
+      setErrorMessage(err.message || '發送認證碼失敗，請稍後再試');
+    } finally {
+      setBusy(false);
     }
   };
 
-  if (!open) return null;
+  // 註冊提交
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = verificationCode.trim();
+    const cleanName = displayName.trim();
+
+    if (cleanCode.length !== 6) {
+      setErrorMessage('請輸入6位數字認證碼');
+      return;
+    }
+    if (!cleanName) {
+      setErrorMessage('請填寫顯示名稱');
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const res = await registerWithCode({
+        email: cleanEmail,
+        password,
+        code: cleanCode
+      });
+      setSuccessMessage('註冊成功，已自動登入');
+      setTimeout(() => {
+        onLogin(res.user);
+        onClose();
+      }, 800);
+    } catch (err: any) {
+      setErrorMessage(err.message || '註冊失敗，認證碼無效或已過期');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // 密碼登入
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (isBanned(cleanEmail)) {
+      setErrorMessage('此電郵已被限制使用');
+      return;
+    }
+    if (!password) {
+      setErrorMessage('請輸入密碼');
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const res = await loginAccount({
+        email: cleanEmail,
+        password
+      });
+      setSuccessMessage('登入成功');
+      setTimeout(() => {
+        onLogin(res.user);
+        onClose();
+      }, 800);
+    } catch (err: any) {
+      setErrorMessage(err.message || '登入失敗，請檢查電郵及密碼');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // 重設密碼提交
+  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = verificationCode.trim();
+
+    if (cleanCode.length !== 6) {
+      setErrorMessage('請輸入6位數字認證碼');
+      return;
+    }
+
+    setBusy(true);
+    try {
+      await resetPassword({
+        email: cleanEmail,
+        code: cleanCode,
+        newPassword: password
+      });
+      setSuccessMessage('密碼重置成功，可以使用新密碼登入');
+      setTimeout(() => {
+        setMode('login');
+        setOtpStep(1);
+      }, 1200);
+    } catch (err: any) {
+      setErrorMessage(err.message || '重置密碼失敗，認證碼錯誤或過期');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999
-    }}>
-      <div style={{
-        background: 'white', padding: '24px', borderRadius: '12px',
-        width: '420px', maxWidth: '90vw'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{ margin: 0 }}>{getTitle()}</h3>
-          <button onClick={onCancel} style={{ border: 'none', background: 'transparent', fontSize: '20px', cursor: 'pointer' }}>×</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="bg-white dark:bg-slate-800 p-6 rounded-xl w-full max-w-md shadow-xl">
+        <h2 className="text-xl font-bold mb-4">
+          {mode === 'login' ? '帳號登入' : mode === 'register' ? '新用戶註冊' : '忘記密碼'}
+        </h2>
+
+        <div className="flex gap-2 mb-4">
+          <button
+            onClick={() => { setMode('login'); setOtpStep(1); }}
+            className={`px-3 py-1 rounded ${mode === 'login' ? 'bg-sky-600 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}
+          >登入</button>
+          <button
+            onClick={() => { setMode('register'); setOtpStep(1); }}
+            className={`px-3 py-1 rounded ${mode === 'register' ? 'bg-sky-600 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}
+          >註冊</button>
+          <button
+            onClick={() => { setMode('forgot'); setOtpStep(1); }}
+            className={`px-3 py-1 rounded ${mode === 'forgot' ? 'bg-sky-600 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}
+          >忘記密碼</button>
         </div>
 
-        {msg && (
-          <div style={{
-            padding: '8px 12px', borderRadius: '6px', marginBottom: '16px',
-            background: msg.type === 'success' ? '#ecfdf3' : '#fef2f2',
-            color: msg.type === 'success' ? '#065f46' : '#991b1b'
-          }}>
-            {msg.text}
-          </div>
+        {errorMessage && <p className="text-red-500 text-sm mb-3">{errorMessage}</p>}
+        {successMessage && <p className="text-emerald-500 text-sm mb-3">{successMessage}</p>}
+
+        {otpStep === 1 ? (
+          <form onSubmit={mode === 'register' ? handleSendRegisterCode : handleSendResetCode} className="space-y-3">
+            <input
+              className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
+              type="email"
+              placeholder="電郵 Email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+            />
+            {mode === 'register' && (
+              <input
+                className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
+                type="text"
+                placeholder="顯示名稱"
+                value={displayName}
+                onChange={e => setDisplayName(e.target.value)}
+                required
+              />
+            )}
+            {mode === 'login' ? (
+              <>
+                <input
+                  className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
+                  type="password"
+                  placeholder="密碼"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={handlePasswordLogin}
+                  disabled={busy}
+                  className="w-full bg-sky-600 text-white py-2 rounded disabled:opacity-50"
+                >
+                  {busy ? '處理中...' : '登入'}
+                </button>
+              </>
+            ) : (
+              <button
+                type="submit"
+                disabled={busy || countdown > 0}
+                className="w-full bg-emerald-600 text-white py-2 rounded disabled:opacity-50"
+              >
+                {countdown > 0 ? `${countdown}s後重發` : busy ? '發送中...' : '發送6位認證碼'}
+              </button>
+            )}
+          </form>
+        ) : (
+          <form onSubmit={mode === 'register' ? handleRegisterSubmit : handleForgotPasswordSubmit} className="space-y-3">
+            <input
+              className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
+              type="text"
+              placeholder="輸入6位認證碼"
+              maxLength={6}
+              value={verificationCode}
+              onChange={e => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+              required
+            />
+            <input
+              className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
+              type="password"
+              placeholder={mode === 'register' ? "設定密碼" : "輸入新密碼"}
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={busy}
+                className="flex-1 bg-sky-600 text-white py-2 rounded disabled:opacity-50"
+              >
+                {busy ? '處理中...' : mode === 'register' ? '完成註冊' : '重設密碼'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setOtpStep(1)}
+                className="flex-1 bg-slate-400 text-white py-2 rounded"
+              >返回</button>
+            </div>
+          </form>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '12px' }}>
-            <label style={{ display: 'block', marginBottom: '4px' }}>電郵</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-              placeholder="your@email.com"
-            />
-          </div>
-
-          {(mode === 'login' || mode === 'resetPwd') && (
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '4px' }}>密碼</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                placeholder="輸入密碼"
-              />
-            </div>
-          )}
-
-          {mode === 'register' && (
-            <>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '4px' }}>驗證碼</label>
-                <input
-                  type="text"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  required
-                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                  placeholder="信箱收到嘅6位數字"
-                />
-              </div>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '4px' }}>密碼</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                  placeholder="設定密碼（最少6位）"
-                />
-              </div>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '4px' }}>確認密碼</label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                  placeholder="再輸入一次密碼"
-                />
-              </div>
-            </>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%', padding: '10px',
-              background: '#1677ff', color: 'white', border: 'none',
-              borderRadius: '6px', cursor: loading ? 'not-allowed' : 'pointer'
-            }}
-          >
-            {loading ? '處理中...' :
-              mode === 'login' ? '登入' :
-              mode === 'sendRegisterCode' ? '發送註冊驗證碼' :
-              mode === 'register' ? '確認註冊' :
-              mode === 'forgot' ? '發送重設密碼驗證碼' :
-              '確認重設密碼'}
-          </button>
-        </form>
-
-        <div style={{ textAlign: 'center', marginTop: '16px' }}>
-          {mode === 'login' && (
-            <>
-              <button type="button" onClick={() => switchMode('sendRegisterCode')} style={{ border: 'none', background: 'transparent', color: '#1677ff', cursor: 'pointer' }}>未有帳號？註冊</button>
-              <span style={{ margin: '0 6px' }}>|</span>
-              <button type="button" onClick={() => switchMode('forgot')} style={{ border: 'none', background: 'transparent', color: '#1677ff', cursor: 'pointer' }}>忘記密碼</button>
-            </>
-          )}
-          {(mode === 'sendRegisterCode' || mode === 'register') && (
-            <button type="button" onClick={() => switchMode('login')} style={{ border: 'none', background: 'transparent', color: '#1677ff', cursor: 'pointer' }}>返回登入</button>
-          )}
-          {(mode === 'forgot' || mode === 'resetPwd') && (
-            <button type="button" onClick={() => switchMode('login')} style={{ border: 'none', background: 'transparent', color: '#1677ff', cursor: 'pointer' }}>返回登入</button>
-          )}
-        </div>
+        <button
+          onClick={onClose}
+          className="w-full mt-4 py-2 border rounded dark:text-white"
+        >關閉</button>
       </div>
     </div>
   );
 };
-
-export default LoginModal;
