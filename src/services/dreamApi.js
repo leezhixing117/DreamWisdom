@@ -109,7 +109,19 @@ async function watchAdGetStars() {
   }
 }
 
-// export，只寫一次，兼容舊 import
+// 10. 【新增】取得用戶資料 getMyProfile
+async function getMyProfile() {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/auth/profile`, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "讀取個人資料失敗"};
+  }
+}
+
+// export 清單，補埋 getMyProfile
 export {
   getDreamAnalysis,
   getDreamAnalysis as getDeepDreamAnalysis,
@@ -123,5 +135,6 @@ export {
 
   login,
   register,
-  watchAdGetStars
+  watchAdGetStars,
+  getMyProfile
 };
