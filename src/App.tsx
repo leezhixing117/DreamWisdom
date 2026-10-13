@@ -25,6 +25,8 @@ import { Sparkles, ShieldAlert, BookOpen, Star, Package, Tv } from 'lucide-react
 import { DreamAtmosphereController } from './components/DreamAtmosphereController';
 import { trackLoginEvent } from './utils/auditLogger';
 import DreamDeepAnalyze from './DreamDeepAnalyze';
+// ✅ 新增 import 我哋新建嘅解夢主頁 DreamPage
+import DreamPage from './components/DreamPage';
 
 export default function App() {
   // Load or initialize state from localStorage
@@ -289,13 +291,8 @@ const [currentView, setCurrentView] = useState<'home' | 'app' | 'pricing' | 'pri
     if (!raw) return;
 
     if (raw === 'recorddream' || raw === 'record-dream' || raw === 'record' || raw === 'dream') {
-      setCurrentView('app');
-      setActiveSection('workspace');
-      setTimeout(() => {
-        const el = document.getElementById('recorddream') || document.getElementById('dream-input-section');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-        else window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 80);
+      setCurrentView('dream'); // ✅ 修改：#dream 對應去我哋新嘅 DreamPage
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (raw === 'pricing' || raw === 'plan' || raw === 'plans') {
       setCurrentView('pricing');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -339,9 +336,6 @@ const [currentView, setCurrentView] = useState<'home' | 'app' | 'pricing' | 'pri
       } else {
         setIsAdminSecurityOpen(true);
       }
-    } else if (raw === 'dream') {
-      setCurrentView('dream');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (raw === 'dreamdeepanalyze') {
       setCurrentView('dream');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -431,10 +425,9 @@ const [currentView, setCurrentView] = useState<'home' | 'app' | 'pricing' | 'pri
 
   const handleStartWithDream = (dreamText: string) => {
     setPrefilledDream(dreamText);
-    setActiveSection('workspace');
-    setCurrentView('app');
+    setCurrentView('dream'); // ✅ 直接跳去新解夢頁
     try {
-      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#recorddream`);
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#dream`);
     } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -778,9 +771,10 @@ const [currentView, setCurrentView] = useState<'home' | 'app' | 'pricing' | 'pri
         />
       )}
 
+      {/* ✅ 重點修改：currentView='dream' 渲染新嘅 DreamPage */}
       {currentView === 'dream' && (
         <main className="page shell flex-1">
-          <DreamDeepAnalyze />
+          <DreamPage />
         </main>
       )}
 
