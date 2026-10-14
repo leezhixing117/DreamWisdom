@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { register, login } from '../services/dreamApi';
+import { loginUser, sendRegisterCode, verifyRegister } from '../services/dreamApi';
 
 type User = {
   _id: string;
@@ -81,16 +81,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
     setBusy(true);
     try {
-      const res = await register({
+      const res = await sendRegisterCode({
         email: cleanEmail,
         password,
         displayName: cleanName
       });
-      setSuccessMessage('註冊成功，已自動登入');
-      setTimeout(() => {
-        onLogin(res.user);
-        onClose();
-      }, 800);
+      setSuccessMessage('驗證碼已發送到電郵，請查收');
     } catch (err: any) {
       setErrorMessage(err.message || '註冊失敗，請稍後再試');
     }
@@ -115,7 +111,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
     setBusy(true);
     try {
-      const res = await login({
+      const res = await loginUser({
         email: cleanEmail,
         password
       });
