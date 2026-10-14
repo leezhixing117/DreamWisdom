@@ -16,10 +16,7 @@ interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLogin: (user: User) => void;
-  availableUsers?: User[];
   bannedRecords?: BannedRecord[];
-  onResetPassword?: (email: string, newPassword: string) => boolean;
-  onOpenAdminSecurity?: () => void;
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({
@@ -28,100 +25,99 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   onLogin,
   bannedRecords = [],
 }) => {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+  // mode: login / register / verifyCode
+  const [mode, setMode] = useState<'login' | 'register' | 'verifyCode'>('login');
   const [email, setEmail] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [password, setPassword] = useState('');
+  const [code, setCode] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [busy, setBusy] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // 關閉時重置所有狀態
   useEffect(() => {
     if (!isOpen) {
       setMode('login');
       setEmail('');
-      setDisplayName('');
       setPassword('');
-      setErrorMessage(null);
-      setSuccessMessage(null);
-      setBusy(false);
+      setCode('');
+      setDisplayName('');
+      setErrMsg(null);
+      setSuccessMsg(null);
     }
   }, [isOpen]);
 
-  const isBanned = (checkEmail: string) => {
-    return bannedRecords.some(b => b.email.toLowerCase() === checkEmail.toLowerCase());
+  const isBanned = (targetEmail: string) => {
+    return bannedRecords.some(b => b.email.toLowerCase() === targetEmail.toLowerCase());
   };
 
-  // 註冊提交（暫時停用，保留代碼日後開放）
-  /*
-  const handleRegisterSubmit = async (e: React.FormEvent) => {
+  // 登入
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage(null);
-    setSuccessMessage(null);
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanName = displayName.trim();
-
-    if (!cleanEmail || !cleanEmail.includes('@')) {
-      setErrorMessage('請輸入有效的電郵地址');
+    setErrMsg(null);
+    setSuccessMsg(null);
+    const trimEmail = email.trim().toLowerCase();
+    if (isBanned(trimEmail)) {
+      setErrMsg('此電郵已被限制使用');
       return;
     }
-    if (isBanned(cleanEmail)) {
-      setErrorMessage('此電郵已被限制使用');
-      return;
-    }
-    if (!cleanName) {
-      setErrorMessage('請填寫顯示名稱');
-      return;
-    }
-    if (!password || password.length < 6) {
-      setErrorMessage('密碼最少6個字符');
-      return;
-    }
-
     setBusy(true);
     try {
-      const res = await sendRegisterCode({
-        email: cleanEmail,
-        password,
-        displayName: cleanName
-      });
-      setSuccessMessage('驗證碼已發送到電郵，請查收');
+      const res = await loginUser({ email: trimEmail, password });
+      localStorage.setItem('token', res.token);
+      onLogin(res.user);
+      onClose();
     } catch (err: any) {
-      setErrorMessage(err.message || '註冊失敗，請稍後再試');
+      setErrMsg(err.message || '電郵或密碼錯誤');
+    } finally {
+      setBusy(false);
     }
   };
-  */
 
-  // 密碼登入
-  const handlePasswordLogin = async (e: React.FormEvent) => {
+  // 註冊第一步：發送驗證碼
+  const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage(null);
-    setSuccessMessage(null);
-    const cleanEmail = email.trim().toLowerCase();
-
-    if (isBanned(cleanEmail)) {
-      setErrorMessage('此電郵已被限制使用');
+    setErrMsg(null);
+    setSuccessMsg(null);
+    const trimEmail = email.trim().toLowerCase();
+    if (isBanned(trimEmail)) {
+      setErrMsg('此電郵已被限制使用');
       return;
     }
-    if (!password) {
-      setErrorMessage('請輸入密碼');
+    if (!displayName.trim()) {
+      setErrMsg('請輸入顯示名稱');
       return;
     }
-
     setBusy(true);
     try {
-      const res = await loginUser({
-        email: cleanEmail,
+      await sendRegisterCode({ email: trimEmail, displayName: displayName.trim(), password });
+      setSuccessMsg('驗證碼已發送到你的電郵，請查收');
+      setMode('verifyCode');
+    } catch (err: any) {
+      setErrMsg(err.message || '發送驗證碼失敗');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // 註冊第二步：提交驗證碼完成註冊
+  const handleVerifyRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrMsg(null);
+    setSuccessMsg(null);
+    setBusy(true);
+    try {
+      const res = await verifyRegister({
+        email: email.trim().toLowerCase(),
+        code,
+        displayName: displayName.trim(),
         password
       });
-      setSuccessMessage('登入成功');
-      setTimeout(() => {
-        onLogin(res.user);
-        onClose();
-      }, 800);
+      localStorage.setItem('token', res.token);
+      onLogin(res.user);
+      onClose();
     } catch (err: any) {
-      setErrorMessage(err.message || '登入失敗，請檢查電郵及密碼');
+      setErrMsg(err.message || '驗證碼錯誤或已過期');
     } finally {
       setBusy(false);
     }
@@ -132,63 +128,141 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
       <div className="bg-white dark:bg-slate-800 p-6 rounded-xl w-full max-w-md shadow-xl">
-        <h2 className="text-xl font-bold mb-4">帳號登入</h2>
-
-        {/* ✅ 版本B 溫馨提示 */}
-        <p style={{color: '#5a5a68', fontSize: '14px', lineHeight: '1.6', marginBottom: '18px'}}>
-          💫 溫馨通知：現階段僅開放 Google 帳號登入。<br/>
-          如果你的Google帳號登記電郵是 hotmail / yahoo，一樣可以正常登入；純Outlook、Yahoo帳號暫時未能使用，後續會陸續新增其他登入方式。
+        <h2 className="text-xl font-bold mb-4">
+          {mode === 'login' ? '帳號登入' : mode === 'register' ? '新用戶註冊' : '輸入驗證碼'}
+        </h2>
+        <p style={{color:'#5a5a68',fontSize:'14px',marginBottom:'18px'}}>
+          💡 溫馨通知：現階段支援電郵註冊登入
         </p>
 
-        {/* 註冊Tab按鈕暫時隱藏 */}
-        <div className="flex gap-2 mb-4">
-          <button
-            onClick={() => setMode('login')}
-            className={`px-3 py-1 rounded ${mode === 'login' ? 'bg-sky-600 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}
-          >登入</button>
-          {/*
-          <button
-            onClick={() => setMode('register')}
-            className={`px-3 py-1 rounded ${mode === 'register' ? 'bg-sky-600 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}
-          >註冊</button>
-          */}
-        </div>
+        {errMsg && <p className="text-red-500 mb-3">{errMsg}</p>}
+        {successMsg && <p className="text-emerald-500 mb-3">{successMsg}</p>}
 
-        {errorMessage && <p className="text-red-500 text-sm mb-3">{errorMessage}</p>}
-        {successMessage && <p className="text-emerald-500 text-sm mb-3">{successMessage}</p>}
+        {mode === 'login' && (
+          <form onSubmit={handleLogin} className="space-y-3">
+            <input
+              className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
+              type="email"
+              placeholder="電郵 Email"
+              value={email}
+              onChange={e=>setEmail(e.target.value)}
+              required
+            />
+            <input
+              className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
+              type="password"
+              placeholder="密碼"
+              value={password}
+              onChange={e=>setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="submit"
+              disabled={busy}
+              className="w-full bg-blue-600 text-white py-2 rounded disabled:opacity-60"
+            >
+              {busy ? '處理中...' : '登入'}
+            </button>
+            <button
+              type="button"
+              onClick={()=>setMode('register')}
+              className="w-full text-blue-600 py-1"
+            >
+              未有帳號？按此註冊
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full border py-2 rounded mt-1"
+            >
+              關閉
+            </button>
+          </form>
+        )}
 
-        <form onSubmit={handlePasswordLogin} className="space-y-3">
-          <input
-            className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
-            type="email"
-            placeholder="電郵 Email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-          />
-          <input
-            className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
-            type="password"
-            placeholder="密碼"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
-          <button
-            type="submit"
-            disabled={busy}
-            className="w-full bg-sky-600 text-white py-2 rounded disabled:opacity-50"
-          >
-            {busy ? '處理中...' : '登入'}
-          </button>
-        </form>
+        {mode === 'register' && (
+          <form onSubmit={handleSendCode} className="space-y-3">
+            <input
+              className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
+              type="text"
+              placeholder="顯示名稱"
+              value={displayName}
+              onChange={e=>setDisplayName(e.target.value)}
+              required
+            />
+            <input
+              className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
+              type="email"
+              placeholder="電郵 Email"
+              value={email}
+              onChange={e=>setEmail(e.target.value)}
+              required
+            />
+            <input
+              className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
+              type="password"
+              placeholder="設定密碼"
+              value={password}
+              onChange={e=>setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="submit"
+              disabled={busy}
+              className="w-full bg-blue-600 text-white py-2 rounded disabled:opacity-60"
+            >
+              {busy ? '發送中...' : '發送電郵驗證碼'}
+            </button>
+            <button
+              type="button"
+              onClick={()=>setMode('login')}
+              className="w-full text-blue-600 py-1"
+            >
+              已有帳號？去登入
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full border py-2 rounded mt-1"
+            >
+              關閉
+            </button>
+          </form>
+        )}
 
-        {/* 之後就喺呢個位置加 Google 登入按鈕 */}
-
-        <button
-          onClick={onClose}
-          className="w-full mt-4 py-2 border rounded dark:text-white"
-        >關閉</button>
+        {mode === 'verifyCode' && (
+          <form onSubmit={handleVerifyRegister} className="space-y-3">
+            <input
+              className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
+              type="text"
+              placeholder="輸入6位數驗證碼"
+              value={code}
+              onChange={e=>setCode(e.target.value)}
+              required
+            />
+            <button
+              type="submit"
+              disabled={busy}
+              className="w-full bg-blue-600 text-white py-2 rounded disabled:opacity-60"
+            >
+              {busy ? '驗證中...' : '確認註冊'}
+            </button>
+            <button
+              type="button"
+              onClick={()=>setMode('register')}
+              className="w-full text-blue-600 py-1"
+            >
+              重新發送驗證碼
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full border py-2 rounded mt-1"
+            >
+              關閉
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
