@@ -1,8 +1,5 @@
 import axios from 'axios';
 
-// ===== 基底地址【現階段單一後端，兩個共用同一個；將來分拆先改】=====
-// const API_AUTH_BASE_URL = "https://dreamofwisdom-auth.onrender.com/api";
-// const API_DREAM_BASE_URL = "https://dream-api-gfrb.onrender.com/api";
 const API_BASE_URL = "https://dream-api-gfrb.onrender.com/api";
 
 // 輔助：取出token包埋Bearer header
@@ -11,7 +8,7 @@ function getAuthHeader() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// 1. 發送夢境，呼叫DeepSeek生成解夢報告（兩個名稱同時export，兼容舊import）
+// 1. 發送夢境，呼叫DeepSeek生成解夢報告
 export async function getDreamAnalysis(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/analyze`, payload);
@@ -22,7 +19,7 @@ export async function getDreamAnalysis(payload) {
 }
 export const getDeepDreamAnalysis = getDreamAnalysis;
 
-// 2. 儲存夢境紀錄到MongoDB（加上Bearer Token驗證）
+// 2. 儲存夢境紀錄到MongoDB
 export async function saveDreamRecord(data) {
   try {
     const res = await axios.post(`${API_BASE_URL}/dream-record`, data, {
@@ -70,8 +67,7 @@ export async function updateDreamRecord(recordId, data) {
   }
 }
 
-// ========== Auth 認證接口（對應後端 app.py） ==========
-// 註冊第一步：發送驗證碼
+// ========== Auth 認證接口 ==========
 export async function sendRegisterCode(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/send-register-code`, payload);
@@ -81,7 +77,6 @@ export async function sendRegisterCode(payload) {
   }
 }
 
-// 註冊第二步：提交驗證碼，完成註冊
 export async function verifyRegister(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/verify-register`, payload);
@@ -91,7 +86,6 @@ export async function verifyRegister(payload) {
   }
 }
 
-// 帳號密碼登入
 export async function loginUser(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/login`, payload);
@@ -101,7 +95,6 @@ export async function loginUser(payload) {
   }
 }
 
-// 取得當前登入用戶資料
 export async function getMe() {
   try {
     const res = await axios.get(`${API_BASE_URL}/me`, {
@@ -113,7 +106,6 @@ export async function getMe() {
   }
 }
 
-// 忘記密碼 - 發送重設密碼驗證碼
 export async function sendResetCode(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/send-reset-code`, payload);
@@ -123,7 +115,6 @@ export async function sendResetCode(payload) {
   }
 }
 
-// 忘記密碼 - 提交驗證碼 + 新密碼
 export async function verifyResetPassword(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/verify-reset-password`, payload);
@@ -133,7 +124,7 @@ export async function verifyResetPassword(payload) {
   }
 }
 
-// ========== 舊有函數，保留防止 Vite build 報錯 ==========
+// ========== 舊兼容函數（DreamPage 要用呢一批） ==========
 export async function submitDreamAnalysis(payload) {
   return getDreamAnalysis(payload);
 }
@@ -155,4 +146,12 @@ export async function submitUserInfo() {
 export async function submitLogout() {
   localStorage.removeItem('token');
   return true;
+}
+
+// 補返 DreamPage 依賴嘅幾個舊export
+export const submitDreamQuiz = getDreamAnalysis;
+export const deepDreamAnalyze = getDreamAnalysis;
+export async function watchAdGetStars() {
+  // 如果你之後先做廣告攞星星，而家先留空兼容，唔報錯
+  return {ok:true};
 }
