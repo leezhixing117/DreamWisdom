@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-// 後端Render API地址，全部接口都前置 /api
+// ===== 基底地址【現階段單一後端，兩個共用同一個；將來分拆先改】=====
+// const API_AUTH_BASE_URL = "https://dreamofwisdom-auth.onrender.com/api";
+// const API_DREAM_BASE_URL = "https://dream-api-gfrb.onrender.com/api";
 const API_BASE_URL = "https://dream-api-gfrb.onrender.com/api";
 
 // 輔助：取出token包埋Auth header
@@ -70,13 +72,24 @@ export async function updateDreamRecord(recordId, updateData) {
   }
 }
 
-// ========== Auth 登入註冊相關接口 ==========
-export async function registerUser(payload) {
+// ========== Auth 登入註冊相關接口（對應驗證碼流程，日後撥去Auth後端） ==========
+// 第一步：發送註冊驗證碼
+export async function sendRegisterCode(payload) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/register`, payload);
+    const res = await axios.post(`${API_BASE_URL}/send-register-code`, payload);
     return res.data;
   } catch (err) {
-    throw err.response?.data || {message: "註冊失敗"};
+    throw err.response?.data || {message: "發送註冊驗證碼失敗"};
+  }
+}
+
+// 第二步：提交驗證碼，完成註冊
+export async function verifyRegister(payload) {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/verify-register`, payload);
+    return res.data;
+  } catch (err) {
+    throw err.response?.data || {message: "驗證註冊失敗"};
   }
 }
 
@@ -89,9 +102,10 @@ export async function loginUser(payload) {
   }
 }
 
-export async function getProfile() {
+// 讀取用戶資料 /api/me（取代舊 /profile）
+export async function getMe() {
   try {
-    const res = await axios.get(`${API_BASE_URL}/profile`, {
+    const res = await axios.get(`${API_BASE_URL}/me`, {
       headers: getAuthHeader()
     });
     return res.data;
@@ -100,15 +114,17 @@ export async function getProfile() {
   }
 }
 
-export async function sendResetPasswordEmail(payload) {
+// 發送重設密碼驗證碼
+export async function sendResetCode(payload) {
   try {
-    const res = await axios.post(`${API_BASE_URL}/send-reset-email`, payload);
+    const res = await axios.post(`${API_BASE_URL}/send-reset-code`, payload);
     return res.data;
   } catch (err) {
-    throw err.response?.data || {message: "發送重設密碼郵件失敗"};
+    throw err.response?.data || {message: "發送重設密碼驗證碼失敗"};
   }
 }
 
+// 提交驗證碼 + 新密碼，重設密碼
 export async function resetPassword(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/reset-password`, payload);
@@ -118,7 +134,7 @@ export async function resetPassword(payload) {
   }
 }
 
-// ========== 補返舊有缺失函數，解決 Vite Build 報錯 ==========
+// ========== 補返舊有缺失函數，解決 Vite Build 報錯（保留唔郁） ==========
 export async function submitDreamQuiz(payload) {
   try {
     const res = await axios.post(`${API_BASE_URL}/dream-quiz`, payload, {
