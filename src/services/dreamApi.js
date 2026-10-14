@@ -1,162 +1,197 @@
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import { loginUser, sendRegisterCode, verifyRegister } from '../services/dreamApi';
 
-// ===== 基底地址【現階段單一後端，兩個共用同一個；將來分拆先改】=====
-// const API_AUTH_BASE_URL = "https://dreamofwisdom-auth.onrender.com/api";
-// const API_DREAM_BASE_URL = "https://dream-api-gfrb.onrender.com/api";
-const API_BASE_URL = "https://dream-api-gfrb.onrender.com/api";
+type User = {
+  _id: string;
+  email: string;
+  displayName: string;
+  role: 'admin' | 'user';
+};
 
-// 輔助：取出token包埋Auth header
-function getAuthHeader() {
-  const token = localStorage.getItem('token');
-  return {
-    Authorization: `Bearer ${token}`
+type BannedRecord = {
+  email: string;
+};
+
+interface LoginModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onLogin: (user: User) => void;
+  availableUsers?: User[];
+  bannedRecords?: BannedRecord[];
+  onResetPassword?: (email: string, newPassword: string) => boolean;
+  onOpenAdminSecurity?: () => void;
+}
+
+export const LoginModal: React.FC<LoginModalProps> = ({
+  isOpen,
+  onClose,
+  onLogin,
+  bannedRecords = [],
+}) => {
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [email, setEmail] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // 關閉時重置所有狀態
+  useEffect(() => {
+    if (!isOpen) {
+      setMode('login');
+      setEmail('');
+      setDisplayName('');
+      setPassword('');
+      setErrorMessage(null);
+      setSuccessMessage(null);
+      setBusy(false);
+    }
+  }, [isOpen]);
+
+  const isBanned = (checkEmail: string) => {
+    return bannedRecords.some(b => b.email.toLowerCase() === checkEmail.toLowerCase());
   };
-}
 
-// 1. 發送夢境，呼叫DeepSeek生成解夢報告（兩個名稱同時export，兼容舊import）
-export async function getDreamAnalysis(payload) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/analyze`, payload);
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "解夢API請求失敗"};
-  }
-}
-export const getDeepDreamAnalysis = getDreamAnalysis;
+  // 註冊提交（暫時停用，保留代碼日後開放，之後要改成兩步驗證碼流程）
+  /*
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanName = displayName.trim();
 
-// 2. 儲存夢境紀錄到MongoDB（加上Bearer Token驗證）
-export async function saveDreamRecord(data) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/dream-record`, data, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "儲存夢境失敗"};
-  }
-}
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setErrorMessage('請輸入有效的電郵地址');
+      return;
+    }
+    if (isBanned(cleanEmail)) {
+      setErrorMessage('此電郵已被限制使用');
+      return;
+    }
+    if (!cleanName) {
+      setErrorMessage('請填寫顯示名稱');
+      return;
+    }
+    if (!password || password.length < 6) {
+      setErrorMessage('密碼最少6個字符');
+      return;
+    }
 
-// 3. 讀取該用戶所有夢境歷史紀錄
-export async function getDreamHistory() {
-  try {
-    const res = await axios.get(`${API_BASE_URL}/dream-records`, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "讀取夢境記錄失敗"};
-  }
-}
+    setBusy(true);
+    try {
+      // 新版兩步註冊：先 sendRegisterCode，之後再 verifyRegister
+      const res = await sendRegisterCode({
+        email: cleanEmail,
+        password,
+        displayName: cleanName
+      });
+      setSuccessMessage('驗證碼已發送到電郵，請查收');
+      // 呢度之後要切換去輸入驗證碼介面，再call verifyRegister
+    } catch (err: any) {
+      setErrorMessage(err.message || '註冊失敗，請稍後再試');
+    }
+  };
+  */
 
-// 4. 刪除單條夢境紀錄
-export async function deleteDreamRecord(recordId) {
-  try {
-    const res = await axios.delete(`${API_BASE_URL}/dream-record/${recordId}`, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "刪除夢境失敗"};
-  }
-}
+  // 密碼登入
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    const cleanEmail = email.trim().toLowerCase();
 
-// 5. 更新夢境記錄（用於更新tags等內容）
-export async function updateDreamRecord(recordId, updateData) {
-  try {
-    const res = await axios.put(`${API_BASE_URL}/dream-record/${recordId}`, updateData, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "更新夢境失敗"};
-  }
-}
+    if (isBanned(cleanEmail)) {
+      setErrorMessage('此電郵已被限制使用');
+      return;
+    }
+    if (!password) {
+      setErrorMessage('請輸入密碼');
+      return;
+    }
 
-// ========== Auth 登入註冊相關接口（對應驗證碼流程，日後撥去Auth後端） ==========
-// 第一步：發送註冊驗證碼
-export async function sendRegisterCode(payload) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/send-register-code`, payload);
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "發送註冊驗證碼失敗"};
-  }
-}
+    setBusy(true);
+    try {
+      const res = await loginUser({
+        email: cleanEmail,
+        password
+      });
+      setSuccessMessage('登入成功');
+      setTimeout(() => {
+        onLogin(res.user);
+        onClose();
+      }, 800);
+    } catch (err: any) {
+      setErrorMessage(err.message || '登入失敗，請檢查電郵及密碼');
+    } finally {
+      setBusy(false);
+    }
+  };
 
-// 第二步：提交驗證碼，完成註冊
-export async function verifyRegister(payload) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/verify-register`, payload);
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "驗證註冊失敗"};
-  }
-}
+  if (!isOpen) return null;
 
-export async function loginUser(payload) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/login`, payload);
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "登入失敗"};
-  }
-}
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="bg-white dark:bg-slate-800 p-6 rounded-xl w-full max-w-md shadow-xl">
+        <h2 className="text-xl font-bold mb-4">帳號登入</h2>
 
-// 讀取用戶資料 /api/me（取代舊 /profile）
-export async function getMe() {
-  try {
-    const res = await axios.get(`${API_BASE_URL}/me`, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "讀取個人資料失敗"};
-  }
-}
+        {/* ✅ 版本B 溫馨提示 */}
+        <p style={{color: '#5a5a68', fontSize: '14px', lineHeight: '1.6', marginBottom: '18px'}}>
+          💫 溫馨通知：現階段僅開放 Google 帳號登入。<br/>
+          如果你的Google帳號登記電郵是 hotmail / yahoo，一樣可以正常登入；純Outlook、Yahoo帳號暫時未能使用，後續會陸續新增其他登入方式。
+        </p>
 
-// 發送重設密碼驗證碼
-export async function sendResetCode(payload) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/send-reset-code`, payload);
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "發送重設密碼驗證碼失敗"};
-  }
-}
+        {/* 註冊Tab按鈕暫時隱藏 */}
+        <div className="flex gap-2 mb-4">
+          <button
+            onClick={() => setMode('login')}
+            className={`px-3 py-1 rounded ${mode === 'login' ? 'bg-sky-600 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}
+          >登入</button>
+          {/*
+          <button
+            onClick={() => setMode('register')}
+            className={`px-3 py-1 rounded ${mode === 'register' ? 'bg-sky-600 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}
+          >註冊</button>
+          */}
+        </div>
 
-// 提交驗證碼 + 新密碼，重設密碼
-export async function resetPassword(payload) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/reset-password`, payload);
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || {message: "重設密碼失敗"};
-  }
-}
+        {errorMessage && <p className="text-red-500 text-sm mb-3">{errorMessage}</p>}
+        {successMessage && <p className="text-emerald-500 text-sm mb-3">{successMessage}</p>}
 
-// ========== 補返舊有缺失函數，解決 Vite Build 報錯（保留唔郁） ==========
-export async function submitDreamQuiz(payload) {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/dream-quiz`, payload, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || { message: "提交問卷失敗" };
-  }
-}
+        <form onSubmit={handlePasswordLogin} className="space-y-3">
+          <input
+            className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
+            type="email"
+            placeholder="電郵 Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
+          <input
+            className="w-full border p-2 rounded dark:bg-slate-700 dark:text-white"
+            type="password"
+            placeholder="密碼"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+          <button
+            type="submit"
+            disabled={busy}
+            className="w-full bg-sky-600 text-white py-2 rounded disabled:opacity-50"
+          >
+            {busy ? '處理中...' : '登入'}
+          </button>
+        </form>
 
-export async function deepDreamAnalyze(payload) {
-  return getDreamAnalysis(payload);
-}
+        {/* 之後就喺呢個位置加 Google 登入按鈕 */}
 
-export async function watchAdGetStars() {
-  try {
-    const res = await axios.post(`${API_BASE_URL}/watch-ad-get-stars`, {}, {
-      headers: getAuthHeader()
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || { message: "領取星星失敗" };
-  }
-}
+        <button
+          onClick={onClose}
+          className="w-full mt-4 py-2 border rounded dark:text-white"
+        >關閉</button>
+      </div>
+    </div>
+  );
+};
